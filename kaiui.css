@@ -1,0 +1,448 @@
+/**
+ * ===========================
+ * **************** Agenda ***
+ *
+ * 01. Basic
+ * 02. Alignment
+ * 03. Color
+ * 04. Font
+ * 05. Header
+ * 06. Separator
+ * 07. Software key
+ * 08. Toast
+ * 09. List
+ * 10. Options menu
+ * 11. Button
+ * 12. Input
+ * 13. Table
+ * 14. Progress
+ * ===========================
+ */
+
+/* ============== Basic ============== */
+h1, h2, h3, h4, h5, ul, p {
+    margin: 0;
+    padding: 0;
+}
+
+.statusbar-placeholder {
+    background-color: #320374;
+    height: 26px;
+}
+
+#kui-app {
+    width: 100%;
+    height: 100%;
+    font-family: 'Open Sans';
+}
+
+.kui-content-area {
+    overflow: hidden;
+    position: relative;
+}
+
+.kui-overlay {
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0, .7);
+    position: absolute;
+    display: none;
+}
+
+.kui-text-upcase {
+    text-transform: uppercase;
+}
+
+/* ============== Alignment ============== */
+.kui-text-left {
+    text-align: left;
+}
+
+.kui-text-center {
+    text-align: center;
+}
+
+.kui-text-right {
+    text-align: right;
+}
+
+/* ============== Color ============== */
+.kui-color-purple {
+    color: #8500dc;
+}
+
+.kui-color-rose {
+    color: #cd006f;
+}
+
+.kui-color-red {
+    color: #ff0e0e;
+}
+
+.kui-color-lime {
+    color: #6b9a23;
+}
+
+.kui-color-cyan {
+    color: #00b1b4;
+}
+
+.kui-color-blue {
+    color: #0071dd;
+}
+
+.kui-color-orange {
+    color: #ff4b00;
+}
+
+.kui-color-dark-gray {
+    color: #323232;
+}
+
+/* ============== Font ============== */
+.kui-h1 {
+    font-size: 17px;
+    font-weight: 300;
+}
+
+.kui-h2 {
+    font-size: 17px;
+    font-weight: 600;
+}
+
+.kui-h3,
+.kui-h4,
+.kui-sec {
+    font-size: 14px;
+    font-weight: 400;
+}
+
+.kui-h5 {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.kui-pri,
+.kui-text,
+.kui-btn {
+    font-size: 17px;
+    font-weight: 400;
+}
+
+.kui-thi {
+    font-size: 12px;
+    font-weight: 400;
+}
+
+.kui-link {
+    font-size: 17px;
+    font-weight: 700;
+}
+
+/* ============== Header ============== */
+.kui-header {
+    height: 28px;
+    line-height: 28px;
+    background-color: #320374;
+    color: #fff;
+    text-align: center;
+}
+
+/* ============== Separator ============== */
+.kui-separator {
+    color: #6a6a6a;
+    height: 28px;
+    background-color: #e6e6e6;
+    line-height: 28px;
+    padding-left: 10px;
+}
+
+/* ============== Software key ============== */
+.kui-software-key {
+    height: 30px;
+    background-color: #cccccc;
+    display: flex;
+    align-items: center;
+    padding: 0 5px;
+    color: #323232;
+}
+
+.kui-software-key h5 {
+    width: 33.3333333333%;
+}
+
+/* ============== Toast ============== */
+.kui-toast {
+    height: 42px;
+    line-height: 42px;
+    color: #fff;
+    text-align: center;
+    background-color: #323232;
+}
+
+.kui-toast .kui-pri {
+    margin: 0;
+}
+
+.kui-toast-shadow {
+    height: 6px;
+    background-image: linear-gradient(0deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.4) 100%);
+}
+
+/* ============== List ============== */
+.kui-list {
+    list-style: none;
+}
+
+.kui-list li {
+    background-color: #fff;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
+}
+
+.kui-list li .kui-list-img {
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+    background-color: #2f3235;
+    margin-right: 10px;
+}
+
+.kui-list-cont p {
+    margin: 4px 0;
+}
+
+.kui-list-cont .kui-pri {
+    color: #323232;
+}
+
+.kui-list-cont .kui-sec {
+    color: #6a6a6a;
+}
+
+.kui-list li:focus {
+    background-color: #873eff;
+    outline: 0;
+}
+
+.kui-list li:focus .kui-pri,
+.kui-list li:focus .kui-sec {
+    color: #fff;
+}
+
+/* ============== Options Menu ============== */
+.kui-option-menu {
+    width: 100%;
+    position: absolute;
+    overflow: hidden;
+    bottom: 0;
+    display: none;
+}
+
+.kui-option-menu .kui-option-title {
+    margin: 0;
+    color: #323232;
+    text-align: center;
+    background-color: #d8d8d8;
+    height: 28px;
+    line-height: 28px;
+}
+
+.kui-options {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+.kui-options li {
+    height: 50px;
+    line-height: 50px;
+    padding-left: 10px;
+    background-color: #fff;
+}
+
+.kui-options li:focus {
+    outline: 0;
+    color: #fff;
+    background-color: #873eff;
+}
+
+/* ============== Button ============== */
+button.kui-btn {
+    width: 220px;
+    height: 36px;
+    border-radius: 2px;
+    background: #ccc;
+    text-align: center;
+    color: #323232;
+    border: 0;
+    display: block;
+    margin: auto;
+}
+
+button.kui-btn:focus {
+    outline: 0;
+    color: #fff;
+    background-color: #873eff;
+}
+
+/* ============== Input ============== */
+.kui-input-holder {
+    height: 76px;
+    padding: 7px 10px;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    background-color: #fff;
+}
+
+.kui-input-holder.kui-focus-within {
+    background-color: #873eff;
+    outline: 0;
+}
+
+.kui-input-label {
+    color: #323232;
+    display: block;
+    padding-bottom: 8px;
+}
+
+.kui-input-holder.kui-focus-within .kui-input-label {
+    color: #fff;
+}
+
+.kui-input {
+    height: 36px;
+    width: 100%;
+    border-radius: 2px;
+    padding-left: 10px;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    border: 1px solid #aaaaaa;
+}
+
+.kui-input ::-moz-placeholder,
+.kui-input :-moz-placeholder {
+    color: #323232;
+}
+
+.kui-input:focus {
+    outline: 0;
+}
+
+/* ============== Table ============== */
+.kui-table,
+.kui-table th,
+.kui-table td {
+    border: 1px solid #320374;
+    border-collapse: collapse;
+}
+
+.kui-table {
+    width: 100%;
+}
+
+.kui-table thead {
+    background-color: #320374;
+    color: #fff;
+}
+
+.kui-table tr:focus {
+    outline: 0;
+    background-color: #873eff;
+    color: #fff;
+}
+
+.kui-table td {
+    width: 50%;
+    padding: 4px 5px;
+}
+
+.kui-table td:last-child {
+    text-align: right;
+}
+
+/* ============== Progress ============== */
+.progress {
+    height: 60px;
+    background: #fff;
+    padding: 10px 10px;
+    box-sizing: border-box;
+}
+
+.progress:focus .progress-label {
+    color: #fff;
+}
+
+.progress label {
+    color: #332233;
+    display: inline-block;
+    width: 100%;
+}
+
+.progress-label {
+    float: left;
+}
+
+.progress-value {
+    float: right;
+    padding-top: 3px;
+}
+
+.progress input {
+    width: 100%;
+    outline: none;
+    height: 5px;
+    border-radius: 3px;
+}
+
+.progress input::-moz-range-thumb {
+    cursor: pointer;
+    border: 3px solid #fff;
+    border-radius: 50%;
+    width: 13px;
+    height: 13px;
+}
+
+.progress input,
+.progress input::-moz-range-thumb,
+.progress input::-moz-range-progress,
+.progress input::-moz-range-track {
+    -moz-appearance: none;
+    appearance: none;
+    background: #873eff;
+}
+
+/* KaiOS portrait devices (240x320) */
+@media only screen and (orientation : portrait) {
+    .kui-content-area {
+        height: 236px;
+    }
+
+    .kui-option-menu {
+        height: 178px;
+    }
+
+    .kui-options {
+        height: 150px;
+    }
+}
+
+/* KaiOS landscape devices (320x240) */
+@media screen and (orientation: landscape) {
+    .kui-content-area {
+        height: 156px;
+    }
+
+    .kui-option-menu {
+        height: 128px;
+    }
+
+    .kui-options {
+        height: 100px;
+    }
+}
+
+/*** The End ******/

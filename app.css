@@ -1,0 +1,271 @@
+.sr-only,
+.sr-only-focusable:not(:focus) {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+body {
+  font-family: 'Open Sans';
+  background-color: #873eff;
+  color: #fff;
+}
+h1, h2, h3, h4, h5, h6, ul, p {
+  margin: 0;
+  padding: 0;
+}
+h1 {
+  font-size: 22px;
+}
+h2 {
+  font-size: 20px;
+}
+h3 {
+  font-size: 18px;
+}
+h4 {
+  font-size: 16px;
+}
+h5 {
+  font-size: 14px;
+}
+.text-dark {
+  color: #000000!important;
+}
+.bg_primary {
+  background-color: #873eff!important;
+}
+.bg_secondary {
+  background-color: #CCCCCC!important;
+}
+.control_panel {
+  text-align: center;
+  padding-top: 5px;
+}
+.mdl-body {
+  padding: 0 0 30px 0!important;
+}
+.row {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  text-align: center;
+  font-size: 14px;
+}
+.software-key {
+  padding: 0!important;
+  z-index: 9;
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  color: #000!important;
+  height: 30px;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  font-size: 14px;
+}
+.inactive {
+  -webkit-filter: opacity(.4);
+  filter: opacity(.4);
+}
+input[type=range] {
+  -webkit-appearance: none; /* Hides the slider so that custom slider can be made */
+  background: transparent; /* Otherwise white in Chrome */
+}
+input[type=range]::-moz-range-thumb {
+  border: 1px solid #fff;
+  height: 12px;
+  width: 12px;
+  border-radius: 50%;
+  background: #fff;
+  cursor: pointer;
+}
+input[type=range]::-moz-range-track {
+  height: 4px;
+  cursor: pointer;
+  background: #ccc;
+  border-radius: 1.3px;
+}
+
+.slider_wrapper{
+  top:0;
+  position:fixed;
+  background:#cccccc;
+  width:100%;
+  height:4px;
+}
+
+.slider{
+  position:absolute;
+  width:98%;
+  height:4px;
+}
+
+.line{
+  position:absolute;
+  background:#cccccc;
+  width:100%;
+  height:4px;
+}
+
+.break{
+  position:absolute;
+  background:#873eff;
+  width:2%;
+  height:4px;
+}
+
+.dot1{
+  -webkit-animation: loading 2s infinite;
+  -moz-animation: loading 2s infinite;
+  -ms-animation: loading 2s infinite;
+  -o-animation: loading 2s infinite;
+  animation: loading 2s infinite;
+}
+
+.dot2{
+  -webkit-animation: loading 2s 0.5s infinite;
+  -moz-animation: loading 2s 0.5s infinite;
+  -ms-animation: loading 2s 0.5s infinite;
+  -o-animation: loading 2s 0.5s infinite;
+  animation: loading 2s 0.5s infinite;
+}
+
+.dot3{
+  -webkit-animation: loading 2s 1s infinite;
+  -moz-animation: loading 2s 1s infinite;
+  -ms-animation: loading 2s 1s infinite;
+  -o-animation: loading 2s 1s infinite;
+  animation: loading 2s 1s infinite;
+}
+
+@keyframes "loading" {
+  from { left: 0; }
+  to { left: 100%; }
+}
+
+@-moz-keyframes loading {
+  from { left: 0; }
+  to { left: 100%; }
+}
+
+@-webkit-keyframes "loading" {
+  from { left: 0; }
+  to { left: 100%; }
+}
+
+@-ms-keyframes "loading" {
+  from { left: 0; }
+  to { left: 100%; }
+}
+
+@-o-keyframes "loading" {
+  from { left: 0; }
+  to { left: 100%; }
+}
+
+.marquee {
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.marquee span {
+  display: inline-block;
+  height: 20px;
+  padding-left: 100%;  /* show the marquee just outside the paragraph */
+  animation: marquee 15s linear infinite;
+}
+
+/* Make it move */
+@keyframes marquee {
+  0%   { transform: translate(0, 0); }
+  100% { transform: translate(-100%, 0); }
+}
+
+.kui-options {
+}
+
+.kui-options li {
+  overflow-y: hidden;
+}
+
+.kui-options li:focus {
+  overflow-y: hidden;
+}
+
+.kui-options-invert {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+.kui-options-invert li {
+  height: 30px;
+  line-height: 30px;
+  padding-left: 10px;
+  background-color: #873eff;
+}
+
+.kui-options-invert li:focus {
+  outline: 0;
+  color: #000;
+  background-color: #fff;
+}
+
+.kui-separator-sm {
+  height: 4px;
+  background-color: #cccccc;
+  line-height: 4px;
+}
+
+#snackbar {
+  visibility: hidden;
+  min-width: 100%;
+  background-color: #333;
+  color: #fff
+  text-align: center;
+  padding: 16px;
+  position: fixed;
+  z-index: 1;
+  bottom: 30px;
+  font-weight:bold;
+}
+
+#snackbar.show {
+  visibility: visible;
+  -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;
+  animation: fadein 0.5s, fadeout 0.5s 2.5s;
+}
+
+@-webkit-keyframes fadein {
+  from {bottom: 0; opacity: 0;}
+  to {bottom: 30px; opacity: 1;}
+}
+
+@keyframes fadein {
+  from {bottom: 0; opacity: 0;}
+  to {bottom: 30px; opacity: 1;}
+}
+
+@-webkit-keyframes fadeout {
+  from {bottom: 30px; opacity: 1;}
+  to {bottom: 0; opacity: 0;}
+}
+
+@keyframes fadeout {
+  from {bottom: 30px; opacity: 1;}
+  to {bottom: 0; opacity: 0;}
+}

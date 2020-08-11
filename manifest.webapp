@@ -1,0 +1,38 @@
+{
+  "name": "Audio",
+  "description": "An audio player for KaiOS",
+  "launch_path": "/index.html",
+  "theme": "#873eff",
+  "theme_color": "#873eff",
+  "background_color": "#873eff",
+  "icons": {
+    "16": "/icons/icon16x16.png",
+    "48": "/icons/icon48x48.png",
+    "60": "/icons/icon60x60.png",
+    "128": "/icons/icon128x128.png"
+  },
+  "developer": {
+    "name": "Audio",
+    "url": "https://github.com/arma7x"
+  },
+  "origin": "app://audio.arma7x.com",
+  "type": "certified",
+  "permissions": {
+    "audio-capture": {
+      "description": "Obtain MediaStream from audio input devices, e.g. microphone."
+    },
+    "device-storage:sdcard":{
+      "access": "readwrite"
+    },
+    "device-storage:music":{
+      "access": "readwrite"
+    },
+    "audio-channel-normal": {
+      "description" : "Needed to play this app's audio content on the normal channel"
+    },
+    "audio-channel-content": {
+      "description": "To play audio in background"
+    },
+    "volumemanager": {}
+  }
+}
