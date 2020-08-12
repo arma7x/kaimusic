@@ -4,6 +4,7 @@ window.addEventListener("load", function() {
 
   var REPEAT = -1;
   var SHUFFLE = false;
+  var SNACKBAR_STATUS = undefined;
   var READY_STATE = false;
   var SEQUENCE_INDEX = 0;
   var DOCUMENT_TREE = {};
@@ -379,7 +380,7 @@ window.addEventListener("load", function() {
     if (PLAYER.volume > 0) {
       PLAYER.volume = parseFloat((PLAYER.volume - DEFAULT_VOLUME).toFixed(2));
       toogleVolume(PLAYER.volume);
-      showSnackbar('Volume ' + (PLAYER.volume * 100).toFixed(0).toString() + '%', 500);
+      showSnackbar('Volume ' + (PLAYER.volume * 100).toFixed(0).toString() + '%');
     }
   }
 
@@ -387,7 +388,7 @@ window.addEventListener("load", function() {
     if (PLAYER.volume < 1) {
       PLAYER.volume = parseFloat((PLAYER.volume + DEFAULT_VOLUME).toFixed(2));
       toogleVolume(PLAYER.volume);
-      showSnackbar('Volume ' + (PLAYER.volume * 100).toFixed(0).toString() + '%', 500);
+      showSnackbar('Volume ' + (PLAYER.volume * 100).toFixed(0).toString() + '%');
     }
   }
 
@@ -411,12 +412,17 @@ window.addEventListener("load", function() {
     }
   }
 
-  function showSnackbar(text, timeout) {
+  function showSnackbar(text) {
+    if (SNACKBAR_STATUS !== undefined) {
+      clearTimeout(SNACKBAR_STATUS);
+      SNACKBAR_STATUS = undefined;
+    }
     SNACKBAR.className = "show";
     SNACKBAR.innerHTML = text;
-    setTimeout(function() {
+    SNACKBAR_STATUS = setTimeout(function() {
       SNACKBAR.className = SNACKBAR.className.replace("show", "");
-    }, timeout);
+      SNACKBAR_STATUS = undefined;
+    }, 2000);
   }
 
   function convertTime(time) {
