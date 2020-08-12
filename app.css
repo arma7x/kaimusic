@@ -81,6 +81,7 @@ h5 {
 input[type=range] {
   -webkit-appearance: none; /* Hides the slider so that custom slider can be made */
   background: transparent; /* Otherwise white in Chrome */
+  border: 0px solid transparent;
 }
 input[type=range]::-moz-range-thumb {
   border: 1px solid #fff;
