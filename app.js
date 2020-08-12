@@ -372,7 +372,7 @@ window.addEventListener("load", function() {
   }
 
   function toogleVolume(volume) {
-    VOLUME_LEVEL.innerHTML = (volume * 100);
+    VOLUME_LEVEL.innerHTML = (volume * 100).toFixed(0);
     if (volume > 0) {
       VOLUME_BTN.src = '/assets/img/baseline_volume_up_white_18dp.png';
     } else {
