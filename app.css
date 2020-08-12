@@ -12,7 +12,7 @@
 }
 body {
   font-family: 'Open Sans';
-  background-color: #873eff;
+  background-image: url("/assets/img/wallpaper.jpg");
   color: #fff;
 }
 h1, h2, h3, h4, h5, h6, ul, p {
@@ -45,7 +45,7 @@ h5 {
 }
 .control_panel {
   text-align: center;
-  padding-top: 5px;
+  padding-top: 22px;
 }
 .mdl-body {
   padding: 0 0 30px 0!important;
