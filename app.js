@@ -22,6 +22,7 @@ window.addEventListener("load", function() {
   const DEFAULT_VOLUME = 0.02;
   const SCREENS = ['HOME', 'MENU_MODAL', 'PLAYLIST', 'CREATE_PLAYLIST'];
   const CLOCK = document.getElementById('clock');
+  const BATTERY_LEVEL = document.getElementById('battery_level');
   const TRACK_TITLE = document.getElementById('track_title');
   const CURRENT_TIME = document.getElementById('current_time');
   const DURATION = document.getElementById('duration');
@@ -30,6 +31,7 @@ window.addEventListener("load", function() {
   const SHUFFLE_BTN = document.getElementById('shuffle_btn');
   const REPEAT_BTN = document.getElementById('repeat_btn');
   const VOLUME_BTN = document.getElementById('volume_btn');
+  const VOLUME_LEVEL = document.getElementById('volume_level');
   const ALBUM_COVER = document.getElementById('album_cover');
   const LOADING = document.getElementById('loading');
   const MENU_SK = document.getElementById('menu_software_key');
@@ -285,7 +287,7 @@ window.addEventListener("load", function() {
       }
     });
     shuffling();
-    CURRENT_TRACK.innerHTML = SEQUENCE_INDEX + 1;
+    CURRENT_TRACK.innerHTML = SEQUENCE.length > 0 ? SEQUENCE_INDEX + 1 : 0;
     PLAYLIST_LENGTH.innerHTML = SEQUENCE.length;
     playCurrentPlaylist();
   }
@@ -370,6 +372,7 @@ window.addEventListener("load", function() {
   }
 
   function toogleVolume(volume) {
+    VOLUME_LEVEL.innerHTML = (volume * 100);
     if (volume > 0) {
       VOLUME_BTN.src = '/assets/img/baseline_volume_up_white_18dp.png';
     } else {
@@ -542,12 +545,17 @@ window.addEventListener("load", function() {
     }
   }
 
-  document.activeElement.addEventListener('keydown', handleKeydown)
+  document.activeElement.addEventListener('keydown', handleKeydown);
+  toogleVolume(PLAYER.volume);
   toggleReadyState();
   indexingStorage();
   const DATE = new Date();
   setInterval(function() {
     CLOCK.innerHTML = DATE.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true });
   }, 1000)
+  BATTERY_LEVEL.innerHTML = (navigator.battery.level * 100).toFixed(0);
+  navigator.battery.onlevelchange = function(e) {
+    BATTERY_LEVEL.innerHTML = (e.target.level * 100).toFixed(0);
+  }
   //setInterval(toggleReadyState, 1000);
 });
