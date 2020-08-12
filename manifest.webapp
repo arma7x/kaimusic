@@ -1,5 +1,5 @@
 {
-  "name": "Audio",
+  "name": "KaiMusic",
   "description": "An audio player for KaiOS",
   "launch_path": "/index.html",
   "theme": "#873eff",
@@ -14,7 +14,7 @@
   },
   "developer": {
     "name": "Audio",
-    "url": "https://github.com/arma7x"
+    "url": "https://github.com/arma7x/kaimusic"
   },
   "origin": "app://audio.arma7x.com",
   "type": "certified",
