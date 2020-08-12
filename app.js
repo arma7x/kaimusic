@@ -2,7 +2,7 @@ window.addEventListener("load", function() {
 
   const SDCARD = navigator.getDeviceStorage('sdcard');
 
-  var REPEAT = -1; // -1 NO REPEAT, 0 REPEAT, 1 REPEAT CURRENT
+  var REPEAT = -1;
   var SHUFFLE = false;
   var READY_STATE = false;
   var SEQUENCE_INDEX = 0;
@@ -11,7 +11,8 @@ window.addEventListener("load", function() {
   var FILE_BY_GROUPS = {};
   var CURRENT_SCREEN = 'HOME';
   var CURRENT_PLAYLIST = 'DEFAULT';
-  var SEQUENCE = []; //[[nth, TRACKS[random]]]
+  var SEQUENCE = []; //[[SEQUENCE_PLAYLIST[random]]
+  var SEQUENCE_PLAYLIST = []; // [{name: string, status: true}]
   var PLAYLIST = {}; //PLAYLIST_NAME => [{name: string, status: bool}]
   var PLAYLIST_MODAL = {};
   var MENU_MODAL = {};
@@ -44,7 +45,7 @@ window.addEventListener("load", function() {
   .attach()
   .on('onShow', function() {
     CURRENT_SCREEN = 'PLAYLIST_MODAL';
-    document.activeElement.tabIndex = (SEQUENCE_INDEX - 1);
+    document.activeElement.tabIndex = (SEQUENCE[SEQUENCE_INDEX] - 1);
     setTimeout(function() {
       nav(1, '.nav_track');
     }, 300);
@@ -115,38 +116,6 @@ window.addEventListener("load", function() {
     }
   }
 
-  function showSnackbar(text, timeout) {
-    SNACKBAR.className = "show";
-    SNACKBAR.innerHTML = text;
-    setTimeout(function() {
-      SNACKBAR.className = SNACKBAR.className.replace("show", "");
-    }, timeout);
-  }
-
-  function convertTime(time) {
-    if (isNaN(time)) {
-      return '00:00';
-    }
-    var mins = Math.floor(time / 60);
-    if (mins < 10) {
-      mins = '0' + String(mins);
-    }
-    var secs = Math.floor(time % 60);
-    if (secs < 10) {
-      secs = '0' + String(secs);
-    }
-    return mins + ':' + secs;
-  }
-
-  function toggleReadyState() {
-    READY_STATE = !READY_STATE;
-    if (READY_STATE) {
-      LOADING.classList.add('sr-only');
-    } else {
-      LOADING.classList.remove('sr-only');
-    }
-  }
-
   function getChild(segments, tree, parent, root) {
     if (segments.length === 1) {
       tree[parent] = root
@@ -160,7 +129,7 @@ window.addEventListener("load", function() {
     }
   }
 
-  function refreshDocuments(_files) {
+  function indexingDocuments(_files) {
     var _DOCUMENT_TREE = {}
     _files.forEach(function(element) {
       _DOCUMENT_TREE = getChild(element.split('/'), _DOCUMENT_TREE, element.split('/')[0], element);
@@ -191,28 +160,6 @@ window.addEventListener("load", function() {
       });
     })
     return _FILE_BY_GROUPS;
-  }
-
-  function loadFiles() {
-    FILES = [];
-    const cursor = SDCARD.enumerate('');
-    cursor.onsuccess = function () {
-      if (!this.done) {
-        if(cursor.result.name !== null) {
-          FILES.push(cursor.result.name)
-          this.continue();
-        }
-      } else {
-        toggleReadyState();
-        DOCUMENT_TREE = {};
-        DOCUMENT_TREE = refreshDocuments(FILES);
-        FILE_BY_GROUPS = {};
-        FILE_BY_GROUPS = groupByType(FILES, toggleReadyState, boostrap);
-      }
-    }
-    cursor.onerror = function () { 
-      console.warn("No file found: " + this.error); 
-    }
   }
 
   function getFile(name, handler) {
@@ -281,30 +228,44 @@ window.addEventListener("load", function() {
     }
   }
 
-  function shuffling() {
-    if (SHUFFLE) {
-      for (let i = SEQUENCE.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [SEQUENCE[i], SEQUENCE[j]] =
-        [SEQUENCE[j], SEQUENCE[i]];
+  function indexingStorage() {
+    FILES = [];
+    const cursor = SDCARD.enumerate('');
+    cursor.onsuccess = function () {
+      if (!this.done) {
+        if(cursor.result.name !== null) {
+          FILES.push(cursor.result.name)
+          this.continue();
+        }
+      } else {
+        toggleReadyState();
+        DOCUMENT_TREE = {};
+        DOCUMENT_TREE = indexingDocuments(FILES);
+        FILE_BY_GROUPS = {};
+        FILE_BY_GROUPS = groupByType(FILES, toggleReadyState, indexingPlaylist);
       }
-    } else {
-      SEQUENCE.sort((a, b) => a - b);
+    }
+    cursor.onerror = function () { 
+      console.warn("No file found: " + this.error); 
     }
   }
 
-  function boostrap() {
+  function indexingPlaylist(current) {
+    // sync default playlist
+    // sync users playlist
     if (FILE_BY_GROUPS.hasOwnProperty('audio')) {
       PLAYLIST['DEFAULT'] = [];
       FILE_BY_GROUPS['audio'].forEach(function(t) {
         PLAYLIST['DEFAULT'].push({name: t, selected: true});
       });
-      processCurrentPlaylist();
+      processPlaylist(current);
     }
   }
 
-  function processCurrentPlaylist() {
+  function processPlaylist(current) {
+    CURRENT_PLAYLIST = current || CURRENT_PLAYLIST;
     SEQUENCE = [];
+    SEQUENCE_PLAYLIST = [];
     while(PLAYLIST_TRACK.firstChild) {
       PLAYLIST_TRACK.removeChild(PLAYLIST_TRACK.firstChild);
     }
@@ -312,6 +273,7 @@ window.addEventListener("load", function() {
     PLAYLIST[CURRENT_PLAYLIST].forEach(function(k, i) {
       if (k.selected === true) {
         SEQUENCE.push(i);
+        SEQUENCE_PLAYLIST.push(k);
         const li = document.createElement("li");
         const name = k.name.split('/');
         li.appendChild(document.createTextNode(name[name.length - 1]));
@@ -374,6 +336,7 @@ window.addEventListener("load", function() {
 
   function toggleShuffle() {
     SHUFFLE = !SHUFFLE;
+    shuffling();
     if (SHUFFLE) {
       SHUFFLE_BTN.classList.remove('inactive');
     } else {
@@ -448,6 +411,50 @@ window.addEventListener("load", function() {
     }
   }
 
+  function showSnackbar(text, timeout) {
+    SNACKBAR.className = "show";
+    SNACKBAR.innerHTML = text;
+    setTimeout(function() {
+      SNACKBAR.className = SNACKBAR.className.replace("show", "");
+    }, timeout);
+  }
+
+  function convertTime(time) {
+    if (isNaN(time)) {
+      return '00:00';
+    }
+    var mins = Math.floor(time / 60);
+    if (mins < 10) {
+      mins = '0' + String(mins);
+    }
+    var secs = Math.floor(time % 60);
+    if (secs < 10) {
+      secs = '0' + String(secs);
+    }
+    return mins + ':' + secs;
+  }
+
+  function toggleReadyState() {
+    READY_STATE = !READY_STATE;
+    if (READY_STATE) {
+      LOADING.classList.add('sr-only');
+    } else {
+      LOADING.classList.remove('sr-only');
+    }
+  }
+
+  function shuffling() {
+    if (SHUFFLE) {
+      for (let i = SEQUENCE.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [SEQUENCE[i], SEQUENCE[j]] =
+        [SEQUENCE[j], SEQUENCE[i]];
+      }
+    } else {
+      SEQUENCE.sort((a, b) => a - b);
+    }
+  }
+
   function handleKeydown(e) {
     switch(e.key) {
       case '*':
@@ -506,11 +513,11 @@ window.addEventListener("load", function() {
           togglePlay();
         } else if (CURRENT_SCREEN === 'MENU_MODAL') {
           if (document.activeElement.tabIndex === 1) {
-            loadFiles();
+            indexingStorage();
             MENU_MODAL.hide();
           }
         } else if (CURRENT_SCREEN === 'PLAYLIST_MODAL') {
-          playCurrentPlaylist(document.activeElement.tabIndex);
+          playCurrentPlaylist(SEQUENCE.indexOf(document.activeElement.tabIndex));
         }
         break
       case 'Backspace':
@@ -530,6 +537,6 @@ window.addEventListener("load", function() {
 
   document.activeElement.addEventListener('keydown', handleKeydown)
   toggleReadyState();
-  loadFiles();
+  indexingStorage();
   //setInterval(toggleReadyState, 1000);
 });
