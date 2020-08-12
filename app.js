@@ -21,6 +21,7 @@ window.addEventListener("load", function() {
   const PLAYER = new Audio();
   const DEFAULT_VOLUME = 0.02;
   const SCREENS = ['HOME', 'MENU_MODAL', 'PLAYLIST', 'CREATE_PLAYLIST'];
+  const CLOCK = document.getElementById('clock');
   const TRACK_TITLE = document.getElementById('track_title');
   const CURRENT_TIME = document.getElementById('current_time');
   const DURATION = document.getElementById('duration');
@@ -544,5 +545,9 @@ window.addEventListener("load", function() {
   document.activeElement.addEventListener('keydown', handleKeydown)
   toggleReadyState();
   indexingStorage();
+  const DATE = new Date();
+  setInterval(function() {
+    CLOCK.innerHTML = DATE.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true });
+  }, 1000)
   //setInterval(toggleReadyState, 1000);
 });
