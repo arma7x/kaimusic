@@ -253,23 +253,23 @@ window.addEventListener("load", function() {
   function indexingPlaylist(current) {
     // sync default playlist
     // sync users playlist
+    PLAYLIST['DEFAULT'] = [];
     if (FILE_BY_GROUPS.hasOwnProperty('audio')) {
-      PLAYLIST['DEFAULT'] = [];
       FILE_BY_GROUPS['audio'].forEach(function(t) {
         PLAYLIST['DEFAULT'].push({name: t, selected: true});
       });
-      processPlaylist(current);
     }
+    processPlaylist(current);
   }
 
   function processPlaylist(current) {
     CURRENT_PLAYLIST = current || CURRENT_PLAYLIST;
+    PLAYLIST_NAME.innerHTML = CURRENT_PLAYLIST;
     SEQUENCE = [];
     SEQUENCE_PLAYLIST = [];
     while(PLAYLIST_TRACK.firstChild) {
       PLAYLIST_TRACK.removeChild(PLAYLIST_TRACK.firstChild);
     }
-    PLAYLIST_NAME.innerHTML = CURRENT_PLAYLIST;
     PLAYLIST[CURRENT_PLAYLIST].forEach(function(k, i) {
       if (k.selected === true) {
         SEQUENCE.push(i);
