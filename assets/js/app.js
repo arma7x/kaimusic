@@ -432,7 +432,9 @@ window.addEventListener("load", function() {
 
   function createPlaylist(name) {
     console.log('createPlaylist:', name);
-    if (name === 'DEFAULT') {
+    if (GLOBAL_TRACK.length === 0) {
+      showSnackbar('No audio files');
+    } else if (name === 'DEFAULT') {
       showSnackbar('DEFAULT is reserved name');
     } else {
       localforage.getItem('__PLAYLISTS__')
