@@ -205,20 +205,6 @@ input[type=range]::-moz-range-track {
   overflow-y: hidden;
 }
 
-.kui-options-invert {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  overflow: hidden;
-}
-
-.kui-options-invert li {
-  height: 30px;
-  line-height: 30px;
-  padding-left: 10px;
-  background-color: #873eff;
-}
-
 .kui-options-invert li:focus {
   outline: 0;
   color: #000;

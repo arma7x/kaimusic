@@ -14,6 +14,8 @@
 
     <!-- Inline scripts are forbidden in Firefox OS apps (CSP restrictions),
          so we use a script file. -->
+    <script src="/assets/js/polyfill.min.js" defer></script>
+    <script src="/assets/js/localforage.min.js" defer></script>
     <script src="/assets/js/app.js" defer></script>
     <script src="/assets/js/modalise.min.js" defer></script>
     <script src="/assets/js/jsmediatags.min.js" defer></script>
@@ -108,7 +110,7 @@
           <div id="playlist_name" class="kui-option-title">Playlist Name</div>
         </center>
         <div class="mdl-body">
-          <ul id="playlist_track" class="kui-options text-dark">
+          <ul id="playlist_track_ul" class="kui-options text-dark">
           </ul>
         </div>
       </div>
@@ -121,12 +123,23 @@
         </center>
         <div class="mdl-body">
           <ul class="kui-options text-dark">
-            <li class="nav_menu" tabIndex="0">Manage Playlist</li>
+            <li class="nav_menu" tabIndex="0">Playlist Manager</li>
             <li class="nav_menu" tabIndex="1">Reload Library</li>
             <li class="nav_menu" tabIndex="2">Setting</li>
             <li class="nav_menu" tabIndex="3">Help</li>
             <li class="nav_menu" tabIndex="4">About</li>
           </ul>
+        </div>
+      </div>
+    </div>
+
+    <div id="playlist_manager_modal" class="mdl mdl-fadein kui-option-menu">
+      <div class="mdl-content mdl-slidein">
+        <center>
+          <div class="kui-option-title">Playlist Manager</div>
+        </center>
+        <div class="mdl-body">
+          <ul id="playlists_ul" class="kui-options text-dark" style="height:calc(100vh - (30px + 50px))!important;"></ul>
         </div>
       </div>
     </div>
@@ -138,6 +151,12 @@
 
     <div id="offmenu_software_key" class="kui-software-key software-key sr-only">
       SELECT
+    </div>
+
+    <div id="pm_software_key" class="kui-software-key software-key sr-only">
+      <div style="width:50%;text-align:left;padding-left:5px;">Edit</div>
+      <div style="width:50%;text-align:right;padding-right:5px;">SELECT</div>
+      <div style="width:50%;text-align:right;padding-right:5px;">Delete</div>
     </div>
 
     <div id="snackbar"></div>
