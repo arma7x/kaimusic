@@ -560,5 +560,4 @@ window.addEventListener("load", function() {
   navigator.battery.onlevelchange = function(e) {
     BATTERY_LEVEL.innerHTML = (e.target.level * 100).toFixed(0);
   }
-  //setInterval(toggleReadyState, 1000);
 });
