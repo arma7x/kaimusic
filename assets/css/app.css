@@ -1,18 +1,8 @@
-.sr-only,
-.sr-only-focusable:not(:focus) {
-  position: absolute !important;
-  width: 1px !important;
-  height: 1px !important;
-  padding: 0 !important;
-  margin: -1px !important;
-  overflow: hidden !important;
-  clip: rect(0, 0, 0, 0) !important;
-  white-space: nowrap !important;
-  border: 0 !important;
-}
 body {
   font-family: 'Open Sans';
   background-image: url("/assets/img/wallpaper.jpg");
+  background-repeat: no-repeat;
+  background-size: cover;
   color: #fff;
 }
 h1, h2, h3, h4, h5, h6, ul, p {
@@ -45,6 +35,18 @@ h5 {
 }
 .control_panel {
   text-align: center;
+}
+.sr-only,
+.sr-only-focusable:not(:focus) {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
 }
 .mdl-body {
   padding: 0 0 30px 0!important;
@@ -254,4 +256,27 @@ input[type=range]::-moz-range-track {
 @keyframes fadeout {
   from {top: 0px; opacity: 1;}
   to {top: -30; opacity: 0;}
+}
+
+
+/* KaiOS portrait devices (240x320) */
+@media only screen and (orientation : portrait) {
+  #virtual_dpad {
+    height: 236px;
+  }
+}
+
+/* KaiOS landscape devices (320x240) */
+@media screen and (orientation: landscape) {
+  #virtual_dpad {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+  }
 }
