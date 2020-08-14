@@ -42,7 +42,7 @@
       </div>
     </div>
     
-    <div class="control_panel">
+    <div class="control-panel">
       <h4 class="marquee">
         <span id="track_title">Kai Music</span>
       </h4>
@@ -88,7 +88,7 @@
         </div>
       </div>
 
-      <div id="virtual_dpad">
+      <div id="virtual-dpad">
         <div class="row" style="justify-content:center;">
           <img style="margin:5px;" width="20xp" height="20xp" src="/assets/img/baseline_add_white_18dp.png"/>
         </div>
@@ -139,7 +139,21 @@
           <div class="kui-option-title">Playlist Manager</div>
         </center>
         <div class="mdl-body">
-          <ul id="playlists_ul" class="kui-options text-dark" style="height:calc(100vh - (30px + 50px))!important;"></ul>
+          <ul id="playlists_ul" class="kui-options text-dark" style="height:calc(100vh - 58px)!important;"></ul>
+        </div>
+      </div>
+    </div>
+
+    <div id="playlist_editor_modal" class="mdl mdl-fadein kui-option-menu">
+      <div class="mdl-content mdl-slidein">
+        <center>
+          <div class="kui-option-title">Create Playlist</div>
+        </center>
+        <div class="bg-primary" style="padding:5px">
+          <input id="playlist_name_input" class="kui-input" value="" placeholder="Playlist Name"/>
+        </div>
+        <div class="mdl-body">
+          <ul id="track_editor_ul" class="kui-options text-dark" style="height:calc(100vh - (58px + 46px))!important;"></ul>
         </div>
       </div>
     </div>
@@ -154,9 +168,15 @@
     </div>
 
     <div id="pm_software_key" class="kui-software-key software-key sr-only">
-      <div style="width:50%;text-align:left;padding-left:5px;">Edit</div>
-      <div style="width:50%;text-align:right;padding-right:5px;">SELECT</div>
-      <div style="width:50%;text-align:right;padding-right:5px;">Delete</div>
+      <div style="width:30%;text-align:left;padding-left:5px;">Edit</div>
+      <div style="width:40%;text-align:center;">SELECT</div>
+      <div style="width:30%;text-align:right;padding-right:5px;">Delete</div>
+    </div>
+
+    <div id="cp_software_key" class="kui-software-key software-key sr-only">
+      <div style="width:30%;text-align:left;padding-left:5px;">Save</div>
+      <div style="width:40%;text-align:center;">SELECT</div>
+      <div style="width:30%;text-align:right;padding-right:5px;">Name</div>
     </div>
 
     <div id="snackbar"></div>

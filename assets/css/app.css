@@ -27,13 +27,13 @@ h5 {
 .text-dark {
   color: #000000!important;
 }
-.bg_primary {
+.bg-primary {
   background-color: #873eff!important;
 }
-.bg_secondary {
+.bg-secondary {
   background-color: #CCCCCC!important;
 }
-.control_panel {
+.control-panel {
   text-align: center;
 }
 .sr-only,
@@ -200,17 +200,19 @@ input[type=range]::-moz-range-track {
 }
 
 .kui-options li {
-  overflow-y: hidden;
+  height: 50px;
+  white-space: nowrap;
+  width: 98%;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .kui-options li:focus {
-  overflow-y: hidden;
-}
-
-.kui-options-invert li:focus {
-  outline: 0;
-  color: #000;
-  background-color: #fff;
+  height: 50px;
+  white-space: nowrap;
+  width: 98%;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .kui-separator-sm {
@@ -261,12 +263,12 @@ input[type=range]::-moz-range-track {
 
 /* KaiOS portrait devices (240x320) */
 @media only screen and (orientation : portrait) {
-  #virtual_dpad {}
+  #virtual-dpad {}
 }
 
 /* KaiOS landscape devices (320x240) */
 @media screen and (orientation: landscape) {
-  #virtual_dpad {
+  #virtual-dpad {
     position: absolute !important;
     width: 1px !important;
     height: 1px !important;

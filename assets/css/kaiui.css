@@ -417,32 +417,32 @@ button.kui-btn:focus {
 
 /* KaiOS portrait devices (240x320) */
 @media only screen and (orientation : portrait) {
-    .kui-content-area {
-        height: 236px;
-    }
+  .kui-content-area {
+    height: 236px;
+  }
 
-    .kui-option-menu {
-        height: 178px;
-    }
+  .kui-option-menu {
+    height: 178px;
+  }
 
-    .kui-options {
-        height: 150px;
-    }
+  .kui-options {
+    height: 150px;
+  }
 }
 
 /* KaiOS landscape devices (320x240) */
 @media screen and (orientation: landscape) {
-    .kui-content-area {
-        height: 156px;
-    }
+  .kui-content-area {
+    height: 156px;
+  }
 
-    .kui-option-menu {
-        height: 128px;
-    }
+  .kui-option-menu {
+    height: 128px;
+  }
 
-    .kui-options {
-        height: 100px;
-    }
+  .kui-options {
+    height: 100px;
+  }
 }
 
 /*** The End ******/
