@@ -261,9 +261,7 @@ input[type=range]::-moz-range-track {
 
 /* KaiOS portrait devices (240x320) */
 @media only screen and (orientation : portrait) {
-  #virtual_dpad {
-    height: 236px;
-  }
+  #virtual_dpad {}
 }
 
 /* KaiOS landscape devices (320x240) */
