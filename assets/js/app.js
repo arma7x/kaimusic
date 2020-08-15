@@ -310,7 +310,7 @@ window.addEventListener("load", function() {
     }
   }
 
-  function indexingPlaylist(current, QQQQQ = true) {
+  function indexingPlaylist(current, playable = true) {
     //localforage.clear();
     localforage.setDriver(localforage.LOCALSTORAGE);
     var _playlistUlIndex = 0;
@@ -348,9 +348,9 @@ window.addEventListener("load", function() {
     _playlistUlIndex++;
     // END DEFAULT
 
-    if ((current === undefined || current === 'DEFAULT') && QQQQQ) {
+    if ((current === undefined || current === 'DEFAULT') && playable) {
       processPlaylist(current);
-    } else {
+    } else if (playable) {
       setReadyState(false);
     }
 
@@ -417,7 +417,7 @@ window.addEventListener("load", function() {
                     });
                     Object.assign(TRACK, filtered);
                     //console.log('indexingPlaylist', current, TRACK.length, filtered.length);
-                    if (QQQQQ) {
+                    if (playable) {
                       processPlaylist(current);
                     }
                   });
@@ -430,7 +430,7 @@ window.addEventListener("load", function() {
         });
       } else {
         setReadyState(true);
-        if (QQQQQ) {
+        if (playable) {
           processPlaylist('DEFAULT');
         }
       }
