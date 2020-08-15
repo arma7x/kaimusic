@@ -20,6 +20,7 @@ window.addEventListener("load", function() {
   var MENU_MODAL = {};
   var PLAYLIST_MANAGER_MODAL = {};
   var PLAYLIST_EDITOR_MODAL = {};
+  var CONFIRM_MODAL = {};
 
   const PLAYER = new Audio();
   const DEFAULT_VOLUME = 0.02;
@@ -39,7 +40,8 @@ window.addEventListener("load", function() {
   const MENU_SK = document.getElementById('menu_software_key');
   const OFFMENU_SK = document.getElementById('offmenu_software_key');
   const PM_SK = document.getElementById('pm_software_key');
-  const CP_SK = document.getElementById('cp_software_key');
+  const PE_SK = document.getElementById('pe_software_key');
+  const CM_SK = document.getElementById('confirm_software_key');
   const SNACKBAR = document.getElementById("snackbar");
   const ARTIS_LBL = document.getElementById("artis_label");
   const ALBUM_LBL = document.getElementById("album_label");
@@ -52,6 +54,7 @@ window.addEventListener("load", function() {
   const TRACK_EDITOR_UL = document.getElementById("track_editor_ul");
   const PLAYLIST_NAME_INPUT = document.getElementById("playlist_name_input");
   const EDITOR_MODE_LABEL = document.getElementById("editor_mode_label");
+  const CONFIRM_LABEL = document.getElementById("confirm_label");
 
   PLAYLIST_MODAL = new Modalise('playlist_modal')
   .attach()
@@ -98,8 +101,16 @@ window.addEventListener("load", function() {
   PLAYLIST_MANAGER_MODAL = new Modalise('playlist_manager_modal')
   .attach()
   .on('onShow', function() {
-    CURRENT_SCREEN = 'PLAYLIST_MANAGER_MODAL';
+    const childNodes = PLAYLISTS_UL.childNodes;
     document.activeElement.tabIndex = -1;
+    for (var x=0;x<childNodes.length;x++) {
+      if (childNodes[x].textContent === CURRENT_PLAYLIST) {
+        console.log(CURRENT_PLAYLIST);
+        document.activeElement.tabIndex = x - 1;
+        break;
+      }
+    }
+    CURRENT_SCREEN = 'PLAYLIST_MANAGER_MODAL';
     setTimeout(function() {
       nav(1, '.nav_man_pl');
     }, 300);
@@ -129,7 +140,7 @@ window.addEventListener("load", function() {
     MENU_SK.classList.add('sr-only');
     OFFMENU_SK.classList.add('sr-only');
     PM_SK.classList.add('sr-only');
-    CP_SK.classList.remove('sr-only');
+    PE_SK.classList.remove('sr-only');
     
   })
   .on('onConfirm', function() {
@@ -139,8 +150,30 @@ window.addEventListener("load", function() {
     document.activeElement.tabIndex = -1;
     MENU_SK.classList.remove('sr-only');
     OFFMENU_SK.classList.add('sr-only');
-    CP_SK.classList.add('sr-only');
+    PE_SK.classList.add('sr-only');
     PM_SK.classList.add('sr-only');
+  });
+
+  CONFIRM_MODAL = new Modalise('confirm_modal')
+  .attach()
+  .on('onShow', function() {
+    CURRENT_SCREEN = 'CONFIRM_MODAL';
+    MENU_SK.classList.add('sr-only');
+    OFFMENU_SK.classList.add('sr-only');
+    PM_SK.classList.add('sr-only');
+    PE_SK.classList.add('sr-only');
+    CM_SK.classList.remove('sr-only');
+    
+  })
+  .on('onConfirm', function() {
+    
+  })
+  .on('onHide', function() {
+    MENU_SK.classList.remove('sr-only');
+    OFFMENU_SK.classList.add('sr-only');
+    PE_SK.classList.add('sr-only');
+    PM_SK.classList.add('sr-only');
+    CM_SK.classList.add('sr-only');
   });
 
   PLAYER.volume = DEFAULT_VOLUME
@@ -816,6 +849,12 @@ window.addEventListener("load", function() {
           }
         } else if (CURRENT_SCREEN !== 'HOME' && CURRENT_SCREEN === 'PLAYLIST_EDITOR_MODAL') {
           savePlaylist(EDITOR_MODE);
+        } else if (CURRENT_SCREEN === 'CONFIRM_MODAL') {
+          CURRENT_SCREEN = 'HOME';
+          CONFIRM_MODAL.hide();
+          PLAYLIST_MANAGER_MODAL.show();
+          e.preventDefault();
+          e.stopPropagation();
         }
         break
       case 'SoftRight':
@@ -824,7 +863,8 @@ window.addEventListener("load", function() {
         } else if (CURRENT_SCREEN !== 'HOME' && CURRENT_SCREEN === 'PLAYLIST_MANAGER_MODAL') {
           if (document.activeElement.tagName === 'LI') {
             if (document.activeElement.tabIndex > 1) {
-              removePlaylist(PLAYLISTS_UL.childNodes[document.activeElement.tabIndex].textContent);
+              CONFIRM_LABEL.innerHTML = 'Are you sure to remove ' + PLAYLISTS_UL.childNodes[document.activeElement.tabIndex].textContent + ' ?';
+              CONFIRM_MODAL.show();
             }
           }
         } else if (CURRENT_SCREEN !== 'HOME' && CURRENT_SCREEN === 'PLAYLIST_EDITOR_MODAL') {
@@ -834,7 +874,14 @@ window.addEventListener("load", function() {
           } else {
             PLAYLIST_NAME_INPUT.focus();
           }
-        } 
+        } else if (CURRENT_SCREEN === 'CONFIRM_MODAL') {
+          removePlaylist(PLAYLISTS_UL.childNodes[document.activeElement.tabIndex].textContent);
+          CURRENT_SCREEN = 'HOME';
+          CONFIRM_MODAL.hide();
+          PLAYLIST_MANAGER_MODAL.show();
+          e.preventDefault();
+          e.stopPropagation();
+        }
         break
       case 'ArrowUp':
         if (CURRENT_SCREEN === 'HOME') {
@@ -935,6 +982,12 @@ window.addEventListener("load", function() {
             PLAYLIST_EDITOR_MODAL.hide();
             PLAYLIST_MANAGER_MODAL.show();
           }
+          e.preventDefault();
+          e.stopPropagation();
+        } else if (CURRENT_SCREEN === 'CONFIRM_MODAL') {
+          CURRENT_SCREEN = 'HOME';
+          CONFIRM_MODAL.hide();
+          PLAYLIST_MANAGER_MODAL.show();
           e.preventDefault();
           e.stopPropagation();
         }

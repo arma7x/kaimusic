@@ -222,6 +222,7 @@ input[type=range]::-moz-range-track {
 }
 
 #snackbar {
+  font-size: 14px;
   visibility: hidden;
   min-width: 100%;
   background-color: #333;
