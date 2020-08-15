@@ -1,8 +1,6 @@
 # KaiMusic
 
-## NOTICE
-
-- WIP
+## Music player for KaiOS
 
 ## Licence
 
