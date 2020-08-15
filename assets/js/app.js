@@ -441,6 +441,7 @@ window.addEventListener("load", function() {
     //console.log('processPlaylist', current);
     CURRENT_PLAYLIST = current || CURRENT_PLAYLIST;
     PLAYLIST_NAME.innerHTML = CURRENT_PLAYLIST;
+    showSnackbar('Playing ' + PLAYLIST_NAME.innerHTML);
     SEQUENCE = [];
     while(PLAYLIST_TRACK_UL.firstChild) {
       PLAYLIST_TRACK_UL.removeChild(PLAYLIST_TRACK_UL.firstChild);
