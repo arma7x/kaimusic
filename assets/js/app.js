@@ -791,9 +791,9 @@ window.addEventListener("load", function() {
     if (SNACKBAR_STATUS !== undefined) {
       clearTimeout(SNACKBAR_STATUS);
       SNACKBAR_STATUS = undefined;
-      SNACKBAR.className = "show";
-      SNACKBAR.innerHTML = text;
     }
+    SNACKBAR.className = "show";
+    SNACKBAR.innerHTML = text;
     SNACKBAR_STATUS = setTimeout(function() {
       SNACKBAR.className = SNACKBAR.className.replace("show", "hide");
     }, 2000);
