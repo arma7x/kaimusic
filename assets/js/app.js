@@ -204,7 +204,7 @@ window.addEventListener("load", function() {
   PLAYER.onended = function(e) {
     if (REPEAT === 1) {
       togglePlay();
-    } else if (REPEAT === 0 && (SEQUENCE_INDEX === (SEQUENCE.length - 1))) {
+    } else if (REPEAT === 0) {
       nextTrack();
     } else if (REPEAT === -1 && (SEQUENCE_INDEX !== (SEQUENCE.length - 1))){
       nextTrack();
