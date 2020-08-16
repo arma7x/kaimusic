@@ -39,48 +39,50 @@
         <span id="track_title">Kai Music</span>
       </h4>
 
-      <div class="row" style="margin:0px 23px;align-items:flex-end;">
-        <div style="width:70%;">
-          <div>
-            <div class="row" style="margin:0 0 5px 0;justify-content:flex-start;">
-              <img width="18xp" height="18xp" src="/assets/img/baseline_playlist_play_white_36dp.png"/>
-              <div id="playlist_label" style="margin-left:2px;">Playlist</div>
+      <div style="margin:5px 23px 0px 23px;align-items:flex-end;">
+        <div class="row" style="margin:0px 0px 5px 0px;justify-content:flex-start;">
+          <div style="width:40%;height:76px;background:#ccc;display:flex;flex-direction:column;justify-content:center;align-items: center;">
+            <img id="album_cover" height="100%" width="100%" style="object-fit:cover;" src="/assets/img/baseline_album_white_48.png" />
+          </div>
+          <div style="width:60%;padding:0px 0px 5px 5px;justify-content:flex-end;overflow:hidden;">
+            <div class="row" style="margin:0 0 2px 0;justify-content:flex-start;">
+              <img width="15xp" height="15xp" src="/assets/img/baseline_playlist_play_white_36dp.png"/>
+              <div id="playlist_label" style="margin-left:5px;">Playlist</div>
             </div>
-            <div class="row" style="align-items:flex-end;">
-              <img id="shuffle_btn" class="inactive" style="padding-right:5px;" width="16px" height="16px" src="/assets/img/baseline_shuffle_white_18dp.png"/>
-              <img id="repeat_btn" class="inactive" style="padding-right:5px;" width="16px" height="16px" src="/assets/img/baseline_repeat_white_18dp.png"/>
-              <img id="volume_btn" style="padding-right:5px;" width="16px" height="16px" src="/assets/img/baseline_volume_up_white_18dp.png"/>
-              <div style="width:46px;text-align:right;"><span id="volume_level"></span>%</div>
+            <div class="row" style="margin:0 0 2px 0;justify-content:flex-start;">
+              <img width="15xp" height="15xp" src="/assets/img/baseline_person_white_36dp.png"/>
+              <div id="artis_label" style="margin-left:5px;">Artist</div>
+            </div>
+            <div class="row" style="margin:0 0 2px 0;justify-content:flex-start;">
+              <img width="15xp" height="15xp" src="/assets/img/baseline_album_white_36dp.png"/>
+              <div id="album_label" style="margin-left:5px;">Album</div>
+            </div>
+            <div class="row" style="justify-content:flex-start;">
+              <img width="15xp" height="15xp" src="/assets/img/baseline_music_note_white_36dp.png"/>
+              <div id="genre_label" style="margin-left:5px;">Genre</div>
             </div>
           </div>
         </div>
-        <div class="row" style="width:30%;justify-content:flex-end;">
-          <img id="album_cover" height="50px" width="50px" src="/assets/img/baseline_album_white_48.png" />
+        <div class="row" style="margin:9px 0px 0px 0px;align-items:flex-end;">
+          <img id="shuffle_btn" class="inactive" style="padding-right:5px;" width="16px" height="16px" src="/assets/img/baseline_shuffle_white_18dp.png"/>
+          <img id="repeat_btn" class="inactive" style="padding-right:5px;" width="16px" height="16px" src="/assets/img/baseline_repeat_white_18dp.png"/>
+          <div class="row" style="padding-right:5px;justify-content:flex-start;">
+            <img id="volume_btn" width="16px" height="16px" src="/assets/img/baseline_volume_up_white_18dp.png"/>
+            <div style="width:38px;text-align:right;"><span id="volume_level"></span>%</div>
+          </div>
+          <div style="width:60px;text-align:right;">
+            <span id="current_track">0</span>/<span id="playlist_length">0</span>
+          </div>
         </div>
       </div>
 
-      <div style="margin:0;padding:0;">
+      <div style="margin:2.5px 23px 0px 23px;">
         <input id="duration_slider" value="0" type="range" min="0" max="100" disabled/>
       </div>
 
-      <div class="row" style="margin:0px 23px 5px 23px;">
+      <div class="row" style="margin:-2.5px 23px 0px 23px;">
         <div id="current_time">00:00</div>
         <div id="duration">00:00</div>
-      </div>
-
-      <div style="text-align:left;margin:0px 23px;">
-        <div class="row" style="margin:0 0 2px 0;justify-content:flex-start;">
-          <img width="15xp" height="15xp" src="/assets/img/baseline_person_white_36dp.png"/>
-          <div id="artis_label" style="margin-left:5px;font-size:10px!important;">Artist</div>
-        </div>
-        <div class="row" style="margin:0 0 2px 0;justify-content:flex-start;">
-          <img width="15xp" height="15xp" src="/assets/img/baseline_album_white_36dp.png"/>
-          <div id="album_label" style="margin-left:5px;font-size:10px!important;">Album</div>
-        </div>
-        <div class="row" style="justify-content:flex-start;">
-          <img width="15xp" height="15xp" src="/assets/img/baseline_music_note_white_36dp.png"/>
-          <div id="genre_label" style="margin-left:5px;font-size:10px!important;">Genre</div>
-        </div>
       </div>
 
       <div id="virtual-dpad">
@@ -102,10 +104,10 @@
     <div id="playlist_modal" class="mdl mdl-fadein kui-option-menu">
       <div class="mdl-content mdl-slidein">
         <center>
-          <div id="playlist_name" class="kui-option-title">Playlist Name</div>
+          <div id="playlist_name" class="kui-option-title" style="background:#873eff;color:#fff;">Playlist Name</div>
         </center>
         <div class="mdl-body">
-          <ul id="playlist_track_ul" class="kui-options text-dark">
+          <ul id="playlist_track_ul" class="kui-options text-dark" style="height:calc(100vh - 58px)!important;">
           </ul>
         </div>
       </div>
@@ -157,19 +159,14 @@
           <div class="kui-option-title">Confirm</div>
         </center>
         <div class="mdl-body">
-          <div id="confirm_label" style="color:#000;margin:5px;font-size:14px;">
-            Are you sure to remove playlist ?
-          </div>
+          <div id="confirm_label" style="color:#000;margin:5px;font-size:14px;"></div>
         </div>
       </div>
     </div>
 
     <div id="menu_software_key" class="kui-software-key software-key">
-      <div style="width:30%;text-align:left;padding-left:5px;">Playlist</div>
-      <div style="width:40%;text-align:center;">
-        <span id="current_track">0</span>/<span id="playlist_length">0</span>
-      </div>
-      <div style="width:30%;text-align:right;padding-right:5px;">Menu</div>
+      <div style="width:50%;text-align:left;padding-left:5px;">Playlist</div>
+      <div style="width:50%;text-align:right;padding-right:5px;">Menu</div>
     </div>
 
     <div id="offmenu_software_key" class="kui-software-key software-key sr-only">

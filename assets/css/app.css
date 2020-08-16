@@ -82,6 +82,7 @@ input[type=range] {
   -webkit-appearance: none; /* Hides the slider so that custom slider can be made */
   background: transparent; /* Otherwise white in Chrome */
   border: 0px solid transparent;
+  width: 100%;
 }
 input[type=range]::-moz-range-thumb {
   border: 1px solid #fff;
@@ -221,16 +222,20 @@ input[type=range]::-moz-range-track {
 }
 
 #snackbar {
+  border-radius: 20px;
   font-size: 14px;
   visibility: hidden;
-  min-width: 100%;
+  width: 80%;
+  margin: 5%;
+  padding: 5%;
   background-color: #333;
-  color: #fff
-  text-align: center;
-  padding: 16px;
+  color: #fff;
+  text-align: left;
   position: fixed;
   z-index: 1;
-  font-weight:bold;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
   bottom: 30px; /* 30px from the bottom */
 }
 
