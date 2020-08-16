@@ -1006,15 +1006,4 @@ window.addEventListener("load", function() {
   document.activeElement.addEventListener('keydown', handleKeydown);
   toogleVolume(PLAYER.volume);
   indexingStorage();
-  const DATE = new Date();
-  setInterval(function() {
-    const d = DATE.toLocaleTimeString().split(' ');
-    const t = d[0].split(':');
-    t.splice(-1,1);
-    CLOCK.innerHTML = [t.join(':'), d[1]].join(' ');
-  }, 1000)
-  BATTERY_LEVEL.innerHTML = (navigator.battery.level * 100).toFixed(0);
-  navigator.battery.onlevelchange = function(e) {
-    BATTERY_LEVEL.innerHTML = (e.target.level * 100).toFixed(0);
-  }
 });

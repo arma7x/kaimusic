@@ -25,14 +25,6 @@
   <body>
     <!-- This code is in the public domain. Enjoy! -->
 
-    <div class="row" style="padding:5px;justify-content:flex-end;">
-      <img id="volume_btn" style="padding-left:3px;" width="14px" height="14px" src="/assets/img/baseline_volume_up_white_18dp.png"/>
-      <div><span id="volume_level"></span>%</div>
-      <img style="padding-left:3px;" width="14px" height="14px" src="/assets/img/baseline_battery_full_white_18dp.png"/>
-      <div><span id="battery_level"></span>%</div>
-      <div id="clock" style="padding-left:3px;">00:00 AM</div>
-    </div>
-
     <div id="loading" class="slider_wrapper">
       <div class="slider">
         <div class="line"></div>
@@ -47,15 +39,18 @@
         <span id="track_title">Kai Music</span>
       </h4>
 
-      <div class="row" style="margin:5px 23px;align-items:flex-end;">
+      <div class="row" style="margin:0px 23px;align-items:flex-end;">
         <div style="width:70%;">
-          <div class="row" style="align-items:flex-end;">
-            <img id="shuffle_btn" class="inactive" style="padding-right:5px;" width="25px" height="25px" src="/assets/img/baseline_shuffle_white_18dp.png"/>
-            <img id="repeat_btn" class="inactive" style="padding-right:5px;" width="25px" height="25px" src="/assets/img/baseline_repeat_white_18dp.png"/>
-            
-            <div class="row" style="width:70%;align-items:flex-end;justify-content:flex-end;">
-              <h1 id="current_track">0</h1>
-              <h4>/<span id="playlist_length">0</span></h4>
+          <div>
+            <div class="row" style="margin:0 0 5px 0;justify-content:flex-start;">
+              <img width="18xp" height="18xp" src="/assets/img/baseline_playlist_play_white_36dp.png"/>
+              <div id="playlist_label" style="margin-left:2px;">Playlist</div>
+            </div>
+            <div class="row" style="align-items:flex-end;">
+              <img id="shuffle_btn" class="inactive" style="padding-right:5px;" width="16px" height="16px" src="/assets/img/baseline_shuffle_white_18dp.png"/>
+              <img id="repeat_btn" class="inactive" style="padding-right:5px;" width="16px" height="16px" src="/assets/img/baseline_repeat_white_18dp.png"/>
+              <img id="volume_btn" style="padding-right:5px;" width="16px" height="16px" src="/assets/img/baseline_volume_up_white_18dp.png"/>
+              <div style="width:46px;text-align:right;"><span id="volume_level"></span>%</div>
             </div>
           </div>
         </div>
@@ -64,31 +59,27 @@
         </div>
       </div>
 
-      <div>
+      <div style="margin:0;padding:0;">
         <input id="duration_slider" value="0" type="range" min="0" max="100" disabled/>
       </div>
 
-      <div class="row" style="margin:5px 23px;">
+      <div class="row" style="margin:0px 23px 5px 23px;">
         <div id="current_time">00:00</div>
         <div id="duration">00:00</div>
       </div>
 
-      <div style="text-align:left;margin:5px 23px;">
-        <div class="row" style="justify-content:flex-start;">
-          <img width="15xp" height="15xp" src="/assets/img/baseline_playlist_play_white_36dp.png"/>
-          <div id="playlist_label" style="margin-left:5px;">Playlist</div>
-        </div>
-        <div class="row" style="justify-content:flex-start;">
+      <div style="text-align:left;margin:0px 23px;">
+        <div class="row" style="margin:0 0 2px 0;justify-content:flex-start;">
           <img width="15xp" height="15xp" src="/assets/img/baseline_person_white_36dp.png"/>
-          <div id="artis_label" style="margin-left:5px;">Artist</div>
+          <div id="artis_label" style="margin-left:5px;font-size:10px!important;">Artist</div>
         </div>
-        <div class="row" style="justify-content:flex-start;">
+        <div class="row" style="margin:0 0 2px 0;justify-content:flex-start;">
           <img width="15xp" height="15xp" src="/assets/img/baseline_album_white_36dp.png"/>
-          <div id="album_label" style="margin-left:5px;">Album</div>
+          <div id="album_label" style="margin-left:5px;font-size:10px!important;">Album</div>
         </div>
         <div class="row" style="justify-content:flex-start;">
           <img width="15xp" height="15xp" src="/assets/img/baseline_music_note_white_36dp.png"/>
-          <div id="genre_label" style="margin-left:5px;">Genre</div>
+          <div id="genre_label" style="margin-left:5px;font-size:10px!important;">Genre</div>
         </div>
       </div>
 
@@ -140,7 +131,7 @@
     <div id="playlist_manager_modal" class="mdl mdl-fadein kui-option-menu">
       <div class="mdl-content mdl-slidein">
         <center>
-          <div class="kui-option-title">Playlist Manager</div>
+          <div class="kui-option-title" style="background:#873eff;color:#fff;">Playlist Manager</div>
         </center>
         <div class="mdl-body">
           <ul id="playlists_ul" class="kui-options text-dark" style="height:calc(100vh - 58px)!important;"></ul>
@@ -151,7 +142,7 @@
     <div id="playlist_editor_modal" class="mdl mdl-fadein kui-option-menu">
       <div class="mdl-content mdl-slidein">
         <center>
-          <div id="editor_mode_label" class="kui-option-title">Create Playlist</div>
+          <div id="editor_mode_label" class="kui-option-title" style="background:#873eff;color:#fff;">Create Playlist</div>
         </center>
         <div class="bg-primary" style="padding:5px">
           <input id="playlist_name_input" class="kui-input" value="" placeholder="Playlist Name"/>
@@ -175,9 +166,12 @@
       </div>
     </div>
 
-    <div id="menu_software_key" class="kui-software-key software-key" style="background:transparent!important;;color:#fff!important;">
-      <div style="width:50%;text-align:left;padding-left:5px;">Playlist</div>
-      <div style="width:50%;text-align:right;padding-right:5px;">Menu</div>
+    <div id="menu_software_key" class="kui-software-key software-key">
+      <div style="width:30%;text-align:left;padding-left:5px;">Playlist</div>
+      <div style="width:40%;text-align:center;">
+        <span id="current_track">0</span>/<span id="playlist_length">0</span>
+      </div>
+      <div style="width:30%;text-align:right;padding-right:5px;">Menu</div>
     </div>
 
     <div id="offmenu_software_key" class="kui-software-key software-key sr-only">
@@ -193,7 +187,7 @@
     <div id="pe_software_key" class="kui-software-key software-key sr-only">
       <div style="width:30%;text-align:left;padding-left:5px;">Save</div>
       <div style="width:40%;text-align:center;">SELECT</div>
-      <div style="width:30%;text-align:right;padding-right:5px;">Name</div>
+      <div style="width:30%;text-align:right;padding-right:5px;">Rename</div>
     </div>
 
     <div id="confirm_software_key" class="kui-software-key software-key sr-only">
