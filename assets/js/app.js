@@ -838,12 +838,13 @@ window.addEventListener("load", function() {
 
   function handleKeydown(e) {
     switch(e.key) {
-      case '*':
+      case 'Call':
         if (CURRENT_SCREEN === 'HOME') {
           toggleShuffle();
         }
         break
-      case '#':
+      case '*':
+      case 'Alt':
         if (CURRENT_SCREEN === 'HOME') {
           toggleRepeat();
         }
@@ -962,6 +963,7 @@ window.addEventListener("load", function() {
         }
         break
       case 'Backspace':
+      case 'EndCall':
         if (CURRENT_SCREEN === 'MENU_MODAL') {
           CURRENT_SCREEN = 'HOME';
           MENU_MODAL.hide();
