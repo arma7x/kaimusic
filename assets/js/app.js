@@ -415,7 +415,20 @@ window.addEventListener("load", function() {
 
     localforage.getItem('__PLAYLISTS__')
     .then((PLAYLISTS) => {
-      if (PLAYLISTS !== null) {
+      if (PLAYLISTS === null) {
+        setReadyState(true);
+        if (cb !== undefined) {
+          cb();
+        }
+        if (playable) {
+          processPlaylist();
+        }
+      } else if (PLAYLISTS.length === 0) {
+        setReadyState(true);
+        if (cb !== undefined) {
+          cb();
+        }
+      } else {
         _playlistLength = PLAYLISTS.length;
         const _playlistCollections = [];
         PLAYLISTS.forEach((playlistName) => {
@@ -481,14 +494,6 @@ window.addEventListener("load", function() {
             exec(newTracks);
           });
         });
-      } else {
-        setReadyState(true);
-        if (cb !== undefined) {
-          cb();
-        }
-        if (playable) {
-          processPlaylist();
-        }
       }
     })
   }
@@ -641,7 +646,6 @@ window.addEventListener("load", function() {
       .then(function(savedTracks) {
         indexingPlaylist(CURRENT_PLAYLIST, (operation === 'updated' ? false : false), PLAYLIST_MANAGER_MODAL.show);
         showSnackbar('Playlist ' + name + ' was ' + operation);
-        //CURRENT_SCREEN = 'HOME';
         PLAYLIST_EDITOR_MODAL.hide();
         //PLAYLIST_MANAGER_MODAL.show();
       })
@@ -675,7 +679,6 @@ window.addEventListener("load", function() {
       .then(function() {
         indexingPlaylist(CURRENT_PLAYLIST, false, PLAYLIST_MANAGER_MODAL.show);
         showSnackbar('Playlist ' + name + ' was removed');
-        CURRENT_SCREEN = 'HOME';
         CONFIRM_MODAL.hide();
         //PLAYLIST_MANAGER_MODAL.show();
       })
