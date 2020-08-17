@@ -733,7 +733,7 @@ window.addEventListener("load", function() {
     } else if (REPEAT === 1) {
       REPEAT_BTN.src = '/assets/img/baseline_repeat_one_white_18dp.png';
       REPEAT_BTN.classList.remove('inactive');
-      showSnackbar('Repeat Current');
+      showSnackbar('Repeat One');
     } else {
       REPEAT = -1;
       REPEAT_BTN.src = '/assets/img/baseline_repeat_white_18dp.png';
