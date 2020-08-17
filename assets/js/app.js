@@ -21,6 +21,7 @@ window.addEventListener("load", function() {
   var PLAYLIST_MANAGER_MODAL = {};
   var PLAYLIST_EDITOR_MODAL = {};
   var CONFIRM_MODAL = {};
+  var ABOUT_MODAL = {};
 
   var PLAYLIST_MANAGER_MODAL_INDEX = -1;
 
@@ -61,6 +62,7 @@ window.addEventListener("load", function() {
   const PLAYLIST_NAME_INPUT = document.getElementById("playlist_name_input");
   const EDITOR_MODE_LABEL = document.getElementById("editor_mode_label");
   const CONFIRM_LABEL = document.getElementById("confirm_label");
+  const ABOUT_CONTENT = document.getElementById("about_content");
 
   PLAYLIST_MODAL = new Modalise('playlist_modal')
   .attach()
@@ -182,6 +184,19 @@ window.addEventListener("load", function() {
     PE_SK.classList.add('sr-only');
     PM_SK.classList.add('sr-only');
     CM_SK.classList.add('sr-only');
+  });
+
+  ABOUT_MODAL = new Modalise('about_modal')
+  .attach()
+  .on('onShow', function() {
+    CURRENT_SCREEN = 'ABOUT_MODAL';
+    MENU_SK.classList.add('sr-only');
+  })
+  .on('onConfirm', function() {
+    
+  })
+  .on('onHide', function() {
+    MENU_SK.classList.remove('sr-only');
   });
 
   PLAYER.volume = DEFAULT_VOLUME
@@ -922,6 +937,8 @@ window.addEventListener("load", function() {
           nav(-1, '.nav_man_pl');
         } else if (CURRENT_SCREEN === 'PLAYLIST_EDITOR_MODAL') {
           nav(-1, '.nav_track_editor');
+        } else if (CURRENT_SCREEN === 'ABOUT_MODAL') {
+          ABOUT_CONTENT.scrollTop -= 20;
         }
         break
       case 'ArrowDown':
@@ -935,6 +952,8 @@ window.addEventListener("load", function() {
           nav(1, '.nav_man_pl');
         } else if (CURRENT_SCREEN === 'PLAYLIST_EDITOR_MODAL') {
           nav(1, '.nav_track_editor');
+        } else if (CURRENT_SCREEN === 'ABOUT_MODAL') {
+          ABOUT_CONTENT.scrollTop += 20;
         }
         break
       case 'ArrowRight':
@@ -961,6 +980,9 @@ window.addEventListener("load", function() {
             indexingStorage();
             CURRENT_SCREEN = 'HOME';
             MENU_MODAL.hide();
+          } else if (document.activeElement.tabIndex === 2) {
+            MENU_MODAL.hide();
+            ABOUT_MODAL.show();
           }
         } else if (CURRENT_SCREEN === 'PLAYLIST_MODAL') {
           playCurrentPlaylist(SEQUENCE.indexOf(document.activeElement.tabIndex));
@@ -1017,6 +1039,11 @@ window.addEventListener("load", function() {
           CURRENT_SCREEN = 'HOME';
           CONFIRM_MODAL.hide();
           PLAYLIST_MANAGER_MODAL.show();
+          e.preventDefault();
+          e.stopPropagation();
+        } else if (CURRENT_SCREEN === 'ABOUT_MODAL') {
+          CURRENT_SCREEN = 'HOME';
+          ABOUT_MODAL.hide();
           e.preventDefault();
           e.stopPropagation();
         }
