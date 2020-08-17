@@ -766,7 +766,7 @@ window.addEventListener("load", function() {
 
   function volumeDown() {
     if (navigator.mozAudioChannelManager) {
-      navigator.volumeManager.requestUp();
+      navigator.volumeManager.requestDown();
     } else {
       if (PLAYER.volume > 0) {
         PLAYER.volume = parseFloat((PLAYER.volume - DEFAULT_VOLUME).toFixed(2));
@@ -778,7 +778,7 @@ window.addEventListener("load", function() {
 
   function volumeUp() {
     if (navigator.mozAudioChannelManager) {
-      navigator.volumeManager.requestDown();
+      navigator.volumeManager.requestUp();
     } else {
       if (PLAYER.volume < 1) {
         PLAYER.volume = parseFloat((PLAYER.volume + DEFAULT_VOLUME).toFixed(2));
