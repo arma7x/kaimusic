@@ -19,9 +19,6 @@
   "origin": "app://audio.arma7x.com",
   "type": "certified",
   "permissions": {
-    "audio-capture": {
-      "description": "Obtain MediaStream from audio input devices, e.g. microphone."
-    },
     "device-storage:sdcard":{
       "access": "readwrite"
     },
