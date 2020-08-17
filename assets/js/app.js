@@ -489,7 +489,7 @@ window.addEventListener("load", function() {
         SEQUENCE.push(i);
         const li = document.createElement("LI");
         const name = k.name.split('/');
-        li.appendChild(document.createTextNode(name[name.length - 1]));
+        li.appendChild(document.createTextNode((i + 1).toString() + ' - ' + name[name.length - 1]));
         li.setAttribute("class", "nav_track");
         li.setAttribute("tabIndex", i);
         PLAYLIST_TRACK_UL.appendChild(li);
@@ -561,7 +561,7 @@ window.addEventListener("load", function() {
         chkbx.checked = k.selected;
         div.appendChild(chkbx);
         text.setAttribute("style", "padding:0px 5px;width:92%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;");
-        text.appendChild(document.createTextNode(name[name.length - 1]));
+        text.appendChild(document.createTextNode((i + 1).toString() + ' - ' + name[name.length - 1]));
         div.appendChild(text);
         li.appendChild(div);
         li.setAttribute("class", "nav_track_editor");
