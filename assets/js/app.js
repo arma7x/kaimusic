@@ -574,6 +574,7 @@ window.addEventListener("load", function() {
         const chkbx = document.createElement("INPUT");
         const text = document.createElement("SPAN");
         div.setAttribute("class", "row");
+        div.setAttribute("style", "text-align:left;");
         chkbx.setAttribute("type", "checkbox");
         chkbx.setAttribute("id", 'track_' + i.toString());
         chkbx.name = 'track_' + i.toString();
