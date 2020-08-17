@@ -16,7 +16,7 @@
     "name": "arma7x",
     "url": "https://github.com/arma7x/kaimusic"
   },
-  "origin": "app://audio.arma7x.com",
+  "origin": "app://kaimusic.arma7x.com",
   "type": "certified",
   "permissions": {
     "device-storage:sdcard":{
