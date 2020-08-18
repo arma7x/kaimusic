@@ -408,7 +408,7 @@ window.addEventListener("load", function() {
     PLAYLISTS_UL.appendChild(default_playlist_li);
     _playlistUlIndex++;
 
-    if ((current === undefined || current === 'DEFAULT') && playable) {
+    if ((CURRENT_PLAYLIST === undefined || CURRENT_PLAYLIST === 'DEFAULT') && playable) {
       processPlaylist();
     } else if (playable) {
       setReadyState(false);
