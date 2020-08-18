@@ -473,8 +473,8 @@ window.addEventListener("load", function() {
                   }
                 }
                 _playlistCollections.push(playlistName);
-                if (_playlistDone === _playlistLength && _playlistCollections.indexOf(current) !== -1) {
-                  localforage.getItem(current)
+                if (_playlistDone === _playlistLength && _playlistCollections.indexOf(CURRENT_PLAYLIST) !== -1) {
+                  localforage.getItem(CURRENT_PLAYLIST)
                   .then((raw) => {
                     TRACK = [];
                     const filtered = [];
