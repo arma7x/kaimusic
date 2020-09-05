@@ -6,6 +6,9 @@
   "theme": "#873eff",
   "theme_color": "#873eff",
   "background_color": "#873eff",
+  "categories": [
+    "entertainment"
+  ],
   "icons": {
     "16": "/icons/icon16x16.png",
     "48": "/icons/icon48x48.png",
