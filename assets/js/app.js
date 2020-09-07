@@ -10,6 +10,7 @@ window.addEventListener("load", function() {
   var DOCUMENT_TREE = {};
   var FILES = [];
   var FILE_BY_GROUPS = {};
+  var ADS_DISPLAYED = false;
   var CURRENT_SCREEN = 'HOME';
   var CURRENT_PLAYLIST = 'DEFAULT';
   var SEQUENCE = [];
@@ -1081,4 +1082,29 @@ window.addEventListener("load", function() {
   document.activeElement.addEventListener('keydown', handleKeydown);
   
   indexingStorage();
+
+  getKaiAd({
+    publisher: 'c7ffc75d-82e7-4471-a755-2b6e7e936f2e',
+    app: 'Kai Music',
+    slot: 'fullscreen',
+    test: 0,
+    timeout: 5000,
+    onerror: err => console.error(err),
+    onready: ad => {
+      ad.call('display');
+      ad.on('click', () => {
+        // console.log('click event')
+      });
+      ad.on('close', () => {
+        ADS_DISPLAYED = false;
+        // console.log(ADS_DISPLAYED);
+      });
+      ad.on('display', () => {
+        ADS_DISPLAYED = true;
+        // console.log(ADS_DISPLAYED);
+      });
+       
+    }
+  });
+
 });

@@ -1,6 +1,6 @@
-# KaiMusic
+# Kai Music
 
-## Music player for KaiOS
+## An audio player for KaiOS with playlist manager
 
 ## Licence
 

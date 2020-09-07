@@ -1,13 +1,14 @@
 {
   "version": "1.0.0",
   "name": "Kai Music",
-  "description": "An audio player for KaiOS",
+  "description": "An audio player for KaiOS with playlist manager",
   "launch_path": "/index.html",
   "theme": "#873eff",
   "theme_color": "#873eff",
   "background_color": "#873eff",
   "categories": [
-    "entertainment"
+    "entertainment",
+    "utilities"
   ],
   "icons": {
     "16": "/icons/icon16x16.png",
