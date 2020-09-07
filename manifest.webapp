@@ -36,5 +36,13 @@
       "description": "To play audio in background"
     },
     "volumemanager": {}
-  }
+  },
+  "locales": {
+    "en-US": {
+      "name": "Kai Music",
+      "subtitle": "An audio player for KaiOS with playlist manager",
+      "description": "An audio player for KaiOS with playlist manager"
+    }
+  },
+  "default_locale": "en-US"
 }
