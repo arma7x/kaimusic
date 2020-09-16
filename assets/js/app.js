@@ -1085,7 +1085,7 @@ window.addEventListener("load", function() {
 
   getKaiAd({
     publisher: 'c7ffc75d-82e7-4471-a755-2b6e7e936f2e',
-    app: 'Kai Music',
+    app: 'K-Music',
     slot: 'fullscreen',
     test: 0,
     timeout: 5000,

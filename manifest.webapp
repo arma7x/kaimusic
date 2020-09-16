@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "name": "Kai Music",
+  "name": "K-Music",
   "description": "An audio player for KaiOS with playlist manager",
   "launch_path": "/index.html",
   "theme": "#873eff",
@@ -39,7 +39,7 @@
   },
   "locales": {
     "en-US": {
-      "name": "Kai Music",
+      "name": "K-Music",
       "subtitle": "An audio player for KaiOS with playlist manager",
       "description": "An audio player for KaiOS with playlist manager"
     }
