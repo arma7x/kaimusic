@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "name": "K-Music",
+  "name": "K-Muzik",
   "description": "An audio player for KaiOS with playlist manager",
   "launch_path": "/index.html",
   "theme": "#873eff",
@@ -15,6 +15,10 @@
     "48": "/icons/icon48x48.png",
     "60": "/icons/icon60x60.png",
     "128": "/icons/icon128x128.png"
+  },
+  "bgs": {
+    "56": "/icons/K-Muzik_56.png",
+    "112": "/icons/K-Muzik_112.png"
   },
   "developer": {
     "name": "arma7x",
@@ -39,7 +43,7 @@
   },
   "locales": {
     "en-US": {
-      "name": "K-Music",
+      "name": "K-Muzik",
       "subtitle": "An audio player for KaiOS with playlist manager",
       "description": "An audio player for KaiOS with playlist manager"
     }
