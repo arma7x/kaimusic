@@ -1,4 +1,4 @@
-# K-Muzik
+# K-Music
 
 ## An audio player for KaiOS with playlist manager
 
