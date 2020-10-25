@@ -11,12 +11,8 @@
     "utilities"
   ],
   "icons": {
-    "16": "/icons/icon16x16.png",
-    "48": "/icons/icon48x48.png",
     "56": "/icons/icon56x56.png",
-    "60": "/icons/icon60x60.png",
-    "112": "/icons/icon112x112.png",
-    "128": "/icons/icon128x128.png"
+    "112": "/icons/icon112x112.png"
   },
   "developer": {
     "name": "arma7x",

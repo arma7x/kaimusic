@@ -1080,31 +1080,16 @@ window.addEventListener("load", function() {
   }
 
   document.activeElement.addEventListener('keydown', handleKeydown);
-  
+
   indexingStorage();
 
   getKaiAd({
-    publisher: 'c7ffc75d-82e7-4471-a755-2b6e7e936f2e',
-    app: 'K-Music',
-    slot: 'fullscreen',
-    test: 0,
-    timeout: 5000,
+    publisher: 'ac3140f7-08d6-46d9-aa6f-d861720fba66',
+    app: 'k-music',
+    slot: 'kaios',
     onerror: err => console.error(err),
     onready: ad => {
-      ad.call('display');
-      ad.on('click', () => {
-        // console.log('click event')
-      });
-      ad.on('close', () => {
-        ADS_DISPLAYED = false;
-        // console.log(ADS_DISPLAYED);
-      });
-      ad.on('display', () => {
-        ADS_DISPLAYED = true;
-        // console.log(ADS_DISPLAYED);
-      });
-       
+      ad.call('display')
     }
-  });
-
+  })
 });
