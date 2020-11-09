@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0",
+  "version": "1.0.1",
   "name": "K-Music",
   "description": "An audio player for KaiOS with playlist manager",
   "launch_path": "/index.html",
