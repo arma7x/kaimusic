@@ -201,8 +201,6 @@ window.addEventListener("load", function() {
     MENU_SK.classList.remove('sr-only');
   });
 
-  PLAYER.volume = DEFAULT_VOLUME
-
   PLAYER.ontimeupdate = function(e) {
     var currentTime = e.target.currentTime;
     var duration = e.target.duration;
