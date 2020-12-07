@@ -334,14 +334,12 @@ window.addEventListener("load", function() {
 
   function playAudio(file) {
     if (file.type.split('/').length === 2) {
-      if (file.type.split('/')[0] === 'audio') {
-        var name = file.name.split('/');
-        getMetadata(file);
-        TRACK_TITLE.innerHTML = name[name.length - 1];
-        PLAYER.mozAudioChannelType = 'content';
-        PLAYER.src = URL.createObjectURL(file);
-        PLAYER.play();
-      }
+      var name = file.name.split('/');
+      getMetadata(file);
+      TRACK_TITLE.innerHTML = name[name.length - 1];
+      PLAYER.mozAudioChannelType = 'content';
+      PLAYER.src = URL.createObjectURL(file);
+      PLAYER.play();
     }
   }
 
@@ -395,6 +393,14 @@ window.addEventListener("load", function() {
     if (FILE_BY_GROUPS.hasOwnProperty('audio')) {
       FILE_BY_GROUPS['audio'].forEach(function(n) {
         TRACK.push({name: n, selected: true});
+      });
+    }
+    if (FILE_BY_GROUPS.hasOwnProperty('video')) {
+      FILE_BY_GROUPS['video'].forEach(function(n) {
+        const split = n.split('.');
+        if (split[split.length - 1] === 'ogg') {
+          TRACK.push({name: n, selected: true});
+        }
       });
     }
     GLOBAL_TRACK = JSON.stringify(TRACK);
@@ -528,17 +534,13 @@ window.addEventListener("load", function() {
     }
     if (SEQUENCE.length > 0) {
       getFile(TRACK[SEQUENCE[SEQUENCE_INDEX]].name, function(file) {
-        if (file.type.split('/').length === 2) {
-          if (file.type.split('/')[0] === 'audio') {
-            getMetadata(file);
-            PLAYER.mozAudioChannelType = 'content';
-            PLAYER.src = URL.createObjectURL(file);
-            if (idx !== undefined) {
-              PLAYER.play();
-            }
-            CURRENT_TRACK.innerHTML = SEQUENCE_INDEX + 1;
-          }
+        getMetadata(file);
+        PLAYER.mozAudioChannelType = 'content';
+        PLAYER.src = URL.createObjectURL(file);
+        if (idx !== undefined) {
+          PLAYER.play();
         }
+        CURRENT_TRACK.innerHTML = SEQUENCE_INDEX + 1;
       });
     }
   }
