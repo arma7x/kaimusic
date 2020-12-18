@@ -121,9 +121,11 @@
         </center>
         <div class="mdl-body">
           <ul class="kui-options text-dark">
-            <li class="nav_menu" tabIndex="0">Playlist Manager</li>
-            <li class="nav_menu" tabIndex="1">Reload Library</li>
-            <li class="nav_menu" tabIndex="2">Tips & About</li>
+            <li class="nav_menu" tabIndex="0">Playlist</li>
+            <li class="nav_menu" tabIndex="1">Artist</li>
+            <li class="nav_menu" tabIndex="2">Album</li>
+            <li class="nav_menu" tabIndex="3">Reload Library</li>
+            <li class="nav_menu" tabIndex="4">Tips & About</li>
           </ul>
         </div>
       </div>
@@ -132,7 +134,7 @@
     <div id="playlist_manager_modal" class="mdl mdl-fadein kui-option-menu">
       <div class="mdl-content mdl-slidein">
         <center>
-          <div class="kui-option-title" style="background:#873eff;color:#fff;">Playlist Manager</div>
+          <div class="kui-option-title" style="background:#873eff;color:#fff;">Playlist</div>
         </center>
         <div class="mdl-body">
           <ul id="playlists_ul" class="kui-options text-dark" style="height:calc(100vh - 58px)!important;"></ul>
@@ -150,6 +152,28 @@
         </div>
         <div class="mdl-body">
           <ul id="track_editor_ul" class="kui-options text-dark" style="height:calc(100vh - (58px + 46px))!important;"></ul>
+        </div>
+      </div>
+    </div>
+
+    <div id="artists_modal" class="mdl mdl-fadein kui-option-menu">
+      <div class="mdl-content mdl-slidein">
+        <center>
+          <div class="kui-option-title" style="background:#873eff;color:#fff;">Artist</div>
+        </center>
+        <div class="mdl-body">
+          <ul id="artists_ul" class="kui-options text-dark" style="height:calc(100vh - 58px)!important;"></ul>
+        </div>
+      </div>
+    </div>
+
+    <div id="albums_modal" class="mdl mdl-fadein kui-option-menu">
+      <div class="mdl-content mdl-slidein">
+        <center>
+          <div class="kui-option-title" style="background:#873eff;color:#fff;">Albums</div>
+        </center>
+        <div class="mdl-body">
+          <ul id="albums_ul" class="kui-options text-dark" style="height:calc(100vh - 58px)!important;"></ul>
         </div>
       </div>
     </div>
@@ -224,6 +248,12 @@
     <div id="confirm_software_key" class="kui-software-key software-key sr-only">
       <div style="width:50%;text-align:left;padding-left:5px;">Cancel</div>
       <div style="width:50%;text-align:right;padding-right:5px;">Yes</div>
+    </div>
+
+    <div id="albums_or_artists_software_key" class="kui-software-key software-key sr-only">
+      <div style="width:30%;text-align:left;padding-left:5px;"></div>
+      <div style="width:40%;text-align:center;">PLAY</div>
+      <div style="width:30%;text-align:right;padding-right:5px;"></div>
     </div>
 
     <div id="snackbar"></div>

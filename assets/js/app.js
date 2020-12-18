@@ -14,6 +14,8 @@ window.addEventListener("load", function() {
   var CURRENT_SCREEN = 'HOME';
   var CURRENT_PLAYLIST = 'DEFAULT';
   var SEQUENCE = [];
+  var ALBUMS = {};
+  var ARTISTS = {};
   var TRACK = [];
   var GLOBAL_TRACK = '';
   var EDITOR_MODE = false;
@@ -23,6 +25,8 @@ window.addEventListener("load", function() {
   var PLAYLIST_EDITOR_MODAL = {};
   var CONFIRM_MODAL = {};
   var ABOUT_MODAL = {};
+  var ARTISTS_MODAL = {};
+  var ALBUMS_MODAL = {};
 
   var PLAYLIST_MANAGER_MODAL_INDEX = -1;
 
@@ -65,6 +69,9 @@ window.addEventListener("load", function() {
   const EDITOR_MODE_LABEL = document.getElementById("editor_mode_label");
   const CONFIRM_LABEL = document.getElementById("confirm_label");
   const ABOUT_CONTENT = document.getElementById("about_content");
+  const ARTISTS_UL = document.getElementById("artists_ul");
+  const ALBUMS_UL = document.getElementById("albums_ul");
+  const ALB_ART_SK = document.getElementById('albums_or_artists_software_key');
 
   PLAYLIST_MODAL = new Modalise('playlist_modal')
   .attach()
@@ -201,6 +208,66 @@ window.addEventListener("load", function() {
     MENU_SK.classList.remove('sr-only');
   });
 
+  ARTISTS_MODAL = new Modalise('artists_modal')
+  .attach()
+  .on('onShow', function() {
+    CURRENT_SCREEN = 'ARTISTS_MODAL';
+    MENU_SK.classList.add('sr-only');
+    while(ARTISTS_UL.firstChild) {
+      ARTISTS_UL.removeChild(ARTISTS_UL.firstChild);
+    }
+    var i = 0;
+    for (var name in ARTISTS) {
+      const li = document.createElement("LI");
+      li.appendChild(document.createTextNode(name));
+      li.setAttribute("class", "nav_artist");
+      li.setAttribute("tabIndex", i);
+      ARTISTS_UL.appendChild(li);
+      i++;
+    }
+    setTimeout(function() {
+      nav(1, '.nav_artist');
+    }, 300);
+    ALB_ART_SK.classList.remove('sr-only');
+  })
+  .on('onConfirm', function() {SS
+    
+  })
+  .on('onHide', function() {
+    MENU_SK.classList.remove('sr-only');
+    ALB_ART_SK.classList.add('sr-only');
+  });
+
+  ALBUMS_MODAL = new Modalise('albums_modal')
+  .attach()
+  .on('onShow', function() {
+    CURRENT_SCREEN = 'ALBUMS_MODAL';
+    MENU_SK.classList.add('sr-only');
+    while(ALBUMS_UL.firstChild) {
+      ALBUMS_UL.removeChild(ALBUMS_UL.firstChild);
+    }
+    var i = 0;
+    for (var name in ALBUMS) {
+      const li = document.createElement("LI");
+      li.appendChild(document.createTextNode(name));
+      li.setAttribute("class", "nav_album");
+      li.setAttribute("tabIndex", i);
+      ALBUMS_UL.appendChild(li);
+      i++;
+    }
+    setTimeout(function() {
+      nav(1, '.nav_album');
+    }, 300);
+    ALB_ART_SK.classList.remove('sr-only');
+  })
+  .on('onConfirm', function() {
+    
+  })
+  .on('onHide', function() {
+    MENU_SK.classList.remove('sr-only');
+    ALB_ART_SK.classList.add('sr-only');
+  });
+
   PLAYER.ontimeupdate = function(e) {
     var currentTime = e.target.currentTime;
     var duration = e.target.duration;
@@ -255,7 +322,7 @@ window.addEventListener("load", function() {
   function groupByType(_files, cb) {
     var _taskLength = _files.length;
     var _taskDone = 0;
-    var _FILE_BY_GROUPS = {};
+    FILE_BY_GROUPS = {};
     setReadyState(false);
     if (_files.length === 0) {
       setReadyState(true);
@@ -263,20 +330,80 @@ window.addEventListener("load", function() {
     _files.forEach(function(element) {
       getFile(element, function(file) {
         var mime = file.type.split('/');
-        if (_FILE_BY_GROUPS[mime[0]] == undefined) {
-          _FILE_BY_GROUPS[mime[0]] = []
+        if (FILE_BY_GROUPS[mime[0]] == undefined) {
+          FILE_BY_GROUPS[mime[0]] = []
         }
-        _FILE_BY_GROUPS[mime[0]].push(file.name);
+        FILE_BY_GROUPS[mime[0]].push(file.name);
         _taskDone++;
         if (_taskDone === _taskLength) {
-          setReadyState(true);
+          GLOBAL_TRACK = '';
+          TRACK = [];
+          var _temp = [];
+          if (FILE_BY_GROUPS.hasOwnProperty('audio')) {
+            FILE_BY_GROUPS['audio'].forEach(function(n) {
+              TRACK.push({name: n, selected: true});
+              _temp.push({name: n, selected: false});
+            });
+          }
+          if (FILE_BY_GROUPS.hasOwnProperty('video')) {
+            FILE_BY_GROUPS['video'].forEach(function(n) {
+              const split = n.split('.');
+              if (split[split.length - 1] === 'ogg') {
+                TRACK.push({name: n, selected: true});
+                _temp.push({name: n, selected: false});
+              }
+            });
+          }
+          GLOBAL_TRACK = JSON.stringify(TRACK);
+          ARTISTS['UNKNOWN'] = JSON.parse(JSON.stringify(_temp));
+          ALBUMS['UNKNOWN'] = JSON.parse(JSON.stringify(_temp));
+          var DONE = 0;
+          _temp.forEach((n, i) => {
+            getFile(n.name, (file) => {
+              jsmediatags.read(file, {
+                onSuccess: (media) => {
+                  if (media.tags.artist) {
+                    if (ARTISTS[media.tags.artist] == null) {
+                      ARTISTS[media.tags.artist] = JSON.parse(JSON.stringify(_temp));
+                    }
+                    ARTISTS[media.tags.artist][i].selected = true;
+                  } else {
+                    ARTISTS['UNKNOWN'][i].selected = true;
+                  }
+                  if (media.tags.album) {
+                    if (ALBUMS[media.tags.album] == null) {
+                      ALBUMS[media.tags.album] = JSON.parse(JSON.stringify(_temp));
+                    }
+                    ALBUMS[media.tags.album][i].selected = true;
+                  } else {
+                    ALBUMS['UNKNOWN'][i].selected = true;
+                  }
+                  DONE++;
+                  if (_temp.length === DONE) {
+                    setReadyState(true);
+                    console.log(ARTISTS);
+                    console.log(ALBUMS);
+                  }
+                },
+                onError: (error) => {
+                  ARTISTS['UNKNOWN'][i].selected = true;
+                  ALBUMS['UNKNOWN'][i].selected = true;
+                  DONE++;
+                  if (_temp.length === DONE) {
+                    setReadyState(true);
+                    console.log(ARTISTS);
+                    console.log(ALBUMS);
+                  }
+                }
+              });
+            });
+          });
           if (cb !== undefined) {
             cb();
           }
         }
       });
     })
-    return _FILE_BY_GROUPS;
   }
 
   function getFile(name, handler) {
@@ -327,7 +454,13 @@ window.addEventListener("load", function() {
         }
       },
       onError: function(error) {
-        console.dir(error);
+        var name = file.name.split('/');
+        TRACK_TITLE.innerHTML = name[name.length - 1];
+        ARTIS_LBL.innerHTML = 'Unknown';
+        ALBUM_LBL.innerHTML = 'Unknown';
+        GENRE_LBL.innerHTML = 'Unknown';
+        ALBUM_COVER.src = '/assets/img/baseline_album_white_48.png';
+        console.log(error);
       }
     });
   }
@@ -356,7 +489,7 @@ window.addEventListener("load", function() {
         DOCUMENT_TREE = {};
         DOCUMENT_TREE = indexingDocuments(FILES);
         FILE_BY_GROUPS = {};
-        FILE_BY_GROUPS = groupByType(FILES, indexingPlaylist);
+        groupByType(FILES, indexingPlaylist);
       }
     }
     cursor.onerror = function () { 
@@ -387,23 +520,6 @@ window.addEventListener("load", function() {
     create_playlist_li.setAttribute("tabIndex", _playlistUlIndex);
     PLAYLISTS_UL.appendChild(create_playlist_li);
     _playlistUlIndex++;
-
-    GLOBAL_TRACK = '';
-    TRACK = [];
-    if (FILE_BY_GROUPS.hasOwnProperty('audio')) {
-      FILE_BY_GROUPS['audio'].forEach(function(n) {
-        TRACK.push({name: n, selected: true});
-      });
-    }
-    if (FILE_BY_GROUPS.hasOwnProperty('video')) {
-      FILE_BY_GROUPS['video'].forEach(function(n) {
-        const split = n.split('.');
-        if (split[split.length - 1] === 'ogg') {
-          TRACK.push({name: n, selected: true});
-        }
-      });
-    }
-    GLOBAL_TRACK = JSON.stringify(TRACK);
 
     const default_playlist_li = document.createElement("LI");
     default_playlist_li.appendChild(document.createTextNode('DEFAULT'));
@@ -502,6 +618,14 @@ window.addEventListener("load", function() {
         });
       }
     })
+  }
+
+  function processAlbum() {
+    
+  }
+
+  function processArtist() {
+    
   }
 
   function processPlaylist() {
@@ -958,6 +1082,10 @@ window.addEventListener("load", function() {
           nav(-1, '.nav_track_editor');
         } else if (CURRENT_SCREEN === 'ABOUT_MODAL') {
           ABOUT_CONTENT.scrollTop -= 20;
+        } else if (CURRENT_SCREEN === 'ARTISTS_MODAL') {
+          nav(-1, '.nav_artist');
+        } else if (CURRENT_SCREEN === 'ALBUMS_MODAL') {
+          nav(-1, '.nav_album');
         }
         break
       case 'ArrowDown':
@@ -973,6 +1101,10 @@ window.addEventListener("load", function() {
           nav(1, '.nav_track_editor');
         } else if (CURRENT_SCREEN === 'ABOUT_MODAL') {
           ABOUT_CONTENT.scrollTop += 20;
+        } else if (CURRENT_SCREEN === 'ARTISTS_MODAL') {
+          nav(-1, '.nav_artist');
+        } else if (CURRENT_SCREEN === 'ALBUMS_MODAL') {
+          nav(-1, '.nav_album');
         }
         break
       case 'ArrowRight':
@@ -996,10 +1128,16 @@ window.addEventListener("load", function() {
             MENU_MODAL.hide();
             PLAYLIST_MANAGER_MODAL.show();
           } else if (document.activeElement.tabIndex === 1) {
+            MENU_MODAL.hide();
+            ARTISTS_MODAL.show();
+          } else if (document.activeElement.tabIndex === 2) {
+            MENU_MODAL.hide();
+            ALBUMS_MODAL.show();
+          } else if (document.activeElement.tabIndex === 3) {
             indexingStorage();
             CURRENT_SCREEN = 'HOME';
             MENU_MODAL.hide();
-          } else if (document.activeElement.tabIndex === 2) {
+          } else if (document.activeElement.tabIndex === 4) {
             MENU_MODAL.hide();
             ABOUT_MODAL.show();
           }
@@ -1063,6 +1201,16 @@ window.addEventListener("load", function() {
         } else if (CURRENT_SCREEN === 'ABOUT_MODAL') {
           CURRENT_SCREEN = 'HOME';
           ABOUT_MODAL.hide();
+          e.preventDefault();
+          e.stopPropagation();
+        } else if (CURRENT_SCREEN === 'ARTISTS_MODAL') {
+          CURRENT_SCREEN = 'HOME';
+          ARTISTS_MODAL.hide();
+          e.preventDefault();
+          e.stopPropagation();
+        } else if (CURRENT_SCREEN === 'ALBUMS_MODAL') {
+          CURRENT_SCREEN = 'HOME';
+          ALBUMS_MODAL.hide();
           e.preventDefault();
           e.stopPropagation();
         }
