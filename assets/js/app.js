@@ -1121,9 +1121,9 @@ window.addEventListener("load", function() {
         } else if (CURRENT_SCREEN === 'ABOUT_MODAL') {
           ABOUT_CONTENT.scrollTop += 20;
         } else if (CURRENT_SCREEN === 'ARTISTS_MODAL') {
-          nav(-1, '.nav_artist');
+          nav(1, '.nav_artist');
         } else if (CURRENT_SCREEN === 'ALBUMS_MODAL') {
-          nav(-1, '.nav_album');
+          nav(1, '.nav_album');
         }
         break
       case 'ArrowRight':
