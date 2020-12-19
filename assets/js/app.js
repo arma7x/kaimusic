@@ -354,6 +354,13 @@ window.addEventListener("load", function() {
               }
             });
           }
+          TRACK.sort((a, b) => {
+            if (a['name'] > b['name'])
+              return 1;
+            else if (a['name'] < b['name'])
+              return -1;
+            return 0;
+          });
           GLOBAL_TRACK = JSON.stringify(TRACK);
           ARTISTS['UNKNOWN'] = JSON.parse(JSON.stringify(_temp));
           ALBUMS['UNKNOWN'] = JSON.parse(JSON.stringify(_temp));
@@ -677,7 +684,6 @@ window.addEventListener("load", function() {
     if (idx !== undefined) {
       SEQUENCE_INDEX = idx;
     }
-    console.log(TRACK);
     if (SEQUENCE.length > 0) {
       getFile(TRACK[SEQUENCE[SEQUENCE_INDEX]].name, function(file) {
         getMetadata(file);
