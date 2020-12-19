@@ -389,8 +389,6 @@ window.addEventListener("load", function() {
                   DONE++;
                   if (_temp.length === DONE) {
                     setReadyState(true);
-                    //console.log(ARTISTS);
-                    //console.log(ALBUMS);
                   }
                 }
               });
@@ -620,9 +618,9 @@ window.addEventListener("load", function() {
   }
 
   function processAlbum(name) {
-    console.log(ALBUMS[name]);
     TRACK = [];
     const filtered = [];
+    PLAYLIST_LABEL.innerHTML = 'ALBUM';
     ALBUMS[name].forEach((t) => {
       if (t.selected === true) {
         filtered.push(t);
@@ -633,9 +631,9 @@ window.addEventListener("load", function() {
   }
 
   function processArtist(name) {
-    console.log(ARTISTS[name]);
     TRACK = [];
     const filtered = [];
+    PLAYLIST_LABEL.innerHTML = 'ARTIST';
     ARTISTS[name].forEach((t) => {
       if (t.selected === true) {
         filtered.push(t);
@@ -651,7 +649,6 @@ window.addEventListener("load", function() {
       PLAYLIST_TRACK_UL.removeChild(PLAYLIST_TRACK_UL.firstChild);
     }
     var i = 0;
-    console.log(TRACK);
     TRACK.forEach(function(k) {
       if (k.selected === true) {
         SEQUENCE.push(i);
