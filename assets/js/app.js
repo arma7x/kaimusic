@@ -635,7 +635,6 @@ window.addEventListener("load", function() {
 
   function processArtist(name) {
     if (ARTISTS[name]) {
-      
       TRACK = [];
       const filtered = [];
       PLAYLIST_LABEL.innerHTML = 'ARTIST';
