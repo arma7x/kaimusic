@@ -618,29 +618,36 @@ window.addEventListener("load", function() {
   }
 
   function processAlbum(name) {
-    TRACK = [];
-    const filtered = [];
-    PLAYLIST_LABEL.innerHTML = 'ALBUM';
-    ALBUMS[name].forEach((t) => {
-      if (t.selected === true) {
-        filtered.push(t);
-      }
-    });
-    Object.assign(TRACK, filtered);
-    processPlaylist();
+    if (ALBUMS[name]) {
+      TRACK = [];
+      const filtered = [];
+      PLAYLIST_LABEL.innerHTML = 'ALBUM';
+      PLAYLIST_NAME.innerHTML = name;
+      ALBUMS[name].forEach((t) => {
+        if (t.selected === true) {
+          filtered.push(t);
+        }
+      });
+      Object.assign(TRACK, filtered);
+      processPlaylist();
+    }
   }
 
   function processArtist(name) {
-    TRACK = [];
-    const filtered = [];
-    PLAYLIST_LABEL.innerHTML = 'ARTIST';
-    ARTISTS[name].forEach((t) => {
-      if (t.selected === true) {
-        filtered.push(t);
-      }
-    });
-    Object.assign(TRACK, filtered);
-    processPlaylist();
+    if (ARTISTS[name]) {
+      
+      TRACK = [];
+      const filtered = [];
+      PLAYLIST_LABEL.innerHTML = 'ARTIST';
+      PLAYLIST_NAME.innerHTML = name;
+      ARTISTS[name].forEach((t) => {
+        if (t.selected === true) {
+          filtered.push(t);
+        }
+      });
+      Object.assign(TRACK, filtered);
+      processPlaylist();
+    }
   }
 
   function processPlaylist() {
