@@ -16,6 +16,7 @@ window.addEventListener("load", function() {
   var SEQUENCE = [];
   var ALBUMS = {};
   var ARTISTS = {};
+  var FOLDERS = {};
   var TRACK = [];
   var GLOBAL_TRACK = '';
   var EDITOR_MODE = false;
@@ -26,6 +27,7 @@ window.addEventListener("load", function() {
   var CONFIRM_MODAL = {};
   var ABOUT_MODAL = {};
   var ARTISTS_MODAL = {};
+  var FOLDERS_MODAL = {};
   var ALBUMS_MODAL = {};
 
   var PLAYLIST_MANAGER_MODAL_INDEX = -1;
@@ -70,6 +72,7 @@ window.addEventListener("load", function() {
   const CONFIRM_LABEL = document.getElementById("confirm_label");
   const ABOUT_CONTENT = document.getElementById("about_content");
   const ARTISTS_UL = document.getElementById("artists_ul");
+  const FOLDERS_UL = document.getElementById("folders_ul");
   const ALBUMS_UL = document.getElementById("albums_ul");
   const ALB_ART_SK = document.getElementById('albums_or_artists_software_key');
 
@@ -238,6 +241,37 @@ window.addEventListener("load", function() {
     ALB_ART_SK.classList.add('sr-only');
   });
 
+  FOLDERS_MODAL = new Modalise('folders_modal')
+  .attach()
+  .on('onShow', function() {
+    CURRENT_SCREEN = 'FOLDERS_MODAL';
+    MENU_SK.classList.add('sr-only');
+    while(FOLDERS_UL.firstChild) {
+      FOLDERS_UL.removeChild(FOLDERS_UL.firstChild);
+    }
+    var i = 0;
+    for (var name in FOLDERS) {
+      const li = document.createElement("LI");
+      li.appendChild(document.createTextNode(name));
+      li.setAttribute("class", "nav_folder");
+      li.setAttribute("tabIndex", i);
+      FOLDERS_UL.appendChild(li);
+      i++;
+    }
+    setTimeout(function() {
+      nav(1, '.nav_folder');
+    }, 300);
+    ALB_ART_SK.classList.remove('sr-only');
+  })
+  .on('onConfirm', function() {SS
+    
+  })
+  .on('onHide', function() {
+    MENU_SK.classList.remove('sr-only');
+    ALB_ART_SK.classList.add('sr-only');
+  });
+
+
   ALBUMS_MODAL = new Modalise('albums_modal')
   .attach()
   .on('onShow', function() {
@@ -367,6 +401,8 @@ window.addEventListener("load", function() {
           var DONE = 0;
           _temp.forEach((n, i) => {
             getFile(n.name, (file) => {
+              name_parts = n.name.split("/");
+              FOLDERS[name_parts[3]] = JSON.parse(JSON.stringify(_temp));
               jsmediatags.read(file, {
                 onSuccess: (media) => {
                   if (media.tags.artist) {
@@ -481,11 +517,11 @@ window.addEventListener("load", function() {
 
   function indexingStorage() {
     FILES = [];
-    const cursor = SDCARD.enumerate('');
+    const cursor = SDCARD.enumerate('music');
     cursor.onsuccess = function () {
       if (!this.done) {
         if(cursor.result.name !== null) {
-          FILES.push(cursor.result.name)
+          FILES.push(cursor.result.name);
           this.continue();
         }
       } else {
@@ -648,6 +684,24 @@ window.addEventListener("load", function() {
       PLAYLIST_NAME.innerHTML = name;
       ARTISTS[name].forEach((t) => {
         if (t.selected === true) {
+          filtered.push(t);
+        }
+      });
+      Object.assign(TRACK, filtered);
+      processPlaylist();
+    }
+  }
+
+  function processFolder(name) {
+    if (FOLDERS[name]) {
+      TRACK = [];
+      const filtered = [];
+      PLAYLIST_LABEL.innerHTML = 'FOLDER';
+      PLAYLIST_NAME.innerHTML = name;
+      FOLDERS[name].forEach((t) => {
+        name_parts = t.name.split("/");
+        if (name_parts[3] == name) {
+          console.log("added " + t.name);
           filtered.push(t);
         }
       });
@@ -1112,6 +1166,8 @@ window.addEventListener("load", function() {
           ABOUT_CONTENT.scrollTop -= 20;
         } else if (CURRENT_SCREEN === 'ARTISTS_MODAL') {
           nav(-1, '.nav_artist');
+        } else if (CURRENT_SCREEN === 'FOLDERS_MODAL') {
+          nav(-1, '.nav_folder');
         } else if (CURRENT_SCREEN === 'ALBUMS_MODAL') {
           nav(-1, '.nav_album');
         }
@@ -1131,6 +1187,8 @@ window.addEventListener("load", function() {
           ABOUT_CONTENT.scrollTop += 20;
         } else if (CURRENT_SCREEN === 'ARTISTS_MODAL') {
           nav(1, '.nav_artist');
+        } else if (CURRENT_SCREEN === 'FOLDERS_MODAL') {
+          nav(1, '.nav_folder');
         } else if (CURRENT_SCREEN === 'ALBUMS_MODAL') {
           nav(1, '.nav_album');
         }
@@ -1162,10 +1220,13 @@ window.addEventListener("load", function() {
             MENU_MODAL.hide();
             ALBUMS_MODAL.show();
           } else if (document.activeElement.tabIndex === 3) {
+            MENU_MODAL.hide();
+            FOLDERS_MODAL.show();
+          } else if (document.activeElement.tabIndex === 4) {
             indexingStorage();
             CURRENT_SCREEN = 'HOME';
             MENU_MODAL.hide();
-          } else if (document.activeElement.tabIndex === 4) {
+          } else if (document.activeElement.tabIndex === 5) {
             MENU_MODAL.hide();
             ABOUT_MODAL.show();
           }
@@ -1193,6 +1254,13 @@ window.addEventListener("load", function() {
             processArtist(nav[document.activeElement.tabIndex].innerText);
             CURRENT_SCREEN = 'HOME';
             ARTISTS_MODAL.hide();
+          }
+        } else if (CURRENT_SCREEN === 'FOLDERS_MODAL') {
+          const nav = document.querySelectorAll('.nav_folder');
+          if (nav.length > 0 && nav[document.activeElement.tabIndex]) {
+            processFolder(nav[document.activeElement.tabIndex].innerText);
+            CURRENT_SCREEN = 'HOME';
+            FOLDERS_MODAL.hide();
           }
         } else if (CURRENT_SCREEN === 'ALBUMS_MODAL') {
           const nav = document.querySelectorAll('.nav_album');
@@ -1248,6 +1316,11 @@ window.addEventListener("load", function() {
         } else if (CURRENT_SCREEN === 'ARTISTS_MODAL') {
           CURRENT_SCREEN = 'HOME';
           ARTISTS_MODAL.hide();
+          e.preventDefault();
+          e.stopPropagation();
+        } else if (CURRENT_SCREEN === 'FOLDERS_MODAL') {
+          CURRENT_SCREEN = 'HOME';
+          FOLDERS_MODAL.hide();
           e.preventDefault();
           e.stopPropagation();
         } else if (CURRENT_SCREEN === 'ALBUMS_MODAL') {
