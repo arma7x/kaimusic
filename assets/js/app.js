@@ -521,7 +521,7 @@ window.addEventListener("load", function() {
 
   function indexingStorage() {
     FILES = [];
-    const cursor = SDCARD.enumerate('music');
+    const cursor = SDCARD.enumerate('');
     cursor.onsuccess = function () {
       if (!this.done) {
         if(cursor.result.name !== null) {
