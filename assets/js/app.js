@@ -702,6 +702,7 @@ window.addEventListener("load", function() {
         name_parts = t.name.split("/");
         if (name_parts[3] == name) {
           console.log("added " + t.name);
+          t.selected = true;    // dirty fix for unknown problem
           filtered.push(t);
         }
       });
@@ -718,6 +719,7 @@ window.addEventListener("load", function() {
     var i = 0;
     TRACK.forEach(function(k) {
       if (k.selected === true) {
+        console.log("processPlaylist(): " + k.name + " is selected and added.")
         SEQUENCE.push(i);
         const li = document.createElement("LI");
         const name = k.name.split('/');
