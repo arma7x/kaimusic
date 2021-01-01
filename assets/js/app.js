@@ -402,7 +402,11 @@ window.addEventListener("load", function() {
           _temp.forEach((n, i) => {
             getFile(n.name, (file) => {
               name_parts = n.name.split("/");
-              FOLDERS[name_parts[3]] = JSON.parse(JSON.stringify(_temp));
+              last_foldername_location = name_parts.length - 2;
+              FOLDERS[name_parts[last_foldername_location]] = JSON.parse(JSON.stringify(_temp));
+              FOLDERS[name_parts[last_foldername_location]].forEach((t) => {
+                t.selected = true;    // skipping selection because it's done in processingFolders() by foldername comparison
+              });
               jsmediatags.read(file, {
                 onSuccess: (media) => {
                   if (media.tags.artist) {
@@ -700,9 +704,8 @@ window.addEventListener("load", function() {
       PLAYLIST_NAME.innerHTML = name;
       FOLDERS[name].forEach((t) => {
         name_parts = t.name.split("/");
-        if (name_parts[3] == name) {
-          console.log("added " + t.name);
-          t.selected = true;    // dirty fix for unknown problem
+        last_foldername_location = name_parts.length - 2;
+        if (name_parts[last_foldername_location] == name) {
           filtered.push(t);
         }
       });
@@ -719,7 +722,6 @@ window.addEventListener("load", function() {
     var i = 0;
     TRACK.forEach(function(k) {
       if (k.selected === true) {
-        console.log("processPlaylist(): " + k.name + " is selected and added.")
         SEQUENCE.push(i);
         const li = document.createElement("LI");
         const name = k.name.split('/');
