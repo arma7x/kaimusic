@@ -395,6 +395,13 @@ window.addEventListener("load", function() {
               return -1;
             return 0;
           });
+          _temp.sort((a, b) => {
+            if (a['name'] > b['name'])
+              return 1;
+            else if (a['name'] < b['name'])
+              return -1;
+            return 0;
+          });
           GLOBAL_TRACK = JSON.stringify(TRACK);
           ARTISTS['UNKNOWN'] = JSON.parse(JSON.stringify(_temp));
           ALBUMS['UNKNOWN'] = JSON.parse(JSON.stringify(_temp));
@@ -402,10 +409,24 @@ window.addEventListener("load", function() {
           _temp.forEach((n, i) => {
             getFile(n.name, (file) => {
               name_parts = n.name.split("/");
-              last_foldername_location = name_parts.length - 2;
-              FOLDERS[name_parts[last_foldername_location]] = JSON.parse(JSON.stringify(_temp));
-              FOLDERS[name_parts[last_foldername_location]].forEach((t) => {
-                t.selected = true;    // skipping selection because it's done in processingFolders() by foldername comparison
+              var playlist = [];
+              name_parts.pop();
+              name_parts.forEach((val, idx) => {
+                if (val !== '') {
+                  if (playlist.indexOf(val) > -1) {
+                    playlist.push([val, idx].join(' '));
+                  } else {
+                    playlist.push(val);
+                  }
+                }
+              });
+              playlist.forEach((p) => {
+                if (FOLDERS[p] == null) {
+                  FOLDERS[p] = [];
+                }
+                var f = JSON.parse(JSON.stringify(n));
+                f.selected = true;
+                FOLDERS[p].push(f);
               });
               jsmediatags.read(file, {
                 onSuccess: (media) => {
@@ -428,6 +449,7 @@ window.addEventListener("load", function() {
                   DONE++;
                   if (_temp.length === DONE) {
                     setReadyState(true);
+                    console.log(FOLDERS);
                   }
                 },
                 onError: (error) => {
@@ -702,14 +724,7 @@ window.addEventListener("load", function() {
       const filtered = [];
       PLAYLIST_LABEL.innerHTML = 'FOLDER';
       PLAYLIST_NAME.innerHTML = name;
-      FOLDERS[name].forEach((t) => {
-        name_parts = t.name.split("/");
-        last_foldername_location = name_parts.length - 2;
-        if (name_parts[last_foldername_location] == name) {
-          filtered.push(t);
-        }
-      });
-      Object.assign(TRACK, filtered);
+      Object.assign(TRACK, FOLDERS[name]);
       processPlaylist();
     }
   }
