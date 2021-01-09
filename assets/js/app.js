@@ -445,11 +445,7 @@ window.addEventListener("load", function() {
               name_parts.pop();
               name_parts.forEach((val, idx) => {
                 if (val !== '') {
-                  if (playlist.indexOf(val) > -1) {
-                    playlist.push([val, idx].join(' '));
-                  } else {
-                    playlist.push(val);
-                  }
+                  playlist.push(val);
                 }
               });
               playlist.forEach((p) => {

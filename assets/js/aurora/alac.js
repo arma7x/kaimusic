@@ -1,1 +1,727 @@
-!function e(r,n,t){function i(f,a){if(!n[f]){if(!r[f]){var c="function"==typeof require&&require;if(!a&&c)return c(f,!0);if(o)return o(f,!0);throw new Error("Cannot find module '"+f+"'")}var u=n[f]={exports:{}};r[f][0].call(u.exports,function(e){var n=r[f][1][e];return i(n||e)},u,u.exports,e,r,n,t)}return n[f].exports}for(var o="function"==typeof require&&require,f=0;f<t.length;f++)i(t[f]);return i}({1:[function(e,r,n){(function(){var e;e=function(){var e,r,n,t,i,o;function f(){}return 40,10,14,255,9,9,9,512,n=1<<(e=9-(r=2)-1)-2,65535,65535,r=2,24,16,o=function(e){var r,n;for(n=0,r=0;!((r=e>>>24)||(n+=8,255&(r=e>>>16))||(n+=8,255&(r=e>>>8))||(n+=8,255&(r=e)));)return n+=8;return 240&r?r>>>=4:n+=4,8&r?n:4&r?n+1:2&r?n+2:1&r?n+3:n+4},t=function(e,r,n){var t,i,f,a,c;return i=e.bitPosition,a=e.peek(32-i)<<i,(t=o(~a))>=9?(e.advance(25),f=(a<<=9)>>>16):(e.advance(t+n),f=t*r+(c=(a<<=t+1)>>>32-n)-1,c<2?f-=c-1:e.advance(1)),f},i=function(e,r,n,t){var i,f,a,c;return i=e.bitPosition,a=e.peek(32-i)<<i,(f=o(~a))>=9?(e.advance(9),e.read(t)):(e.advance(f+1),1!==n&&(a<<=f+1,f*=r,c=a>>>32-n,e.advance(n-1),c>1&&(f+=c-1,e.advance(1))),f)},f.ag_params=function(e,r,n,t,i,o){return{mb:e,mb0:e,pb:r,kb:n,wb:(1<<n)-1,qb:512-r,fw:t,sw:i,maxrun:o}},f.dyn_decomp=function(f,a,c,u,s){var d,h,p,l,w,m,b,v,y,g,x,_,k;for(g=f.pb,l=f.kb,_=f.wb,m=f.mb0,k=0,d=0;d<u;)if(w=m>>>9,p=Math.min(31-o(w+3),l),b=1|-(1&(y=(v=i(a,w=(1<<p)-1,p,s))+k)),c[d++]=(y+1>>>1)*b,m=g*(v+k)+m-(g*m>>9),v>65535&&(m=65535),k=0,m<<r<512&&d<u){if(k=1,p=o(m)-24+(m+n>>e),!(d+(v=t(a,(1<<p)-1&_,p))<=u))return!1;for(h=0,x=v;h<x;h+=1)c[d++]=0;v>=65535&&(k=0),m=0}return!0},f}(),r.exports=e}).call(this)},{}],2:[function(e,r,n){(function(n){(function(){var t,i,o,f,a,c={}.hasOwnProperty;i="undefined"!=typeof window?window.AV:void 0!==n?n.AV:null,o=e("./ag_dec"),f=e("./dp_dec"),a=e("./matrix_dec"),t=function(e){function r(){return r.__super__.constructor.apply(this,arguments)}return function(e,r){for(var n in r)c.call(r,n)&&(e[n]=r[n]);function t(){this.constructor=e}t.prototype=r.prototype,e.prototype=new t,e.__super__=r.prototype}(r,i.Decoder),i.Decoder.register("alac",r),0,1,2,3,4,5,6,7,r.prototype.setCookie=function(e){var r,n,t;return"frma"===(n=i.Stream.fromBuffer(e)).peekString(4,4)&&n.advance(12),"alac"===n.peekString(4,4)&&n.advance(12),this.config={frameLength:n.readUInt32(),compatibleVersion:n.readUInt8(),bitDepth:n.readUInt8(),pb:n.readUInt8(),mb:n.readUInt8(),kb:n.readUInt8(),numChannels:n.readUInt8(),maxRun:n.readUInt16(),maxFrameBytes:n.readUInt32(),avgBitRate:n.readUInt32(),sampleRate:n.readUInt32()},(r=this.format).bitsPerChannel||(r.bitsPerChannel=this.config.bitDepth),this.mixBuffers=[new Int32Array(this.config.frameLength),new Int32Array(this.config.frameLength)],t=new ArrayBuffer(4*this.config.frameLength),this.predictor=new Int32Array(t),this.shiftBuffer=new Int16Array(t)},r.prototype.readChunk=function(e){var r,n,t,i,c,u,s,d,h,p,l,w,m,b,v,y,g,x,_,k,I,U,B,A,E,C,D,q,L,P,R,S,V,O,F,M,T,j,z,G,H,J,K,N,Q,W,X,Y,Z;if(this.stream.available(4)){for(e=this.bitstream,N=this.config.frameLength,C=this.config.numChannels,c=0,L=new ArrayBuffer(N*C*this.config.bitDepth/8),l=!1;!l;){switch(Y=e.read(3)){case 0:case 3:case 1:if(c+(u=1===Y?2:1)>C)throw new Error("Too many channels!");if(e.read(4),0!==e.read(12))throw new Error("Unused part of header does not contain 0, it should");if(S=e.read(1),n=e.read(2),w=e.read(1),3===n)throw new Error("Bytes are shifted by 3, they shouldn't be");if(S&&(N=e.read(32)),0===w){for(Q=8*n,i=this.config.bitDepth-Q+u-1,I=e.read(8),U=e.read(8),B=[],p=[],O=[],E=[],s=[],t=v=0,M=u;v<M;t=v+=1)for(B[t]=e.read(4),p[t]=e.read(4),O[t]=e.read(3),E[t]=e.read(5),X=s[t]=new Int16Array(32),m=g=0,T=E[t];g<T;m=g+=1)X[m]=e.read(16);for(n&&(W=e.copy(),e.advance(Q*u*N)),k=(j=this.config).mb,V=j.pb,y=j.kb,_=j.maxRun,t=x=0,z=u;x<z;t=x+=1){if(R=o.ag_params(k,V*O[t]/4,y,N,N,_),!o.dyn_decomp(R,e,this.predictor,N,i))throw new Error("Error in Aglib.dyn_decomp");0===B[t]?f.unpc_block(this.predictor,this.mixBuffers[t],N,s[t],E[t],i,p[t]):(f.unpc_block(this.predictor,this.predictor,N,null,31,i,0),f.unpc_block(this.predictor,this.mixBuffers[t],N,s[t],E[t],i,p[t]))}}else{for(Q=32-(i=this.config.bitDepth),m=A=0,G=N;A<G;m=A+=1)for(t=D=0,H=u;D<H;t=D+=1)Z=e.read(i)<<Q>>Q,this.mixBuffers[t][m]=Z;I=U=0,n=0}if(n)for(Q=8*n,m=P=0,J=N*u;P<J;m=P+=1)this.shiftBuffer[m]=W.read(Q);switch(this.config.bitDepth){case 16:if(q=new Int16Array(L,c),2===u)a.unmix16(this.mixBuffers[0],this.mixBuffers[1],q,C,N,I,U);else for(b=0,r=this.mixBuffers[0],m=F=0,K=N;F<K;m=F+=1)q[b]=r[m],b+=C;break;default:throw new Error("Only supports 16-bit samples right now")}c+=u;break;case 2:case 5:throw new Error("Unsupported element: "+Y);case 4:if(e.read(4),h=e.read(1),255===(d=e.read(8))&&(d+=e.read(8)),h&&e.align(),e.advance(8*d),!(e.pos<e.length))throw new Error("buffer overrun");break;case 6:if(15===(d=e.read(4))&&(d+=e.read(8)-1),e.advance(8*d),!(e.pos<e.length))throw new Error("buffer overrun");break;case 7:e.align(),l=!0;break;default:throw new Error("Unknown element: "+Y)}if(c>C)throw new Error("Channel index too large.")}return new Int16Array(L)}},r}(),r.exports=t}).call(this)}).call(this,"undefined"!=typeof self?self:"undefined"!=typeof window?window:{})},{"./ag_dec":1,"./dp_dec":3,"./matrix_dec":4}],3:[function(e,r,n){(function(){var e;e=function(){var e;function r(){}return e=function(e,r,n,t,i){var o,f;return o=new Uint8Array(e,r,i),f=new Uint8Array(n,t,i),o.set(f),e},r.unpc_block=function(r,n,t,i,o,f,a){var c,u,s,d,h,p,l,w,m,b,v,y,g,x,_,k,I,U,B,A,E,C,D,q,L,P,R,S,V,O,F,M,T,j,z,G,H,J,K,N,Q,W,X,Y;if(I=32-f,E=1<<a-1,n[0]=r[0],0===o)return e(n,0,r,0,4*t);if(31!==o){for(C=L=1,z=o;L<=z;C=L+=1)B=r[C]+n[C-1],n[C]=B<<I>>I;if(P=o+1,4===o){for(c=i[0],u=i[1],s=i[2],d=i[3],D=R=P,G=t;R<G;D=R+=1)if(X=E-c*(m=(Y=n[D-P])-n[V=D-1])-u*(b=Y-n[V-1])-s*(v=Y-n[V-2])-d*(y=Y-n[V-3])>>a,Q=-(B=A=r[D])>>>31|B>>31,B+=Y+X,n[D]=B<<I>>I,Q>0){if(d-=W=-y>>>31|y>>31,(A-=1*(W*y>>a))<=0)continue;if(s-=W=-v>>>31|v>>31,(A-=2*(W*v>>a))<=0)continue;if(u-=W=-b>>>31|b>>31,(A-=3*(W*b>>a))<=0)continue;c-=-m>>>31|m>>31}else if(Q<0){if(d-=W=-(-y>>>31|y>>31),(A-=1*(W*y>>a))>=0)continue;if(s-=W=-(-v>>>31|v>>31),(A-=2*(W*v>>a))>=0)continue;if(u-=W=-(-b>>>31|b>>31),(A-=3*(W*b>>a))>=0)continue;c+=-m>>>31|m>>31}i[0]=c,i[1]=u,i[2]=s,i[3]=d}else if(8===o){for(c=i[0],u=i[1],s=i[2],d=i[3],h=i[4],p=i[5],l=i[6],w=i[7],D=S=P,H=t;S<H;D=S+=1)if(X=E-c*(m=(Y=n[D-P])-n[V=D-1])-u*(b=Y-n[V-1])-s*(v=Y-n[V-2])-d*(y=Y-n[V-3])-h*(g=Y-n[V-4])-p*(x=Y-n[V-5])-l*(_=Y-n[V-6])-w*(k=Y-n[V-7])>>a,Q=-(B=A=r[D])>>>31|B>>31,B+=Y+X,n[D]=B<<I>>I,Q>0){if(w-=W=-k>>>31|k>>31,(A-=1*(W*k>>a))<=0)continue;if(l-=W=-_>>>31|_>>31,(A-=2*(W*_>>a))<=0)continue;if(p-=W=-x>>>31|x>>31,(A-=3*(W*x>>a))<=0)continue;if(h-=W=-g>>>31|g>>31,(A-=4*(W*g>>a))<=0)continue;if(d-=W=-y>>>31|y>>31,(A-=5*(W*y>>a))<=0)continue;if(s-=W=-v>>>31|v>>31,(A-=6*(W*v>>a))<=0)continue;if(u-=W=-b>>>31|b>>31,(A-=7*(W*b>>a))<=0)continue;c-=-m>>>31|m>>31}else if(Q<0){if(w-=W=-(-k>>>31|k>>31),(A-=1*(W*k>>a))>=0)continue;if(l-=W=-(-_>>>31|_>>31),(A-=2*(W*_>>a))>=0)continue;if(p-=W=-(-x>>>31|x>>31),(A-=3*(W*x>>a))>=0)continue;if(h-=W=-(-g>>>31|g>>31),(A-=4*(W*g>>a))>=0)continue;if(d-=W=-(-y>>>31|y>>31),(A-=5*(W*y>>a))>=0)continue;if(s-=W=-(-v>>>31|v>>31),(A-=6*(W*v>>a))>=0)continue;if(u-=W=-(-b>>>31|b>>31),(A-=7*(W*b>>a))>=0)continue;c+=-m>>>31|m>>31}i[0]=c,i[1]=u,i[2]=s,i[3]=d,i[4]=h,i[5]=p,i[6]=l,i[7]=w}else for(C=O=P,J=t;O<J;C=O+=1){for(X=0,Y=n[C-P],V=C-1,D=M=0,K=o;M<K;D=M+=1)X+=i[D]*(n[V-D]-Y);if(Q=-(B=A=r[C])>>>31|B>>31,B+=Y+(X+E>>a),n[C]=B<<I>>I,Q>0)for(D=T=o-1;T>=0&&(W=-(U=Y-n[V-D])>>>31|U>>31,i[D]-=W,!((A-=(o-D)*(W*U>>a))<=0));D=T+=-1);else if(Q<0)for(D=N=o-1;N>=0&&(W=-(U=Y-n[V-D])>>>31|U>>31,i[D]+=W,!((A-=(o-D)*(-W*U>>a))>=0));D=N+=-1);}}else for(F=n[0],C=q=1,j=t;q<j;C=q+=1)F=(B=r[C]+F)<<I>>I,n[C]=F},r}(),r.exports=e}).call(this)},{}],4:[function(e,r,n){(function(){var e;e=function(){function e(){}return e.unmix16=function(e,r,n,t,i,o,f){var a,c,u,s,d,h;if(0===f)for(a=c=0,d=i;c<d;a=c+=1)n[a*t+0]=e[a],n[a*t+1]=r[a];else for(a=u=0,h=i;u<h;a=u+=1)s=e[a]+r[a]-(f*r[a]>>o),n[a*t+0]=s,n[a*t+1]=s-r[a]},e}(),r.exports=e}).call(this)},{}]},{},[2]);
+(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+// Generated by CoffeeScript 1.12.7
+(function() {
+  var Aglib;
+
+  Aglib = (function() {
+    var BITOFF, KB0, MAX_DATATYPE_BITS_16, MAX_PREFIX_16, MAX_PREFIX_32, MAX_RUN_DEFAULT, MB0, MDENSHIFT, MMULSHIFT, MOFF, N_MAX_MEAN_CLAMP, N_MEAN_CLAMP_VAL, PB0, QB, QBSHIFT, dyn_get_16, dyn_get_32, lead;
+
+    function Aglib() {}
+
+    PB0 = 40;
+
+    MB0 = 10;
+
+    KB0 = 14;
+
+    MAX_RUN_DEFAULT = 255;
+
+    MAX_PREFIX_16 = 9;
+
+    MAX_PREFIX_32 = 9;
+
+    QBSHIFT = 9;
+
+    QB = 1 << QBSHIFT;
+
+    MMULSHIFT = 2;
+
+    MDENSHIFT = QBSHIFT - MMULSHIFT - 1;
+
+    MOFF = 1 << (MDENSHIFT - 2);
+
+    N_MAX_MEAN_CLAMP = 0xFFFF;
+
+    N_MEAN_CLAMP_VAL = 0xFFFF;
+
+    MMULSHIFT = 2;
+
+    BITOFF = 24;
+
+    MAX_DATATYPE_BITS_16 = 16;
+
+    lead = function(input) {
+      var curbyte, output;
+      output = 0;
+      curbyte = 0;
+      while (true) {
+        curbyte = input >>> 24;
+        if (curbyte) {
+          break;
+        }
+        output += 8;
+        curbyte = input >>> 16;
+        if (curbyte & 0xff) {
+          break;
+        }
+        output += 8;
+        curbyte = input >>> 8;
+        if (curbyte & 0xff) {
+          break;
+        }
+        output += 8;
+        curbyte = input;
+        if (curbyte & 0xff) {
+          break;
+        }
+        output += 8;
+        return output;
+      }
+      if (curbyte & 0xf0) {
+        curbyte >>>= 4;
+      } else {
+        output += 4;
+      }
+      if (curbyte & 0x8) {
+        return output;
+      }
+      if (curbyte & 0x4) {
+        return output + 1;
+      }
+      if (curbyte & 0x2) {
+        return output + 2;
+      }
+      if (curbyte & 0x1) {
+        return output + 3;
+      }
+      return output + 4;
+    };
+
+    dyn_get_16 = function(data, m, k) {
+      var bitsInPrefix, offs, result, stream, v;
+      offs = data.bitPosition;
+      stream = data.peek(32 - offs) << offs;
+      bitsInPrefix = lead(~stream);
+      if (bitsInPrefix >= MAX_PREFIX_16) {
+        data.advance(MAX_PREFIX_16 + MAX_DATATYPE_BITS_16);
+        stream <<= MAX_PREFIX_16;
+        result = stream >>> (32 - MAX_DATATYPE_BITS_16);
+      } else {
+        data.advance(bitsInPrefix + k);
+        stream <<= bitsInPrefix + 1;
+        v = stream >>> (32 - k);
+        result = bitsInPrefix * m + v - 1;
+        if (v < 2) {
+          result -= v - 1;
+        } else {
+          data.advance(1);
+        }
+      }
+      return result;
+    };
+
+    dyn_get_32 = function(data, m, k, maxbits) {
+      var offs, result, stream, v;
+      offs = data.bitPosition;
+      stream = data.peek(32 - offs) << offs;
+      result = lead(~stream);
+      if (result >= MAX_PREFIX_32) {
+        data.advance(MAX_PREFIX_32);
+        return data.read(maxbits);
+      } else {
+        data.advance(result + 1);
+        if (k !== 1) {
+          stream <<= result + 1;
+          result *= m;
+          v = stream >>> (32 - k);
+          data.advance(k - 1);
+          if (v > 1) {
+            result += v - 1;
+            data.advance(1);
+          }
+        }
+      }
+      return result;
+    };
+
+    Aglib.ag_params = function(m, p, k, f, s, maxrun) {
+      return {
+        mb: m,
+        mb0: m,
+        pb: p,
+        kb: k,
+        wb: (1 << k) - 1,
+        qb: QB - p,
+        fw: f,
+        sw: s,
+        maxrun: maxrun
+      };
+    };
+
+    Aglib.dyn_decomp = function(params, data, pc, samples, maxSize) {
+      var c, i, j, k, kb, m, mb, multiplier, mz, n, ndecode, pb, ref, wb, zmode;
+      pb = params.pb, kb = params.kb, wb = params.wb, mb = params.mb0;
+      zmode = 0;
+      c = 0;
+      while (c < samples) {
+        m = mb >>> QBSHIFT;
+        k = Math.min(31 - lead(m + 3), kb);
+        m = (1 << k) - 1;
+        n = dyn_get_32(data, m, k, maxSize);
+        ndecode = n + zmode;
+        multiplier = -(ndecode & 1) | 1;
+        pc[c++] = ((ndecode + 1) >>> 1) * multiplier;
+        mb = pb * (n + zmode) + mb - ((pb * mb) >> QBSHIFT);
+        if (n > N_MAX_MEAN_CLAMP) {
+          mb = N_MEAN_CLAMP_VAL;
+        }
+        zmode = 0;
+        if (((mb << MMULSHIFT) < QB) && (c < samples)) {
+          zmode = 1;
+          k = lead(mb) - BITOFF + ((mb + MOFF) >> MDENSHIFT);
+          mz = ((1 << k) - 1) & wb;
+          n = dyn_get_16(data, mz, k);
+          if (!(c + n <= samples)) {
+            return false;
+          }
+          for (j = i = 0, ref = n; i < ref; j = i += 1) {
+            pc[c++] = 0;
+          }
+          if (n >= 65535) {
+            zmode = 0;
+          }
+          mb = 0;
+        }
+      }
+      return true;
+    };
+
+    return Aglib;
+
+  })();
+
+  module.exports = Aglib;
+
+}).call(this);
+
+},{}],2:[function(require,module,exports){
+(function (global){
+// Generated by CoffeeScript 1.12.7
+(function() {
+  var ALACDecoder, AV, Aglib, Dplib, Matrixlib,
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
+
+  AV = (typeof window !== "undefined" ? window['AV'] : typeof global !== "undefined" ? global['AV'] : null);
+
+  Aglib = require('./ag_dec');
+
+  Dplib = require('./dp_dec');
+
+  Matrixlib = require('./matrix_dec');
+
+  ALACDecoder = (function(superClass) {
+    var ID_CCE, ID_CPE, ID_DSE, ID_END, ID_FIL, ID_LFE, ID_PCE, ID_SCE;
+
+    extend(ALACDecoder, superClass);
+
+    function ALACDecoder() {
+      return ALACDecoder.__super__.constructor.apply(this, arguments);
+    }
+
+    AV.Decoder.register('alac', ALACDecoder);
+
+    ID_SCE = 0;
+
+    ID_CPE = 1;
+
+    ID_CCE = 2;
+
+    ID_LFE = 3;
+
+    ID_DSE = 4;
+
+    ID_PCE = 5;
+
+    ID_FIL = 6;
+
+    ID_END = 7;
+
+    ALACDecoder.prototype.setCookie = function(cookie) {
+      var base, data, predictorBuffer;
+      data = AV.Stream.fromBuffer(cookie);
+      if (data.peekString(4, 4) === 'frma') {
+        data.advance(12);
+      }
+      if (data.peekString(4, 4) === 'alac') {
+        data.advance(12);
+      }
+      this.config = {
+        frameLength: data.readUInt32(),
+        compatibleVersion: data.readUInt8(),
+        bitDepth: data.readUInt8(),
+        pb: data.readUInt8(),
+        mb: data.readUInt8(),
+        kb: data.readUInt8(),
+        numChannels: data.readUInt8(),
+        maxRun: data.readUInt16(),
+        maxFrameBytes: data.readUInt32(),
+        avgBitRate: data.readUInt32(),
+        sampleRate: data.readUInt32()
+      };
+      (base = this.format).bitsPerChannel || (base.bitsPerChannel = this.config.bitDepth);
+      this.mixBuffers = [new Int32Array(this.config.frameLength), new Int32Array(this.config.frameLength)];
+      predictorBuffer = new ArrayBuffer(this.config.frameLength * 4);
+      this.predictor = new Int32Array(predictorBuffer);
+      return this.shiftBuffer = new Int16Array(predictorBuffer);
+    };
+
+    ALACDecoder.prototype.readChunk = function(data) {
+      var buf, bytesShifted, ch, chanBits, channelIndex, channels, coefs, count, dataByteAlignFlag, denShift, elementInstanceTag, end, escapeFlag, i, j, k, kb, l, m, maxRun, mb, mixBits, mixRes, mode, n, num, numChannels, o, out16, output, p, params, partialFrame, pb, pbFactor, q, ref, ref1, ref2, ref3, ref4, ref5, ref6, ref7, samples, shift, shiftbits, status, table, tag, unused, val;
+      if (!this.stream.available(4)) {
+        return;
+      }
+      data = this.bitstream;
+      samples = this.config.frameLength;
+      numChannels = this.config.numChannels;
+      channelIndex = 0;
+      output = new ArrayBuffer(samples * numChannels * this.config.bitDepth / 8);
+      end = false;
+      while (!end) {
+        tag = data.read(3);
+        switch (tag) {
+          case ID_SCE:
+          case ID_LFE:
+          case ID_CPE:
+            channels = tag === ID_CPE ? 2 : 1;
+            if (channelIndex + channels > numChannels) {
+              throw new Error('Too many channels!');
+            }
+            elementInstanceTag = data.read(4);
+            unused = data.read(12);
+            if (unused !== 0) {
+              throw new Error('Unused part of header does not contain 0, it should');
+            }
+            partialFrame = data.read(1);
+            bytesShifted = data.read(2);
+            escapeFlag = data.read(1);
+            if (bytesShifted === 3) {
+              throw new Error("Bytes are shifted by 3, they shouldn't be");
+            }
+            if (partialFrame) {
+              samples = data.read(32);
+            }
+            if (escapeFlag === 0) {
+              shift = bytesShifted * 8;
+              chanBits = this.config.bitDepth - shift + channels - 1;
+              mixBits = data.read(8);
+              mixRes = data.read(8);
+              mode = [];
+              denShift = [];
+              pbFactor = [];
+              num = [];
+              coefs = [];
+              for (ch = k = 0, ref = channels; k < ref; ch = k += 1) {
+                mode[ch] = data.read(4);
+                denShift[ch] = data.read(4);
+                pbFactor[ch] = data.read(3);
+                num[ch] = data.read(5);
+                table = coefs[ch] = new Int16Array(32);
+                for (i = l = 0, ref1 = num[ch]; l < ref1; i = l += 1) {
+                  table[i] = data.read(16);
+                }
+              }
+              if (bytesShifted) {
+                shiftbits = data.copy();
+                data.advance(shift * channels * samples);
+              }
+              ref2 = this.config, mb = ref2.mb, pb = ref2.pb, kb = ref2.kb, maxRun = ref2.maxRun;
+              for (ch = m = 0, ref3 = channels; m < ref3; ch = m += 1) {
+                params = Aglib.ag_params(mb, (pb * pbFactor[ch]) / 4, kb, samples, samples, maxRun);
+                status = Aglib.dyn_decomp(params, data, this.predictor, samples, chanBits);
+                if (!status) {
+                  throw new Error('Error in Aglib.dyn_decomp');
+                }
+                if (mode[ch] === 0) {
+                  Dplib.unpc_block(this.predictor, this.mixBuffers[ch], samples, coefs[ch], num[ch], chanBits, denShift[ch]);
+                } else {
+                  Dplib.unpc_block(this.predictor, this.predictor, samples, null, 31, chanBits, 0);
+                  Dplib.unpc_block(this.predictor, this.mixBuffers[ch], samples, coefs[ch], num[ch], chanBits, denShift[ch]);
+                }
+              }
+            } else {
+              chanBits = this.config.bitDepth;
+              shift = 32 - chanBits;
+              for (i = n = 0, ref4 = samples; n < ref4; i = n += 1) {
+                for (ch = o = 0, ref5 = channels; o < ref5; ch = o += 1) {
+                  val = (data.read(chanBits) << shift) >> shift;
+                  this.mixBuffers[ch][i] = val;
+                }
+              }
+              mixBits = mixRes = 0;
+              bytesShifted = 0;
+            }
+            if (bytesShifted) {
+              shift = bytesShifted * 8;
+              for (i = p = 0, ref6 = samples * channels; p < ref6; i = p += 1) {
+                this.shiftBuffer[i] = shiftbits.read(shift);
+              }
+            }
+            switch (this.config.bitDepth) {
+              case 16:
+                out16 = new Int16Array(output, channelIndex);
+                if (channels === 2) {
+                  Matrixlib.unmix16(this.mixBuffers[0], this.mixBuffers[1], out16, numChannels, samples, mixBits, mixRes);
+                } else {
+                  j = 0;
+                  buf = this.mixBuffers[0];
+                  for (i = q = 0, ref7 = samples; q < ref7; i = q += 1) {
+                    out16[j] = buf[i];
+                    j += numChannels;
+                  }
+                }
+                break;
+              default:
+                throw new Error('Only supports 16-bit samples right now');
+            }
+            channelIndex += channels;
+            break;
+          case ID_CCE:
+          case ID_PCE:
+            throw new Error("Unsupported element: " + tag);
+            break;
+          case ID_DSE:
+            elementInstanceTag = data.read(4);
+            dataByteAlignFlag = data.read(1);
+            count = data.read(8);
+            if (count === 255) {
+              count += data.read(8);
+            }
+            if (dataByteAlignFlag) {
+              data.align();
+            }
+            data.advance(count * 8);
+            if (!(data.pos < data.length)) {
+              throw new Error('buffer overrun');
+            }
+            break;
+          case ID_FIL:
+            count = data.read(4);
+            if (count === 15) {
+              count += data.read(8) - 1;
+            }
+            data.advance(count * 8);
+            if (!(data.pos < data.length)) {
+              throw new Error('buffer overrun');
+            }
+            break;
+          case ID_END:
+            data.align();
+            end = true;
+            break;
+          default:
+            throw new Error("Unknown element: " + tag);
+        }
+        if (channelIndex > numChannels) {
+          throw new Error('Channel index too large.');
+        }
+      }
+      return new Int16Array(output);
+    };
+
+    return ALACDecoder;
+
+  })(AV.Decoder);
+
+  module.exports = ALACDecoder;
+
+}).call(this);
+
+}).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{"./ag_dec":1,"./dp_dec":3,"./matrix_dec":4}],3:[function(require,module,exports){
+// Generated by CoffeeScript 1.12.7
+(function() {
+  var Dplib;
+
+  Dplib = (function() {
+    var copy;
+
+    function Dplib() {}
+
+    copy = function(dst, dstOffset, src, srcOffset, n) {
+      var destination, source;
+      destination = new Uint8Array(dst, dstOffset, n);
+      source = new Uint8Array(src, srcOffset, n);
+      destination.set(source);
+      return dst;
+    };
+
+    Dplib.unpc_block = function(pc1, out, num, coefs, active, chanbits, denshift) {
+      var a0, a1, a2, a3, a4, a5, a6, a7, b0, b1, b2, b3, b4, b5, b6, b7, chanshift, dd, del, del0, denhalf, i, j, k, l, lim, m, o, offset, p, prev, q, r, ref, ref1, ref10, ref2, ref3, ref4, ref5, ref6, ref7, ref8, ref9, s, sg, sgn, sum1, top;
+      chanshift = 32 - chanbits;
+      denhalf = 1 << (denshift - 1);
+      out[0] = pc1[0];
+      if (active === 0) {
+        return copy(out, 0, pc1, 0, num * 4);
+      }
+      if (active === 31) {
+        prev = out[0];
+        for (i = k = 1, ref = num; k < ref; i = k += 1) {
+          del = pc1[i] + prev;
+          prev = (del << chanshift) >> chanshift;
+          out[i] = prev;
+        }
+        return;
+      }
+      for (i = l = 1, ref1 = active; l <= ref1; i = l += 1) {
+        del = pc1[i] + out[i - 1];
+        out[i] = (del << chanshift) >> chanshift;
+      }
+      lim = active + 1;
+      if (active === 4) {
+        a0 = coefs[0], a1 = coefs[1], a2 = coefs[2], a3 = coefs[3];
+        for (j = m = ref2 = lim, ref3 = num; m < ref3; j = m += 1) {
+          top = out[j - lim];
+          offset = j - 1;
+          b0 = top - out[offset];
+          b1 = top - out[offset - 1];
+          b2 = top - out[offset - 2];
+          b3 = top - out[offset - 3];
+          sum1 = (denhalf - a0 * b0 - a1 * b1 - a2 * b2 - a3 * b3) >> denshift;
+          del = del0 = pc1[j];
+          sg = (-del >>> 31) | (del >> 31);
+          del += top + sum1;
+          out[j] = (del << chanshift) >> chanshift;
+          if (sg > 0) {
+            sgn = (-b3 >>> 31) | (b3 >> 31);
+            a3 -= sgn;
+            del0 -= 1 * ((sgn * b3) >> denshift);
+            if (del0 <= 0) {
+              continue;
+            }
+            sgn = (-b2 >>> 31) | (b2 >> 31);
+            a2 -= sgn;
+            del0 -= 2 * ((sgn * b2) >> denshift);
+            if (del0 <= 0) {
+              continue;
+            }
+            sgn = (-b1 >>> 31) | (b1 >> 31);
+            a1 -= sgn;
+            del0 -= 3 * ((sgn * b1) >> denshift);
+            if (del0 <= 0) {
+              continue;
+            }
+            a0 -= (-b0 >>> 31) | (b0 >> 31);
+          } else if (sg < 0) {
+            sgn = -((-b3 >>> 31) | (b3 >> 31));
+            a3 -= sgn;
+            del0 -= 1 * ((sgn * b3) >> denshift);
+            if (del0 >= 0) {
+              continue;
+            }
+            sgn = -((-b2 >>> 31) | (b2 >> 31));
+            a2 -= sgn;
+            del0 -= 2 * ((sgn * b2) >> denshift);
+            if (del0 >= 0) {
+              continue;
+            }
+            sgn = -((-b1 >>> 31) | (b1 >> 31));
+            a1 -= sgn;
+            del0 -= 3 * ((sgn * b1) >> denshift);
+            if (del0 >= 0) {
+              continue;
+            }
+            a0 += (-b0 >>> 31) | (b0 >> 31);
+          }
+        }
+        coefs[0] = a0;
+        coefs[1] = a1;
+        coefs[2] = a2;
+        coefs[3] = a3;
+      } else if (active === 8) {
+        a0 = coefs[0], a1 = coefs[1], a2 = coefs[2], a3 = coefs[3], a4 = coefs[4], a5 = coefs[5], a6 = coefs[6], a7 = coefs[7];
+        for (j = o = ref4 = lim, ref5 = num; o < ref5; j = o += 1) {
+          top = out[j - lim];
+          offset = j - 1;
+          b0 = top - out[offset];
+          b1 = top - out[offset - 1];
+          b2 = top - out[offset - 2];
+          b3 = top - out[offset - 3];
+          b4 = top - out[offset - 4];
+          b5 = top - out[offset - 5];
+          b6 = top - out[offset - 6];
+          b7 = top - out[offset - 7];
+          sum1 = (denhalf - a0 * b0 - a1 * b1 - a2 * b2 - a3 * b3 - a4 * b4 - a5 * b5 - a6 * b6 - a7 * b7) >> denshift;
+          del = del0 = pc1[j];
+          sg = (-del >>> 31) | (del >> 31);
+          del += top + sum1;
+          out[j] = (del << chanshift) >> chanshift;
+          if (sg > 0) {
+            sgn = (-b7 >>> 31) | (b7 >> 31);
+            a7 -= sgn;
+            del0 -= 1 * ((sgn * b7) >> denshift);
+            if (del0 <= 0) {
+              continue;
+            }
+            sgn = (-b6 >>> 31) | (b6 >> 31);
+            a6 -= sgn;
+            del0 -= 2 * ((sgn * b6) >> denshift);
+            if (del0 <= 0) {
+              continue;
+            }
+            sgn = (-b5 >>> 31) | (b5 >> 31);
+            a5 -= sgn;
+            del0 -= 3 * ((sgn * b5) >> denshift);
+            if (del0 <= 0) {
+              continue;
+            }
+            sgn = (-b4 >>> 31) | (b4 >> 31);
+            a4 -= sgn;
+            del0 -= 4 * ((sgn * b4) >> denshift);
+            if (del0 <= 0) {
+              continue;
+            }
+            sgn = (-b3 >>> 31) | (b3 >> 31);
+            a3 -= sgn;
+            del0 -= 5 * ((sgn * b3) >> denshift);
+            if (del0 <= 0) {
+              continue;
+            }
+            sgn = (-b2 >>> 31) | (b2 >> 31);
+            a2 -= sgn;
+            del0 -= 6 * ((sgn * b2) >> denshift);
+            if (del0 <= 0) {
+              continue;
+            }
+            sgn = (-b1 >>> 31) | (b1 >> 31);
+            a1 -= sgn;
+            del0 -= 7 * ((sgn * b1) >> denshift);
+            if (del0 <= 0) {
+              continue;
+            }
+            a0 -= (-b0 >>> 31) | (b0 >> 31);
+          } else if (sg < 0) {
+            sgn = -((-b7 >>> 31) | (b7 >> 31));
+            a7 -= sgn;
+            del0 -= 1 * ((sgn * b7) >> denshift);
+            if (del0 >= 0) {
+              continue;
+            }
+            sgn = -((-b6 >>> 31) | (b6 >> 31));
+            a6 -= sgn;
+            del0 -= 2 * ((sgn * b6) >> denshift);
+            if (del0 >= 0) {
+              continue;
+            }
+            sgn = -((-b5 >>> 31) | (b5 >> 31));
+            a5 -= sgn;
+            del0 -= 3 * ((sgn * b5) >> denshift);
+            if (del0 >= 0) {
+              continue;
+            }
+            sgn = -((-b4 >>> 31) | (b4 >> 31));
+            a4 -= sgn;
+            del0 -= 4 * ((sgn * b4) >> denshift);
+            if (del0 >= 0) {
+              continue;
+            }
+            sgn = -((-b3 >>> 31) | (b3 >> 31));
+            a3 -= sgn;
+            del0 -= 5 * ((sgn * b3) >> denshift);
+            if (del0 >= 0) {
+              continue;
+            }
+            sgn = -((-b2 >>> 31) | (b2 >> 31));
+            a2 -= sgn;
+            del0 -= 6 * ((sgn * b2) >> denshift);
+            if (del0 >= 0) {
+              continue;
+            }
+            sgn = -((-b1 >>> 31) | (b1 >> 31));
+            a1 -= sgn;
+            del0 -= 7 * ((sgn * b1) >> denshift);
+            if (del0 >= 0) {
+              continue;
+            }
+            a0 += (-b0 >>> 31) | (b0 >> 31);
+          }
+        }
+        coefs[0] = a0;
+        coefs[1] = a1;
+        coefs[2] = a2;
+        coefs[3] = a3;
+        coefs[4] = a4;
+        coefs[5] = a5;
+        coefs[6] = a6;
+        coefs[7] = a7;
+      } else {
+        for (i = p = ref6 = lim, ref7 = num; p < ref7; i = p += 1) {
+          sum1 = 0;
+          top = out[i - lim];
+          offset = i - 1;
+          for (j = q = 0, ref8 = active; q < ref8; j = q += 1) {
+            sum1 += coefs[j] * (out[offset - j] - top);
+          }
+          del = del0 = pc1[i];
+          sg = (-del >>> 31) | (del >> 31);
+          del += top + ((sum1 + denhalf) >> denshift);
+          out[i] = (del << chanshift) >> chanshift;
+          if (sg > 0) {
+            for (j = r = ref9 = active - 1; r >= 0; j = r += -1) {
+              dd = top - out[offset - j];
+              sgn = (-dd >>> 31) | (dd >> 31);
+              coefs[j] -= sgn;
+              del0 -= (active - j) * ((sgn * dd) >> denshift);
+              if (del0 <= 0) {
+                break;
+              }
+            }
+          } else if (sg < 0) {
+            for (j = s = ref10 = active - 1; s >= 0; j = s += -1) {
+              dd = top - out[offset - j];
+              sgn = (-dd >>> 31) | (dd >> 31);
+              coefs[j] += sgn;
+              del0 -= (active - j) * ((-sgn * dd) >> denshift);
+              if (del0 >= 0) {
+                break;
+              }
+            }
+          }
+        }
+      }
+    };
+
+    return Dplib;
+
+  })();
+
+  module.exports = Dplib;
+
+}).call(this);
+
+},{}],4:[function(require,module,exports){
+// Generated by CoffeeScript 1.12.7
+(function() {
+  var Matrixlib;
+
+  Matrixlib = (function() {
+    function Matrixlib() {}
+
+    Matrixlib.unmix16 = function(u, v, out, stride, samples, mixbits, mixres) {
+      var i, j, k, l, ref, ref1;
+      if (mixres === 0) {
+        for (i = j = 0, ref = samples; j < ref; i = j += 1) {
+          out[i * stride + 0] = u[i];
+          out[i * stride + 1] = v[i];
+        }
+      } else {
+        for (i = k = 0, ref1 = samples; k < ref1; i = k += 1) {
+          l = u[i] + v[i] - ((mixres * v[i]) >> mixbits);
+          out[i * stride + 0] = l;
+          out[i * stride + 1] = l - v[i];
+        }
+      }
+    };
+
+    return Matrixlib;
+
+  })();
+
+  module.exports = Matrixlib;
+
+}).call(this);
+
+},{}]},{},[2])
+
+
+//# sourceMappingURL=alac.js.map
