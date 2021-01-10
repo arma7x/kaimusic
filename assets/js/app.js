@@ -1,7 +1,14 @@
 window.addEventListener("load", function() {
 
+  localforage.setDriver(localforage.LOCALSTORAGE);
+
   const SDCARD = navigator.getDeviceStorage('sdcard');
 
+  // PLAYING: ALBUM, ARTISTS, FOLDERS, PLAYLIST
+  // SEQUENCE_INDEX
+  // SEQUENCE
+  // SHUFFLE
+  // REPEAT
   var REPEAT = -1;
   var SHUFFLE = false;
   var SNACKBAR_STATUS = undefined;
@@ -10,7 +17,6 @@ window.addEventListener("load", function() {
   var DOCUMENT_TREE = {};
   var FILES = [];
   var FILE_BY_GROUPS = {};
-  var ADS_DISPLAYED = false;
   var CURRENT_SCREEN = 'HOME';
   var CURRENT_PLAYLIST = 'DEFAULT';
   var SEQUENCE = [];
@@ -79,6 +85,23 @@ window.addEventListener("load", function() {
   const FOLDERS_UL = document.getElementById("folders_ul");
   const ALBUMS_UL = document.getElementById("albums_ul");
   const ALB_ART_SK = document.getElementById('albums_or_artists_software_key');
+
+  localforage.getItem('SHUFFLE')
+  .then((val) => {
+    if (val === 1) {
+      SHUFFLE = false;
+    } else {
+      SHUFFLE = true;
+    }
+    toggleShuffle();
+  });
+
+  localforage.getItem('REPEAT')
+  .then((val) => {
+    REPEAT = val - 1;
+    console.log(REPEAT);
+    toggleRepeat();
+  });
 
   PLAYLIST_MODAL = new Modalise('playlist_modal')
   .attach()
@@ -602,7 +625,6 @@ window.addEventListener("load", function() {
     showSnackbar('Playing ' + PLAYLIST_NAME.innerHTML);
 
     //localforage.clear();
-    localforage.setDriver(localforage.LOCALSTORAGE);
     var _playlistUlIndex = 0;
     var _playlistLength = 0;
     var _playlistDone = 0;
@@ -993,10 +1015,13 @@ window.addEventListener("load", function() {
     if (SHUFFLE) {
       SHUFFLE_BTN.classList.remove('inactive');
       showSnackbar('Shuffle On');
+      localforage.setItem('SHUFFLE', 1);
     } else {
       SHUFFLE_BTN.classList.add('inactive');
       showSnackbar('Shuffle Off');
+      localforage.setItem('SHUFFLE', 0);
     }
+    
   }
 
   function toggleRepeat() {
@@ -1015,6 +1040,7 @@ window.addEventListener("load", function() {
       REPEAT_BTN.classList.add('inactive');
       showSnackbar('Repeat Off');
     }
+    localforage.setItem('REPEAT', REPEAT);
   }
 
   function togglePlay() {
