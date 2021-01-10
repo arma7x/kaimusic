@@ -31,6 +31,10 @@ window.addEventListener("load", function() {
   var ALBUMS_MODAL = {};
 
   var PLAYLIST_MANAGER_MODAL_INDEX = -1;
+  var LFT_DBL_CLICK_TH = 0;
+  var LFT_DBL_CLICK_TIMER = undefined;
+  var RGT_DBL_CLICK_TH = 0;
+  var RGT_DBL_CLICK_TIMER = undefined;
 
   const PLAYER = new Audio();
   const DEFAULT_VOLUME = 0.02;
@@ -967,6 +971,22 @@ window.addEventListener("load", function() {
     }
   }
 
+  function fastForward() {
+    if (window['__AURORA__']) {
+      window['__AURORA__'].seek(window['__AURORA__'].currentTime + (10 * 1000));
+    } else {
+      PLAYER.currentTime += 10;
+    }
+  }
+
+  function rewind() {
+    if (window['__AURORA__']) {
+      window['__AURORA__'].seek(window['__AURORA__'].currentTime - (10 * 1000));
+    } else {
+      PLAYER.currentTime -= 10;
+    }
+  }
+
   function toggleShuffle() {
     SHUFFLE = !SHUFFLE;
     shuffling();
@@ -1142,16 +1162,24 @@ window.addEventListener("load", function() {
   }
 
   function shuffling() {
-    // TODO sync current track index
+    var _old = SEQUENCE[SEQUENCE_INDEX];
     if (SHUFFLE) {
       for (let i = SEQUENCE.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
-        [SEQUENCE[i], SEQUENCE[j]] =
-        [SEQUENCE[j], SEQUENCE[i]];
+        [SEQUENCE[i], SEQUENCE[j]] = [SEQUENCE[j], SEQUENCE[i]];
       }
+      var _idx = SEQUENCE.indexOf(_old);
+      var _a = SEQUENCE[0];
+      var _b = SEQUENCE[_idx];
+      SEQUENCE[0] = _b;
+      SEQUENCE[_idx] = _a;
+      SEQUENCE_INDEX = 0;
     } else {
       SEQUENCE.sort((a, b) => a - b);
+      var _idx = SEQUENCE.indexOf(_old);
+      SEQUENCE_INDEX = _idx;
     }
+    CURRENT_TRACK.innerHTML = SEQUENCE.length > 0 ? SEQUENCE_INDEX + 1 : 0;
   }
 
   function handleKeydown(e) {
@@ -1253,12 +1281,38 @@ window.addEventListener("load", function() {
         break
       case 'ArrowRight':
         if (CURRENT_SCREEN === 'HOME') {
-          nextTrack();
+          var threshold = new Date().getTime() - RGT_DBL_CLICK_TH;
+          if (threshold > 0 && threshold <= 500) {
+            clearTimeout(RGT_DBL_CLICK_TIMER);
+            RGT_DBL_CLICK_TH = 0;
+            fastForward();
+          } else {
+            RGT_DBL_CLICK_TH = new Date().getTime();
+            RGT_DBL_CLICK_TIMER = setTimeout(() => {
+              if (RGT_DBL_CLICK_TH !== 0) {
+                nextTrack();
+                RGT_DBL_CLICK_TH = 0;
+              }
+            }, 500);
+          }
         }
         break
       case 'ArrowLeft':
         if (CURRENT_SCREEN === 'HOME') {
-          previousTrack();
+          var threshold = new Date().getTime() - LFT_DBL_CLICK_TH;
+          if (threshold > 0 && threshold <= 500) {
+            clearTimeout(LFT_DBL_CLICK_TIMER);
+            LFT_DBL_CLICK_TH = 0;
+            rewind();
+          } else {
+            LFT_DBL_CLICK_TH = new Date().getTime();
+            LFT_DBL_CLICK_TIMER = setTimeout(() => {
+              if (LFT_DBL_CLICK_TH !== 0) {
+                previousTrack();
+                LFT_DBL_CLICK_TH = 0;
+              }
+            }, 500);
+          }
         }
         break
       case 'Enter':
