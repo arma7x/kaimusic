@@ -4,11 +4,7 @@ window.addEventListener("load", function() {
 
   const SDCARD = navigator.getDeviceStorage('sdcard');
 
-  // PLAYING: ALBUM, ARTISTS, FOLDERS, PLAYLIST
-  // SEQUENCE_INDEX
-  // SEQUENCE
-  // SHUFFLE
-  // REPEAT
+  var RESUME = true;
   var REPEAT = -1;
   var SHUFFLE = false;
   var SNACKBAR_STATUS = undefined;
@@ -88,19 +84,22 @@ window.addEventListener("load", function() {
 
   localforage.getItem('SHUFFLE')
   .then((val) => {
-    if (val === 1) {
-      SHUFFLE = false;
-    } else {
-      SHUFFLE = true;
+    if (val != null) {
+      if (val === 1) {
+        SHUFFLE = false;
+      } else {
+        SHUFFLE = true;
+      }
+      toggleShuffle(true);
     }
-    toggleShuffle();
   });
 
   localforage.getItem('REPEAT')
   .then((val) => {
-    REPEAT = val - 1;
-    console.log(REPEAT);
-    toggleRepeat();
+    if (val != null) {
+      REPEAT = val - 1;
+      toggleRepeat();
+    }
   });
 
   PLAYLIST_MODAL = new Modalise('playlist_modal')
@@ -465,6 +464,11 @@ window.addEventListener("load", function() {
           ARTISTS['UNKNOWN'] = JSON.parse(JSON.stringify(_temp));
           ALBUMS['UNKNOWN'] = JSON.parse(JSON.stringify(_temp));
           var DONE = 0;
+          if (_temp.length == 0) {
+            if (cb !== undefined) {
+              cb();
+            }
+          }
           _temp.forEach((n, i) => {
             getFile(n.name, (file) => {
               name_parts = n.name.split("/");
@@ -504,6 +508,9 @@ window.addEventListener("load", function() {
                   DONE++;
                   if (_temp.length === DONE) {
                     setReadyState(true);
+                    if (cb !== undefined) {
+                      cb();
+                    }
                   }
                 },
                 onError: (error) => {
@@ -512,14 +519,14 @@ window.addEventListener("load", function() {
                   DONE++;
                   if (_temp.length === DONE) {
                     setReadyState(true);
+                    if (cb !== undefined) {
+                      cb();
+                    }
                   }
                 }
               });
             });
           });
-          if (cb !== undefined) {
-            cb();
-          }
         }
       });
     })
@@ -617,131 +624,285 @@ window.addEventListener("load", function() {
     }
   }
 
-  function indexingPlaylist(current, playable = true, cb) {
-
-    CURRENT_PLAYLIST = current || CURRENT_PLAYLIST;
-    PLAYLIST_NAME.innerHTML = CURRENT_PLAYLIST;
-    PLAYLIST_LABEL.innerHTML = CURRENT_PLAYLIST;
-    showSnackbar('Playing ' + PLAYLIST_NAME.innerHTML);
-
-    //localforage.clear();
-    var _playlistUlIndex = 0;
-    var _playlistLength = 0;
-    var _playlistDone = 0;
-    
-    while(PLAYLISTS_UL.firstChild) {
-      PLAYLISTS_UL.removeChild(PLAYLISTS_UL.firstChild);
-    }
-
-    const create_playlist_li = document.createElement("LI");
-    create_playlist_li.appendChild(document.createTextNode('+ Create Playlist'));
-    create_playlist_li.setAttribute("class", "nav_man_pl");
-    create_playlist_li.setAttribute("tabIndex", _playlistUlIndex);
-    PLAYLISTS_UL.appendChild(create_playlist_li);
-    _playlistUlIndex++;
-
-    const default_playlist_li = document.createElement("LI");
-    default_playlist_li.appendChild(document.createTextNode('DEFAULT'));
-    default_playlist_li.setAttribute("class", "nav_man_pl");
-    default_playlist_li.setAttribute("tabIndex", _playlistUlIndex);
-    default_playlist_li.setAttribute("value", 'DEFAULT');
-    PLAYLISTS_UL.appendChild(default_playlist_li);
-    _playlistUlIndex++;
-
-    if ((CURRENT_PLAYLIST === undefined || CURRENT_PLAYLIST === 'DEFAULT') && playable) {
-      TRACK = JSON.parse(GLOBAL_TRACK);
-      processPlaylist();
-    } else if (playable) {
-      setReadyState(false);
-    }
-
-    localforage.getItem('__PLAYLISTS__')
-    .then((PLAYLISTS) => {
-      if (PLAYLISTS === null) {
-        setReadyState(true);
-        if (cb !== undefined) {
-          cb();
-        }
-        if (playable) {
-          processPlaylist();
-        }
-      } else if (PLAYLISTS.length === 0) {
-        setReadyState(true);
-        if (cb !== undefined) {
-          cb();
-        }
+  function resumeApp() {
+    localforage.getItem('SEQUENCE')
+    .then((SEQUENCE_DB) => {
+      if (SEQUENCE_DB == null) {
+        processPlaylist();
       } else {
-        _playlistLength = PLAYLISTS.length;
-        const _playlistCollections = [];
-        PLAYLISTS.forEach((playlistName) => {
-          localforage.getItem(playlistName)
-          .then((oldTracks) => {
-            const newTracks = [];
-            Object.assign(newTracks, JSON.parse(GLOBAL_TRACK));
-            const hiddenTracks = [];
-            if (oldTracks !== null) {
-              oldTracks.forEach((track) => {
-                if (track.selected === false) {
-                  hiddenTracks.push(track);
+        SEQUENCE = SEQUENCE_DB;
+        localforage.getItem('SEQUENCE_INDEX')
+        .then((SEQUENCE_INDEX_DB) => {
+          if (SEQUENCE_INDEX_DB == null) {
+            processPlaylist();
+          } else {
+            SEQUENCE_INDEX = SEQUENCE_INDEX_DB;
+            if (SEQUENCE.length > TRACK.length) {
+              var max = TRACK.length - 1;
+              SEQUENCE.forEach((v, e) => {
+                if (v > max) {
+                  SEQUENCE.splice(e, 1);
                 }
               });
-              newTracks.forEach((newTrack, i) => {
-                  hiddenTracks.forEach((hiddenTrack) => {
-                  if (newTrack.name === hiddenTrack.name) {
-                    newTracks[i].selected = hiddenTrack.selected;
-                  }
-                });
-              });
+              if (SEQUENCE_INDEX > max) {
+                SEQUENCE_INDEX = max;
+              }
+            } else if (SEQUENCE.length < TRACK.length) {
+              var plus = TRACK.length - SEQUENCE.length
+              for(var e=0;e<plus;e++) {
+                SEQUENCE.push((SEQUENCE.length - 1) + 1);
+              }
             }
-
-            const exec = (_newTracks) => {
-              const store = localforage.setItem(playlistName, _newTracks);
-              store.then((savedTracks) => {
-                const custom_playlist_li = document.createElement("LI");
-                custom_playlist_li.appendChild(document.createTextNode(playlistName));
-                custom_playlist_li.setAttribute("class", "nav_man_pl");
-                custom_playlist_li.setAttribute("tabIndex", _playlistUlIndex);
-                custom_playlist_li.setAttribute("value", playlistName);
-                PLAYLISTS_UL.appendChild(custom_playlist_li);
-                _playlistUlIndex++;
-              });
-              store.finally(() => {
-                _playlistDone++;
-                if (_playlistDone === _playlistLength) {
-                  setReadyState(true);
-                  if (cb !== undefined) {
-                    cb();
-                  }
-                }
-                _playlistCollections.push(playlistName);
-                if (_playlistDone === _playlistLength && _playlistCollections.indexOf(CURRENT_PLAYLIST) !== -1) {
-                  localforage.getItem(CURRENT_PLAYLIST)
-                  .then((raw) => {
-                    TRACK = [];
-                    const filtered = [];
-                    raw.forEach((t) => {
-                      if (t.selected === true) {
-                        filtered.push(t);
-                      }
-                    });
-                    Object.assign(TRACK, filtered);
-                    if (playable) {
-                      processPlaylist();
-                    }
-                  });
-                }
-              });
-            }
-
-            exec(newTracks);
-          });
+            processPlaylist(false, SEQUENCE_INDEX);
+          }
+        })
+        .finally(() => {
+          RESUME = false;
         });
       }
     })
+    .finally(() => {
+      RESUME = false;
+    });
+  }
+
+  function indexingPlaylist(current, playable = true, cb) {
+
+    var running = (_skip = true) => {
+      CURRENT_PLAYLIST = current || CURRENT_PLAYLIST;
+      PLAYLIST_NAME.innerHTML = CURRENT_PLAYLIST;
+      PLAYLIST_LABEL.innerHTML = CURRENT_PLAYLIST;
+      showSnackbar('Playing ' + PLAYLIST_NAME.innerHTML);
+
+      var _playlistUlIndex = 0;
+      var _playlistLength = 0;
+      var _playlistDone = 0;
+      
+      while(PLAYLISTS_UL.firstChild) {
+        PLAYLISTS_UL.removeChild(PLAYLISTS_UL.firstChild);
+      }
+
+      const create_playlist_li = document.createElement("LI");
+      create_playlist_li.appendChild(document.createTextNode('+ Create Playlist'));
+      create_playlist_li.setAttribute("class", "nav_man_pl");
+      create_playlist_li.setAttribute("tabIndex", _playlistUlIndex);
+      PLAYLISTS_UL.appendChild(create_playlist_li);
+      _playlistUlIndex++;
+
+      const default_playlist_li = document.createElement("LI");
+      default_playlist_li.appendChild(document.createTextNode('DEFAULT'));
+      default_playlist_li.setAttribute("class", "nav_man_pl");
+      default_playlist_li.setAttribute("tabIndex", _playlistUlIndex);
+      default_playlist_li.setAttribute("value", 'DEFAULT');
+      PLAYLISTS_UL.appendChild(default_playlist_li);
+      _playlistUlIndex++;
+
+      if ((CURRENT_PLAYLIST === undefined || CURRENT_PLAYLIST === 'DEFAULT') && playable) {
+        TRACK = JSON.parse(GLOBAL_TRACK);
+        localforage.setItem('PLAY_TYPE', 'PLAYLIST')
+        .then(() => {
+          localforage.setItem('PLAY_NAME', CURRENT_PLAYLIST)
+        });
+        processPlaylist();
+      } else if (playable) {
+        setReadyState(false);
+      } else if (RESUME && CURRENT_PLAYLIST === 'DEFAULT') {
+        TRACK = JSON.parse(GLOBAL_TRACK);
+        resumeApp();
+      }
+
+      localforage.getItem('__PLAYLISTS__')
+      .then((PLAYLISTS) => {
+        if (PLAYLISTS === null) {
+          setReadyState(true);
+          if (cb !== undefined) {
+            cb();
+          }
+          if (playable) {
+            processPlaylist();
+          }
+        } else if (PLAYLISTS.length === 0) {
+          setReadyState(true);
+          if (cb !== undefined) {
+            cb();
+          }
+        } else {
+          _playlistLength = PLAYLISTS.length;
+          const _playlistCollections = [];
+          PLAYLISTS.forEach((playlistName) => {
+            localforage.getItem(playlistName)
+            .then((oldTracks) => {
+              const newTracks = [];
+              Object.assign(newTracks, JSON.parse(GLOBAL_TRACK));
+              const hiddenTracks = [];
+              if (oldTracks !== null) {
+                oldTracks.forEach((track) => {
+                  if (track.selected === false) {
+                    hiddenTracks.push(track);
+                  }
+                });
+                newTracks.forEach((newTrack, i) => {
+                    hiddenTracks.forEach((hiddenTrack) => {
+                    if (newTrack.name === hiddenTrack.name) {
+                      newTracks[i].selected = hiddenTrack.selected;
+                    }
+                  });
+                });
+              }
+
+              const exec = (_newTracks) => {
+                const store = localforage.setItem(playlistName, _newTracks);
+                store.then((savedTracks) => {
+                  const custom_playlist_li = document.createElement("LI");
+                  custom_playlist_li.appendChild(document.createTextNode(playlistName));
+                  custom_playlist_li.setAttribute("class", "nav_man_pl");
+                  custom_playlist_li.setAttribute("tabIndex", _playlistUlIndex);
+                  custom_playlist_li.setAttribute("value", playlistName);
+                  PLAYLISTS_UL.appendChild(custom_playlist_li);
+                  _playlistUlIndex++;
+                });
+                store.finally(() => {
+                  _playlistDone++;
+                  if (_playlistDone === _playlistLength) {
+                    setReadyState(true);
+                    if (cb !== undefined) {
+                      cb();
+                    }
+                  }
+                  _playlistCollections.push(playlistName);
+                  if (_playlistDone === _playlistLength && _playlistCollections.indexOf(CURRENT_PLAYLIST) !== -1) {
+                    localforage.getItem(CURRENT_PLAYLIST)
+                    .then((raw) => {
+                      TRACK = [];
+                      const filtered = [];
+                      raw.forEach((t) => {
+                        if (t.selected === true) {
+                          filtered.push(t);
+                        }
+                      });
+                      Object.assign(TRACK, filtered);
+                      if (playable) {
+                        localforage.setItem('PLAY_TYPE', 'PLAYLIST')
+                        .then(() => {
+                          localforage.setItem('PLAY_NAME', CURRENT_PLAYLIST)
+                        });
+                        processPlaylist();
+                      }
+                      if (RESUME) {
+                        resumeApp();
+                      }
+                    });
+                  } else if (_playlistDone === _playlistLength && _playlistCollections.indexOf(CURRENT_PLAYLIST) === -1 && CURRENT_PLAYLIST !== 'DEFAULT') {
+                    processPlaylist(_skip, SEQUENCE_INDEX);
+                  }
+                });
+              }
+
+              exec(newTracks);
+            });
+          });
+        }
+      })
+    }
+
+    if (RESUME) {
+      playable = false;
+      localforage.getItem('PLAY_TYPE')
+      .then((PLAY_TYPE) => {
+        if (PLAY_TYPE == null) {
+          playable = true;
+          running();
+        } else {
+          playable = false;
+          localforage.getItem('PLAY_NAME')
+          .then((PLAY_NAME) => {
+            if (PLAY_NAME == null) {
+              playable = true;
+              running();
+            } else {
+              if (PLAY_TYPE == 'ALBUMS') {
+                if (ALBUMS[PLAY_NAME]) {
+                  localforage.setItem('PLAY_TYPE', 'ALBUMS')
+                  .then(() => {
+                    localforage.setItem('PLAY_NAME', PLAY_NAME)
+                  });
+                  TRACK = [];
+                  const filtered = [];
+                  PLAYLIST_LABEL.innerHTML = 'ALBUM';
+                  PLAYLIST_NAME.innerHTML = PLAY_NAME;
+                  ALBUMS[PLAY_NAME].forEach((t) => {
+                    if (t.selected === true) {
+                      filtered.push(t);
+                    }
+                  });
+                  Object.assign(TRACK, filtered);
+                  CURRENT_PLAYLIST = PLAY_NAME;
+                  running(false);
+                  resumeApp();
+                } else {
+                  playable = true;
+                  running();
+                }
+              } else if (PLAY_TYPE == 'ARTISTS') {
+                if (ARTISTS[PLAY_NAME]) {
+                  localforage.setItem('PLAY_TYPE', 'ARTISTS')
+                  .then(() => {
+                    localforage.setItem('PLAY_NAME', PLAY_NAME)
+                  });
+                  TRACK = [];
+                  const filtered = [];
+                  PLAYLIST_LABEL.innerHTML = 'ARTIST';
+                  PLAYLIST_NAME.innerHTML = PLAY_NAME;
+                  ARTISTS[PLAY_NAME].forEach((t) => {
+                    if (t.selected === true) {
+                      filtered.push(t);
+                    }
+                  });
+                  Object.assign(TRACK, filtered);
+                  CURRENT_PLAYLIST = PLAY_NAME;
+                  running(false);
+                  resumeApp();
+                } else {
+                  playable = true;
+                  running();
+                }
+              } else if (PLAY_TYPE == 'FOLDERS') {
+                if (FOLDERS[PLAY_NAME]) {
+                  localforage.setItem('PLAY_TYPE', 'FOLDERS')
+                  .then(() => {
+                    localforage.setItem('PLAY_NAME', PLAY_NAME)
+                  });
+                  TRACK = [];
+                  const filtered = [];
+                  PLAYLIST_LABEL.innerHTML = 'FOLDER';
+                  PLAYLIST_NAME.innerHTML = PLAY_NAME;
+                  Object.assign(TRACK, FOLDERS[PLAY_NAME]);
+                  CURRENT_PLAYLIST = PLAY_NAME;
+                  running(false);
+                  resumeApp();
+                } else {
+                  playable = true;
+                  running();
+                }
+              } else if (PLAY_TYPE == 'PLAYLIST') {
+                current = PLAY_NAME;
+                running();
+              }
+            }
+          });
+        }
+      });
+    } else {
+      running();
+    }
   }
 
   function processAlbum(name) {
     if (ALBUMS[name]) {
+      localforage.setItem('PLAY_TYPE', 'ALBUMS')
+      .then(() => {
+        localforage.setItem('PLAY_NAME', name)
+      });
       TRACK = [];
       const filtered = [];
       PLAYLIST_LABEL.innerHTML = 'ALBUM';
@@ -758,6 +919,10 @@ window.addEventListener("load", function() {
 
   function processArtist(name) {
     if (ARTISTS[name]) {
+      localforage.setItem('PLAY_TYPE', 'ARTISTS')
+      .then(() => {
+        localforage.setItem('PLAY_NAME', name)
+      });
       TRACK = [];
       const filtered = [];
       PLAYLIST_LABEL.innerHTML = 'ARTIST';
@@ -774,6 +939,10 @@ window.addEventListener("load", function() {
 
   function processFolder(name) {
     if (FOLDERS[name]) {
+      localforage.setItem('PLAY_TYPE', 'FOLDERS')
+      .then(() => {
+        localforage.setItem('PLAY_NAME', name)
+      });
       TRACK = [];
       const filtered = [];
       PLAYLIST_LABEL.innerHTML = 'FOLDER';
@@ -783,15 +952,19 @@ window.addEventListener("load", function() {
     }
   }
 
-  function processPlaylist() {
-    SEQUENCE = [];
+  function processPlaylist(isShuffling = true, idx = null) {
+    if (isShuffling) {
+      SEQUENCE = [];
+    }
     while(PLAYLIST_TRACK_UL.firstChild) {
       PLAYLIST_TRACK_UL.removeChild(PLAYLIST_TRACK_UL.firstChild);
     }
     var i = 0;
     TRACK.forEach(function(k) {
       if (k.selected === true) {
-        SEQUENCE.push(i);
+        if (isShuffling) {
+          SEQUENCE.push(i);
+        }
         const li = document.createElement("LI");
         const name = k.name.split('/');
         li.appendChild(document.createTextNode((i + 1).toString() + ' - ' + name[name.length - 1]));
@@ -801,24 +974,23 @@ window.addEventListener("load", function() {
         i++;
       }
     });
-    shuffling();
+    if (isShuffling) {
+      shuffling();
+    }
     CURRENT_TRACK.innerHTML = SEQUENCE.length > 0 ? SEQUENCE_INDEX + 1 : 0;
     PLAYLIST_LENGTH.innerHTML = SEQUENCE.length;
-    playCurrentPlaylist(0);
+    playCurrentPlaylist(idx || 0);
   }
 
   function playCurrentPlaylist(idx) {
-    if (idx !== undefined) {
+    if (idx != null) {
       SEQUENCE_INDEX = idx;
+      localforage.setItem('SEQUENCE_INDEX', SEQUENCE_INDEX);
     }
     if (SEQUENCE.length > 0) {
       getFile(TRACK[SEQUENCE[SEQUENCE_INDEX]].name, function(file) {
-        //getMetadata(file);
-        //PLAYER.mozAudioChannelType = 'content';
-        //PLAYER.src = URL.createObjectURL(file);
         if (idx !== undefined) {
           playAudio(file);
-          //PLAYER.play();
         }
         CURRENT_TRACK.innerHTML = SEQUENCE_INDEX + 1;
       });
@@ -977,6 +1149,7 @@ window.addEventListener("load", function() {
       if (SEQUENCE_INDEX >= SEQUENCE.length) {
         SEQUENCE_INDEX = 0;
       }
+      localforage.setItem('SEQUENCE_INDEX', SEQUENCE_INDEX);
       getFile(TRACK[SEQUENCE[SEQUENCE_INDEX]].name, playAudio);
       CURRENT_TRACK.innerHTML = SEQUENCE_INDEX + 1;
     }
@@ -988,6 +1161,7 @@ window.addEventListener("load", function() {
       if (SEQUENCE_INDEX < 0) {
         SEQUENCE_INDEX = (SEQUENCE.length - 1);
       }
+      localforage.setItem('SEQUENCE_INDEX', SEQUENCE_INDEX);
       getFile(TRACK[SEQUENCE[SEQUENCE_INDEX]].name, playAudio);
       CURRENT_TRACK.innerHTML = SEQUENCE_INDEX + 1;
     }
@@ -1009,9 +1183,11 @@ window.addEventListener("load", function() {
     }
   }
 
-  function toggleShuffle() {
+  function toggleShuffle(skip = false) {
     SHUFFLE = !SHUFFLE;
-    shuffling();
+    if (!skip) {
+      shuffling();
+    }
     if (SHUFFLE) {
       SHUFFLE_BTN.classList.remove('inactive');
       showSnackbar('Shuffle On');
@@ -1205,6 +1381,8 @@ window.addEventListener("load", function() {
       var _idx = SEQUENCE.indexOf(_old);
       SEQUENCE_INDEX = _idx;
     }
+    localforage.setItem('SEQUENCE_INDEX', SEQUENCE_INDEX);
+    localforage.setItem('SEQUENCE', SEQUENCE);
     CURRENT_TRACK.innerHTML = SEQUENCE.length > 0 ? SEQUENCE_INDEX + 1 : 0;
   }
 
