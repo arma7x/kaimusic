@@ -5,6 +5,7 @@ window.addEventListener("load", function() {
   const SDCARD = navigator.getDeviceStorage('sdcard');
 
   var RESUME = true;
+  var RESUME_DURATION = null;
   var REPEAT = -1;
   var SHUFFLE = false;
   var SNACKBAR_STATUS = undefined;
@@ -17,8 +18,13 @@ window.addEventListener("load", function() {
   var CURRENT_PLAYLIST = 'DEFAULT';
   var SEQUENCE = [];
   var FOLDERS = {};
+  var ALBUMS = {};
+  var ARTISTS = {};
   var TRACK = [];
   var GLOBAL_TRACK = '';
+  var GLOBAL_BLOB = {}
+  var GLOBAL_AUDIO_BLOB = [];
+  var GLOBAL_AUDIO_BLOB_INDEX = 0;
   var EDITOR_MODE = false;
   var PLAYLIST_MODAL = {};
   var MENU_MODAL = {};
@@ -27,6 +33,8 @@ window.addEventListener("load", function() {
   var CONFIRM_MODAL = {};
   var ABOUT_MODAL = {};
   var FOLDERS_MODAL = {};
+  var ALBUMS_MODAL = {};
+  var ARTISTS_MODAL = {};
 
   var PLAYLIST_MANAGER_MODAL_INDEX = -1;
   var LFT_DBL_CLICK_TH = 0;
@@ -72,7 +80,50 @@ window.addEventListener("load", function() {
   const CONFIRM_LABEL = document.getElementById("confirm_label");
   const ABOUT_CONTENT = document.getElementById("about_content");
   const FOLDERS_UL = document.getElementById("folders_ul");
+  const ALBUMS_UL = document.getElementById("albums_ul");
+  const ARTISTS_UL = document.getElementById("artists_ul");
   const ALB_ART_SK = document.getElementById('albums_or_artists_software_key');
+
+  var WORKER = new Worker('/worker.js');
+
+  WORKER.onmessage = (e) => {
+    if (e.data.type === 'PARSE_METADATA') {
+      const media = e.data.result;
+      if (!e.data.error && media.tags.artist) {
+        if (ARTISTS[media.tags.artist] == null) {
+          ARTISTS[media.tags.artist] = [];
+        }
+        ARTISTS[media.tags.artist].push({name: e.data.file.name, selected: true})
+        if (ARTISTS['UNKNOWN'] == null) {
+          ARTISTS['UNKNOWN'] = [];
+        }
+        ARTISTS['UNKNOWN'].push({name: e.data.file.name, selected: true}) //.selected = true;
+      }
+      if (!e.data.error && media.tags.album) {
+        if (ALBUMS[media.tags.album] == null) {
+          ALBUMS[media.tags.album] = [];
+        }
+        ALBUMS[media.tags.album].push({name: e.data.file.name, selected: true})
+      } else {
+        if (ALBUMS['UNKNOWN'] == null) {
+          ALBUMS['UNKNOWN'] = [];
+        }
+        ALBUMS['UNKNOWN'].push({name: e.data.file.name, selected: true})
+      }
+      GLOBAL_AUDIO_BLOB_INDEX += 1;
+      if (GLOBAL_AUDIO_BLOB_INDEX < GLOBAL_AUDIO_BLOB.length) {
+        showSnackbar((GLOBAL_AUDIO_BLOB_INDEX + 1).toString() + '/' + GLOBAL_AUDIO_BLOB.length.toString());
+        parseMetadata(GLOBAL_AUDIO_BLOB[GLOBAL_AUDIO_BLOB_INDEX]);
+      } else {
+        setReadyState(false);
+        indexingPlaylist();
+      }
+    }
+  }
+
+  function parseMetadata(audio) {
+    WORKER.postMessage({file: audio, type: 'PARSE_METADATA'});
+  }
 
   localforage.getItem('SHUFFLE')
   .then((val) => {
@@ -259,7 +310,68 @@ window.addEventListener("load", function() {
     ALB_ART_SK.classList.add('sr-only');
   });
 
+
+  ALBUMS_MODAL = new Modalise('albums_modal')
+  .attach()
+  .on('onShow', function() {
+    CURRENT_SCREEN = 'ALBUMS_MODAL';
+    MENU_SK.classList.add('sr-only');
+    while(ALBUMS_UL.firstChild) {
+      ALBUMS_UL.removeChild(ALBUMS_UL.firstChild);
+    }
+    var i = 0;
+    for (var name in ALBUMS) {
+      const li = document.createElement("LI");
+      li.appendChild(document.createTextNode(name));
+      li.setAttribute("class", "nav_album");
+      li.setAttribute("tabIndex", i);
+      ALBUMS_UL.appendChild(li);
+      i++;
+    }
+    setTimeout(function() {
+      nav(1, '.nav_album');
+    }, 300);
+    ALB_ART_SK.classList.remove('sr-only');
+  })
+  .on('onConfirm', function() {
+    
+  })
+  .on('onHide', function() {
+    MENU_SK.classList.remove('sr-only');
+    ALB_ART_SK.classList.add('sr-only');
+  });
+  ARTISTS_MODAL = new Modalise('artists_modal')
+  .attach()
+  .on('onShow', function() {
+    CURRENT_SCREEN = 'ARTISTS_MODAL';
+    MENU_SK.classList.add('sr-only');
+    while(ARTISTS_UL.firstChild) {
+      ARTISTS_UL.removeChild(ARTISTS_UL.firstChild);
+    }
+    var i = 0;
+    for (var name in ARTISTS) {
+      const li = document.createElement("LI");
+      li.appendChild(document.createTextNode(name));
+      li.setAttribute("class", "nav_artist");
+      li.setAttribute("tabIndex", i);
+      ARTISTS_UL.appendChild(li);
+      i++;
+    }
+    setTimeout(function() {
+      nav(1, '.nav_artist');
+    }, 300);
+    ALB_ART_SK.classList.remove('sr-only');
+  })
+  .on('onConfirm', function() {SS
+    
+  })
+  .on('onHide', function() {
+    MENU_SK.classList.remove('sr-only');
+    ALB_ART_SK.classList.add('sr-only');
+  });
+
   PLAYER.ontimeupdate = function(e) {
+    localforage.setItem('PLAY_DURATION', e.target.currentTime);
     var currentTime = e.target.currentTime;
     var duration = e.target.duration;
     CURRENT_TIME.innerHTML = convertTime(e.target.currentTime);
@@ -277,6 +389,10 @@ window.addEventListener("load", function() {
   
   PLAYER.onplay = function(e) {
     PLAY_BTN.src = '/assets/img/baseline_pause_circle_filled_white_36dp.png';
+    if (RESUME_DURATION != null && !Number.isInteger(RESUME_DURATION)) {
+      PLAYER.currentTime = RESUME_DURATION;
+      RESUME_DURATION = null;
+    }
   }
 
   PLAYER.onloadeddata = function(e) {
@@ -291,7 +407,14 @@ window.addEventListener("load", function() {
       window['__AURORA__'].stop();
     }
     window['__AURORA__'] = AV.Player.fromFile(window['__FILE__']);
+    window['__AURORA__'].on('ready', () => {
+      if (RESUME_DURATION != null && Number.isInteger(RESUME_DURATION)) {
+        window['__AURORA__'].seek(RESUME_DURATION);
+        RESUME_DURATION = null;
+      }
+    });
     window['__AURORA__'].on('progress', (e) => {
+      localforage.setItem('PLAY_DURATION', e);
       DURATION.innerHTML = convertTime(window['__AURORA__'].asset.duration/1000);
       CURRENT_TIME.innerHTML = convertTime(e / 1000);
       DURATION_SLIDER.value = ((e / 1000) + .75) / (window['__AURORA__'].asset.duration/1000) * 100;
@@ -345,7 +468,6 @@ window.addEventListener("load", function() {
   function groupByType(_files, cb) {
     var _taskLength = _files.length;
     var _taskDone = 0;
-    FILE_BY_GROUPS = {};
     setReadyState(false);
     if (_files.length === 0) {
       setReadyState(true);
@@ -357,20 +479,22 @@ window.addEventListener("load", function() {
           FILE_BY_GROUPS[mime[0]] = []
         }
         FILE_BY_GROUPS[mime[0]].push(file.name);
+        GLOBAL_BLOB[file.name] = file.slice(file.size - 128, file.size, file.type);
         _taskDone++;
         if (_taskDone === _taskLength) {
           GLOBAL_TRACK = '';
-          TRACK = [];
           if (FILE_BY_GROUPS.hasOwnProperty('audio')) {
-            FILE_BY_GROUPS['audio'].forEach(function(n) {
+            FILE_BY_GROUPS['audio'].forEach((n) => {
               TRACK.push({name: n, selected: true});
+              GLOBAL_AUDIO_BLOB.push({name: n, blob: GLOBAL_BLOB[n]});
             });
           }
           if (FILE_BY_GROUPS.hasOwnProperty('video')) {
-            FILE_BY_GROUPS['video'].forEach(function(n) {
+            FILE_BY_GROUPS['video'].forEach((n) => {
               const split = n.split('.');
               if (split[split.length - 1] === 'ogg') {
                 TRACK.push({name: n, selected: true});
+                GLOBAL_AUDIO_BLOB.push({name: n, blob: GLOBAL_BLOB[n]});
               }
             });
           }
@@ -381,9 +505,17 @@ window.addEventListener("load", function() {
               return -1;
             return 0;
           });
+          GLOBAL_AUDIO_BLOB.sort((a, b) => {
+            if (a['name'] > b['name'])
+              return 1;
+            else if (a['name'] < b['name'])
+              return -1;
+            return 0;
+          });
           GLOBAL_TRACK = JSON.stringify(TRACK);
           var DONE = 0;
           if (TRACK.length == 0) {
+            setReadyState(true);
             if (cb !== undefined) {
               cb();
             }
@@ -408,7 +540,9 @@ window.addEventListener("load", function() {
             if (TRACK.length === DONE) {
               setReadyState(true);
               if (cb !== undefined) {
-                cb();
+                //cb();
+                setReadyState(false);
+                parseMetadata(GLOBAL_AUDIO_BLOB[0]);
               }
             }
           });
@@ -489,9 +623,16 @@ window.addEventListener("load", function() {
   }
 
   function indexingStorage() {
+    RESUME = true;
     FILES = [];
     FILE_BY_GROUPS = {};
+    TRACK = [];
+    ALBUMS = {};
     FOLDERS = {};
+    ARTISTS = {};
+    GLOBAL_BLOB = {};
+    GLOBAL_AUDIO_BLOB = [];
+    GLOBAL_AUDIO_BLOB_INDEX = 0;
     const cursor = SDCARD.enumerate('');
     cursor.onsuccess = function () {
       if (!this.done) {
@@ -707,7 +848,53 @@ window.addEventListener("load", function() {
               playable = true;
               running();
             } else {
-              if (PLAY_TYPE == 'FOLDERS') {
+              if (PLAY_TYPE == 'ALBUMS') {
+                if (ALBUMS[PLAY_NAME]) {
+                  localforage.setItem('PLAY_TYPE', 'ALBUMS')
+                  .then(() => {
+                    localforage.setItem('PLAY_NAME', PLAY_NAME)
+                  });
+                  TRACK = [];
+                  const filtered = [];
+                  PLAYLIST_LABEL.innerHTML = 'ALBUM';
+                  PLAYLIST_NAME.innerHTML = PLAY_NAME;
+                  ALBUMS[PLAY_NAME].forEach((t) => {
+                    if (t.selected === true) {
+                      filtered.push(t);
+                    }
+                  });
+                  Object.assign(TRACK, filtered);
+                  CURRENT_PLAYLIST = PLAY_NAME;
+                  running(false);
+                  resumeApp();
+                } else {
+                  playable = true;
+                  running();
+                }
+              } else if (PLAY_TYPE == 'ARTISTS') {
+                if (ARTISTS[PLAY_NAME]) {
+                  localforage.setItem('PLAY_TYPE', 'ARTISTS')
+                  .then(() => {
+                    localforage.setItem('PLAY_NAME', PLAY_NAME)
+                  });
+                  TRACK = [];
+                  const filtered = [];
+                  PLAYLIST_LABEL.innerHTML = 'ARTIST';
+                  PLAYLIST_NAME.innerHTML = PLAY_NAME;
+                  ARTISTS[PLAY_NAME].forEach((t) => {
+                    if (t.selected === true) {
+                      filtered.push(t);
+                    }
+                  });
+                  Object.assign(TRACK, filtered);
+                  CURRENT_PLAYLIST = PLAY_NAME;
+                  running(false);
+                  resumeApp();
+                } else {
+                  playable = true;
+                  running();
+                }
+              } else if (PLAY_TYPE == 'FOLDERS') {
                 if (FOLDERS[PLAY_NAME]) {
                   localforage.setItem('PLAY_TYPE', 'FOLDERS')
                   .then(() => {
@@ -752,6 +939,48 @@ window.addEventListener("load", function() {
       PLAYLIST_LABEL.innerHTML = 'FOLDER';
       PLAYLIST_NAME.innerHTML = name;
       Object.assign(TRACK, FOLDERS[name]);
+      processPlaylist();
+    }
+  }
+
+  function processAlbum(name) {
+    if (ALBUMS[name]) {
+      localforage.setItem('PLAY_TYPE', 'ALBUMS')
+      .then(() => {
+        localforage.setItem('PLAY_NAME', name)
+      });
+      CURRENT_PLAYLIST = name;
+      TRACK = [];
+      const filtered = [];
+      PLAYLIST_LABEL.innerHTML = 'ALBUM';
+      PLAYLIST_NAME.innerHTML = name;
+      ALBUMS[name].forEach((t) => {
+        if (t.selected === true) {
+          filtered.push(t);
+        }
+      });
+      Object.assign(TRACK, filtered);
+      processPlaylist();
+    }
+  }
+
+  function processArtist(name) {
+    if (ARTISTS[name]) {
+      localforage.setItem('PLAY_TYPE', 'ARTISTS')
+      .then(() => {
+        localforage.setItem('PLAY_NAME', name)
+      });
+      CURRENT_PLAYLIST = name;
+      TRACK = [];
+      const filtered = [];
+      PLAYLIST_LABEL.innerHTML = 'ARTIST';
+      PLAYLIST_NAME.innerHTML = name;
+      ARTISTS[name].forEach((t) => {
+        if (t.selected === true) {
+          filtered.push(t);
+        }
+      });
+      Object.assign(TRACK, filtered);
       processPlaylist();
     }
   }
@@ -1258,8 +1487,12 @@ window.addEventListener("load", function() {
           nav(-1, '.nav_track_editor');
         } else if (CURRENT_SCREEN === 'ABOUT_MODAL') {
           ABOUT_CONTENT.scrollTop -= 20;
+        } else if (CURRENT_SCREEN === 'ARTISTS_MODAL') {
+          nav(-1, '.nav_artist');
         } else if (CURRENT_SCREEN === 'FOLDERS_MODAL') {
           nav(-1, '.nav_folder');
+        } else if (CURRENT_SCREEN === 'ALBUMS_MODAL') {
+          nav(-1, '.nav_album');
         }
         break
       case 'ArrowDown':
@@ -1275,8 +1508,12 @@ window.addEventListener("load", function() {
           nav(1, '.nav_track_editor');
         } else if (CURRENT_SCREEN === 'ABOUT_MODAL') {
           ABOUT_CONTENT.scrollTop += 20;
+        } else if (CURRENT_SCREEN === 'ARTISTS_MODAL') {
+          nav(1, '.nav_artist');
         } else if (CURRENT_SCREEN === 'FOLDERS_MODAL') {
           nav(1, '.nav_folder');
+        } else if (CURRENT_SCREEN === 'ALBUMS_MODAL') {
+          nav(1, '.nav_album');
         }
         break
       case 'ArrowRight':
@@ -1327,12 +1564,27 @@ window.addEventListener("load", function() {
             PLAYLIST_MANAGER_MODAL.show();
           } else if (document.activeElement.tabIndex === 1) {
             MENU_MODAL.hide();
-            FOLDERS_MODAL.show();
+            ARTISTS_MODAL.show();
           } else if (document.activeElement.tabIndex === 2) {
-            indexingStorage();
-            CURRENT_SCREEN = 'HOME';
             MENU_MODAL.hide();
+            ALBUMS_MODAL.show();
           } else if (document.activeElement.tabIndex === 3) {
+            MENU_MODAL.hide();
+            FOLDERS_MODAL.show();
+          } else if (document.activeElement.tabIndex === 4) {
+            localforage.getItem('PLAY_DURATION')
+            .then(function(PLAY_DURATION) {
+              RESUME_DURATION = PLAY_DURATION;
+            })
+            .catch(function(err) {
+              RESUME_DURATION = null;
+            })
+            .finally(() => {
+              indexingStorage();
+              CURRENT_SCREEN = 'HOME';
+              MENU_MODAL.hide();
+            });
+          } else if (document.activeElement.tabIndex === 5) {
             MENU_MODAL.hide();
             ABOUT_MODAL.show();
           }
@@ -1354,12 +1606,26 @@ window.addEventListener("load", function() {
               chkbx.checked = !chkbx.checked;
             }
           }
+        } else if (CURRENT_SCREEN === 'ARTISTS_MODAL') {
+          const nav = document.querySelectorAll('.nav_artist');
+          if (nav.length > 0 && nav[document.activeElement.tabIndex]) {
+            processArtist(nav[document.activeElement.tabIndex].innerText);
+            CURRENT_SCREEN = 'HOME';
+            ARTISTS_MODAL.hide();
+          }
         } else if (CURRENT_SCREEN === 'FOLDERS_MODAL') {
           const nav = document.querySelectorAll('.nav_folder');
           if (nav.length > 0 && nav[document.activeElement.tabIndex]) {
             processFolder(nav[document.activeElement.tabIndex].innerText);
             CURRENT_SCREEN = 'HOME';
             FOLDERS_MODAL.hide();
+          }
+        } else if (CURRENT_SCREEN === 'ALBUMS_MODAL') {
+          const nav = document.querySelectorAll('.nav_album');
+          if (nav.length > 0 && nav[document.activeElement.tabIndex]) {
+            processAlbum(nav[document.activeElement.tabIndex].innerText);
+            CURRENT_SCREEN = 'HOME';
+            ALBUMS_MODAL.hide();
           }
         }
         break
@@ -1405,9 +1671,19 @@ window.addEventListener("load", function() {
           ABOUT_MODAL.hide();
           e.preventDefault();
           e.stopPropagation();
+        } else if (CURRENT_SCREEN === 'ARTISTS_MODAL') {
+          CURRENT_SCREEN = 'HOME';
+          ARTISTS_MODAL.hide();
+          e.preventDefault();
+          e.stopPropagation();
         } else if (CURRENT_SCREEN === 'FOLDERS_MODAL') {
           CURRENT_SCREEN = 'HOME';
           FOLDERS_MODAL.hide();
+          e.preventDefault();
+          e.stopPropagation();
+        } else if (CURRENT_SCREEN === 'ALBUMS_MODAL') {
+          CURRENT_SCREEN = 'HOME';
+          ALBUMS_MODAL.hide();
           e.preventDefault();
           e.stopPropagation();
         }
@@ -1426,7 +1702,18 @@ window.addEventListener("load", function() {
 
   document.activeElement.addEventListener('keydown', handleKeydown);
 
-  indexingStorage();
+  localforage.getItem('PLAY_DURATION')
+  .then(function(PLAY_DURATION) {
+    RESUME_DURATION = PLAY_DURATION;
+  })
+  .catch(function(err) {
+    RESUME_DURATION = null;
+  })
+  .finally(() => {
+    indexingStorage();
+    CURRENT_SCREEN = 'HOME';
+    MENU_MODAL.hide();
+  });
 
   getKaiAd({
     publisher: 'ac3140f7-08d6-46d9-aa6f-d861720fba66',
