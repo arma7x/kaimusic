@@ -84,7 +84,7 @@ window.addEventListener("load", function() {
   const ARTISTS_UL = document.getElementById("artists_ul");
   const ALB_ART_SK = document.getElementById('albums_or_artists_software_key');
 
-  var WORKER = new Worker('/worker.js');
+  var WORKER = new Worker('/assets/js/worker.js');
 
   WORKER.onmessage = (e) => {
     if (e.data.type === 'PARSE_METADATA') {
@@ -97,7 +97,7 @@ window.addEventListener("load", function() {
         if (ARTISTS['UNKNOWN'] == null) {
           ARTISTS['UNKNOWN'] = [];
         }
-        ARTISTS['UNKNOWN'].push({name: e.data.file.name, selected: true}) //.selected = true;
+        ARTISTS['UNKNOWN'].push({name: e.data.file.name, selected: true})
       }
       if (!e.data.error && media.tags.album) {
         if (ALBUMS[media.tags.album] == null) {
@@ -409,6 +409,9 @@ window.addEventListener("load", function() {
     window['__AURORA__'] = AV.Player.fromFile(window['__FILE__']);
     window['__AURORA__'].on('ready', () => {
       if (RESUME_DURATION != null && Number.isInteger(RESUME_DURATION)) {
+        if (RESUME_DURATION < 1000) {
+          RESUME_DURATION = 1000;
+        }
         window['__AURORA__'].seek(RESUME_DURATION);
         RESUME_DURATION = null;
       }
@@ -430,6 +433,8 @@ window.addEventListener("load", function() {
     });
     window['__AURORA__'].on('error', (e) => {
       console.log(e);
+      PLAY_BTN.src = '/assets/img/baseline_play_circle_filled_white_36dp.png';
+      window['__AURORA__'].pause();
     });
     window['__AURORA__'].play();
   }
@@ -634,6 +639,7 @@ window.addEventListener("load", function() {
     GLOBAL_AUDIO_BLOB = [];
     GLOBAL_AUDIO_BLOB_INDEX = 0;
     const cursor = SDCARD.enumerate('');
+    setReadyState(false);
     cursor.onsuccess = function () {
       if (!this.done) {
         if(cursor.result.name !== null) {
@@ -644,10 +650,12 @@ window.addEventListener("load", function() {
         DOCUMENT_TREE = {};
         DOCUMENT_TREE = indexingDocuments(FILES);
         FILE_BY_GROUPS = {};
+        setReadyState(true);
         groupByType(FILES, indexingPlaylist);
       }
     }
     cursor.onerror = function () { 
+      setReadyState(true);
       console.warn("No file found: " + this.error); 
     }
   }
