@@ -1,4 +1,4 @@
-self.importScripts('/assets/js/jsmediatags.min.js');
+self.importScripts('/assets/js/parser/jsmediatags.min.js');
 self.importScripts('/assets/js/parser/metadata_scripts.js');
 self.importScripts('/assets/js/parser/flac.js');
 self.importScripts('/assets/js/parser/id3v1.js');
@@ -44,7 +44,11 @@ onmessage = function(e) {
     jsmediatags.read(e.data.type === 'PARSE_METADATA' ? FILE.slice(FILE.size - 128, FILE.size, FILE.type) : FILE, {
       onSuccess: (success) => {
         if (e.data.file.type === 'audio/flac') { // each success attrb is undefined
-          metadata_scripts();
+          if (success.tags.album == null && success.tags.artist == null && success.tags.picture == null && success.tags.title == null && success.tags.genre == null) {
+            metadata_scripts();
+          } else {
+            postMessage({type: e.data.type, result: success, file: e.data.file, error: false});
+          }
         } else {
           postMessage({type: e.data.type, result: success, file: e.data.file, error: false});
         }
