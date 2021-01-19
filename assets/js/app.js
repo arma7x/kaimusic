@@ -94,6 +94,7 @@ window.addEventListener("load", function() {
           ARTISTS[media.tags.artist] = [];
         }
         ARTISTS[media.tags.artist].push({name: e.data.file.name, selected: true})
+      } else {
         if (ARTISTS['UNKNOWN'] == null) {
           ARTISTS['UNKNOWN'] = [];
         }
@@ -117,12 +118,40 @@ window.addEventListener("load", function() {
       } else {
         setReadyState(false);
         indexingPlaylist();
+        if (window['__POWER__']) {
+          window['__POWER__'].unlock();
+          window['__POWER__'] = null;
+          console.timeEnd('BENCHMARK');
+        }
+      }
+    } else if (e.data.type === 'PARSE_METADATA_FULL') {
+      const media = e.data.result;
+      if (!e.data.error && media.tags.title) {
+        TRACK_TITLE.innerHTML = media.tags.title;
+      } else {
+        var name = e.data.file.name.split('/');
+        TRACK_TITLE.innerHTML = name[name.length - 1];
+      }
+      if (!e.data.error && media.tags.artist) {
+        ARTIS_LBL.innerHTML = media.tags.artist;
+      } else {
+        ARTIS_LBL.innerHTML = 'Unknown';
+      }
+      if (!e.data.error && media.tags.album) {
+        ALBUM_LBL.innerHTML = media.tags.album;
+      } else {
+        ALBUM_LBL.innerHTML = 'Unknown';
+      }
+      if (!e.data.error && media.tags.genre) {
+        GENRE_LBL.innerHTML = media.tags.genre;
+      } else {
+        GENRE_LBL.innerHTML = 'Unknown';
       }
     }
   }
 
   function parseMetadata(audio) {
-    WORKER.postMessage({file: audio, type: 'PARSE_METADATA'});
+    WORKER.postMessage({file: audio.file, type: 'PARSE_METADATA'});
   }
 
   localforage.getItem('SHUFFLE')
@@ -412,8 +441,8 @@ window.addEventListener("load", function() {
         if (RESUME_DURATION < 1000) {
           RESUME_DURATION = 1000;
         }
-        window['__AURORA__'].seek(RESUME_DURATION);
         RESUME_DURATION = null;
+        window['__AURORA__'].seek(RESUME_DURATION);
       }
     });
     window['__AURORA__'].on('progress', (e) => {
@@ -432,7 +461,6 @@ window.addEventListener("load", function() {
       }
     });
     window['__AURORA__'].on('error', (e) => {
-      console.log(e);
       PLAY_BTN.src = '/assets/img/baseline_play_circle_filled_white_36dp.png';
       window['__AURORA__'].pause();
     });
@@ -484,14 +512,14 @@ window.addEventListener("load", function() {
           FILE_BY_GROUPS[mime[0]] = []
         }
         FILE_BY_GROUPS[mime[0]].push(file.name);
-        GLOBAL_BLOB[file.name] = file.slice(file.size - 128, file.size, file.type);
+        GLOBAL_BLOB[file.name] = file; //file.slice(file.size - 128, file.size, file.type);
         _taskDone++;
         if (_taskDone === _taskLength) {
           GLOBAL_TRACK = '';
           if (FILE_BY_GROUPS.hasOwnProperty('audio')) {
             FILE_BY_GROUPS['audio'].forEach((n) => {
               TRACK.push({name: n, selected: true});
-              GLOBAL_AUDIO_BLOB.push({name: n, blob: GLOBAL_BLOB[n]});
+              GLOBAL_AUDIO_BLOB.push({name: n, file: GLOBAL_BLOB[n]});
             });
           }
           if (FILE_BY_GROUPS.hasOwnProperty('video')) {
@@ -499,7 +527,7 @@ window.addEventListener("load", function() {
               const split = n.split('.');
               if (split[split.length - 1] === 'ogg') {
                 TRACK.push({name: n, selected: true});
-                GLOBAL_AUDIO_BLOB.push({name: n, blob: GLOBAL_BLOB[n]});
+                GLOBAL_AUDIO_BLOB.push({name: n, file: GLOBAL_BLOB[n]});
               }
             });
           }
@@ -548,6 +576,8 @@ window.addEventListener("load", function() {
                 //cb();
                 setReadyState(false);
                 parseMetadata(GLOBAL_AUDIO_BLOB[0]);
+                window['__POWER__'] = navigator.requestWakeLock('cpu');
+                console.time('BENCHMARK');
               }
             }
           });
@@ -570,29 +600,30 @@ window.addEventListener("load", function() {
   }
 
   function getMetadata(file){
+    WORKER.postMessage({file: file, type: 'PARSE_METADATA_FULL'});
     jsmediatags.read(file, {
       onSuccess: function(media) {
-        if (media.tags.title) {
-          TRACK_TITLE.innerHTML = media.tags.title;
-        } else {
-          var name = file.name.split('/');
-          TRACK_TITLE.innerHTML = name[name.length - 1];
-        }
-        if (media.tags.artist) {
-          ARTIS_LBL.innerHTML = media.tags.artist;
-        } else {
-          ARTIS_LBL.innerHTML = 'Unknown';
-        }
-        if (media.tags.album) {
-          ALBUM_LBL.innerHTML = media.tags.album;
-        } else {
-          ALBUM_LBL.innerHTML = 'Unknown';
-        }
-        if (media.tags.genre) {
-          GENRE_LBL.innerHTML = media.tags.genre;
-        } else {
-          GENRE_LBL.innerHTML = 'Unknown';
-        }
+        //if (media.tags.title) {
+          //TRACK_TITLE.innerHTML = media.tags.title;
+        //} else {
+          //var name = file.name.split('/');
+          //TRACK_TITLE.innerHTML = name[name.length - 1];
+        //}
+        //if (media.tags.artist) {
+          //ARTIS_LBL.innerHTML = media.tags.artist;
+        //} else {
+          //ARTIS_LBL.innerHTML = 'Unknown';
+        //}
+        //if (media.tags.album) {
+          //ALBUM_LBL.innerHTML = media.tags.album;
+        //} else {
+          //ALBUM_LBL.innerHTML = 'Unknown';
+        //}
+        //if (media.tags.genre) {
+          //GENRE_LBL.innerHTML = media.tags.genre;
+        //} else {
+          //GENRE_LBL.innerHTML = 'Unknown';
+        //}
         if (media.tags.picture) {
           const data = media.tags.picture.data;
           const type = media.tags.picture.type ;
@@ -604,13 +635,12 @@ window.addEventListener("load", function() {
         }
       },
       onError: function(error) {
-        var name = file.name.split('/');
-        TRACK_TITLE.innerHTML = name[name.length - 1];
-        ARTIS_LBL.innerHTML = 'Unknown';
-        ALBUM_LBL.innerHTML = 'Unknown';
-        GENRE_LBL.innerHTML = 'Unknown';
+        //var name = file.name.split('/');
+        //TRACK_TITLE.innerHTML = name[name.length - 1];
+        //ARTIS_LBL.innerHTML = 'Unknown';
+        //ALBUM_LBL.innerHTML = 'Unknown';
+        //GENRE_LBL.innerHTML = 'Unknown';
         ALBUM_COVER.src = '/assets/img/baseline_album_white_48.png';
-        console.log(error);
       }
     });
   }
