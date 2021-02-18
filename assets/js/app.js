@@ -613,11 +613,6 @@ window.addEventListener("load", function() {
             if (TRACK.length === DONE) {
               setReadyState(true);
               if (cb !== undefined) {
-                // cb();
-                // setReadyState(false);
-                // parseMetadata(GLOBAL_AUDIO_BLOB[0]);
-                // window['__POWER__'] = navigator.requestWakeLock('cpu');
-                // console.time('BENCHMARK');
                 var LOCAL_GLOBAL_AUDIO = []
                 GLOBAL_AUDIO_BLOB.forEach((f) => {
                   LOCAL_GLOBAL_AUDIO.push(f.name);
@@ -625,13 +620,11 @@ window.addEventListener("load", function() {
                 localforage.getItem('DATABASE_GLOBAL_AUDIO')
                 .then((DATABASE_GLOBAL_AUDIO) => {
                   if (DATABASE_GLOBAL_AUDIO == null) {
-                    console.log(11111);
                     localforage.setItem('DATABASE_GLOBAL_AUDIO', LOCAL_GLOBAL_AUDIO)
                     setReadyState(false);
                     parseMetadata(GLOBAL_AUDIO_BLOB[0]);
                     window['__POWER__'] = navigator.requestWakeLock('cpu');
                   } else {
-                    console.log(22222);
                     setReadyState(true);
                     indexingPlaylist();
                     var missing_files = []
@@ -646,16 +639,8 @@ window.addEventListener("load", function() {
                         missing_files.push(n);
                       }
                     });
-                    console.log(new_files);
-                    console.log(missing_files);
                     localforage.setItem('DATABASE_GLOBAL_AUDIO', LOCAL_GLOBAL_AUDIO)
                     .then(() => {
-                      //
-                      //localforage.getItem('DATABASE_GLOBAL_AUDIO').then((_DATABASE_GLOBAL_AUDIO) => {
-                        //console.log('_DATABASE_GLOBAL_AUDIO', _DATABASE_GLOBAL_AUDIO.length);
-                        //console.log('LOCAL_GLOBAL_AUDIO', LOCAL_GLOBAL_AUDIO.length);
-                      //});
-                      //
                       localforage.getItem('ARTISTS')
                       .then((_ARTISTS_) => {
                         var UPDATE_ARTISTS = {}
@@ -663,10 +648,6 @@ window.addEventListener("load", function() {
                           _ARTISTS_[_a].forEach((t, ti) => {
                             if (missing_files.indexOf(t.name) > -1) {
                               console.log(t.name)
-                              //_ARTISTS_[_a].splice(ti, 1); //BUG
-                              //if (_ARTISTS_[_a].length === 0) {
-                              //  delete _ARTISTS_[_a];
-                              //}
                             } else {
                               if (UPDATE_ARTISTS[_a] == null) {
                                 UPDATE_ARTISTS[_a] = [];
@@ -686,10 +667,6 @@ window.addEventListener("load", function() {
                             _ALBUMS_[_a].forEach((t, ti) => {
                               if (missing_files.indexOf(t.name) > -1) {
                                 console.log(t.name)
-                                //_ALBUMS_[_a].splice(ti, 1); //BUG
-                                //if (_ALBUMS_[_a].length === 0) {
-                                  //delete _ALBUMS_[_a];
-                                //}
                               } else {
                                 if (UPDATE_ALBUMS[_a] == null) {
                                   UPDATE_ALBUMS[_a] = [];
@@ -712,9 +689,6 @@ window.addEventListener("load", function() {
                       .then((_LATEST_) => {
                         var updated = 0;
                         var SUB_WORKER = new Worker('/assets/js/worker.js');
-                        //console.log(_LATEST_['_ARTISTS_']);
-                        //console.log(_LATEST_['_ALBUMS_']);
-                        //console.log(GLOBAL_AUDIO_BLOB); //{file, name}
                         SUB_WORKER.onmessage = (e) => {
                           if (e.data.type === 'PARSE_METADATA_UPDATE') {
                             const media = e.data.result;
@@ -749,8 +723,6 @@ window.addEventListener("load", function() {
                               .finally(() => {
                                 
                               });
-                              //console.log(_LATEST_['_ARTISTS_']);
-                              //console.log(_LATEST_['_ALBUMS_']);
                             }
                           }
                         }
@@ -842,7 +814,6 @@ window.addEventListener("load", function() {
   }
 
   function resumeApp() {
-    // COMPARE TRACK LENGTH WITH SEQUNCE LENGTH
     localforage.getItem('SEQUENCE')
     .then((SEQUENCE_DB) => {
       console.log(SEQUENCE_DB.length, TRACK.length);
