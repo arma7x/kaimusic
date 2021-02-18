@@ -118,7 +118,7 @@ window.addEventListener("load", function() {
       }
       GLOBAL_AUDIO_BLOB_INDEX += 1;
       if (GLOBAL_AUDIO_BLOB_INDEX < GLOBAL_AUDIO_BLOB.length) {
-        showSnackbar((GLOBAL_AUDIO_BLOB_INDEX + 1).toString() + '/' + GLOBAL_AUDIO_BLOB.length.toString());
+        showSnackbar('Only Run Once | ' + (GLOBAL_AUDIO_BLOB_INDEX + 1).toString() + '/' + GLOBAL_AUDIO_BLOB.length.toString());
         parseMetadata(GLOBAL_AUDIO_BLOB[GLOBAL_AUDIO_BLOB_INDEX]);
       } else {
         localforage.setItem('ARTISTS', ARTISTS)
