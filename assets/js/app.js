@@ -1,5 +1,9 @@
 window.addEventListener("load", function() {
 
+  navigator.mozSetMessageHandler('headset-button', function(evt) {
+    console.log('headset-button', evt);
+  });
+
   localforage.setDriver(localforage.LOCALSTORAGE);
 
   const SDCARD = navigator.getDeviceStorage('sdcard');
@@ -87,6 +91,7 @@ window.addEventListener("load", function() {
   var WORKER = new Worker('/assets/js/worker.js');
 
   WORKER.onmessage = (e) => {
+    console.log(e.data.type)
     if (e.data.type === 'PARSE_METADATA') {
       const media = e.data.result;
       if (!e.data.error && media.tags.artist) {
@@ -116,8 +121,14 @@ window.addEventListener("load", function() {
         showSnackbar((GLOBAL_AUDIO_BLOB_INDEX + 1).toString() + '/' + GLOBAL_AUDIO_BLOB.length.toString());
         parseMetadata(GLOBAL_AUDIO_BLOB[GLOBAL_AUDIO_BLOB_INDEX]);
       } else {
-        setReadyState(false);
-        indexingPlaylist();
+        localforage.setItem('ARTISTS', ARTISTS)
+        .then(() => {
+          return localforage.setItem('ALBUMS', ALBUMS);
+        })
+        .finally(() => {
+          setReadyState(false);
+          indexingPlaylist();
+        });
         if (window['__POWER__']) {
           window['__POWER__'].unlock();
           window['__POWER__'] = null;
@@ -361,19 +372,27 @@ window.addEventListener("load", function() {
     while(ALBUMS_UL.firstChild) {
       ALBUMS_UL.removeChild(ALBUMS_UL.firstChild);
     }
-    var i = 0;
-    for (var name in ALBUMS) {
-      const li = document.createElement("LI");
-      li.appendChild(document.createTextNode(name));
-      li.setAttribute("class", "nav_album");
-      li.setAttribute("tabIndex", i);
-      ALBUMS_UL.appendChild(li);
-      i++;
-    }
-    setTimeout(function() {
-      nav(1, '.nav_album');
-    }, 300);
-    ALB_ART_SK.classList.remove('sr-only');
+    localforage.getItem('ALBUMS')
+    .then((_ALBUMS_) => {
+      if (_ALBUMS_) {
+        var i = 0;
+        for (var name in _ALBUMS_) {
+          const li = document.createElement("LI");
+          li.appendChild(document.createTextNode(name));
+          li.setAttribute("class", "nav_album");
+          li.setAttribute("tabIndex", i);
+          ALBUMS_UL.appendChild(li);
+          i++;
+        }
+      }
+    })
+    .finally(() => {
+      setTimeout(function() {
+        nav(1, '.nav_album');
+      }, 300);
+      ALB_ART_SK.classList.remove('sr-only');
+    })
+    
   })
   .on('onConfirm', function() {
     
@@ -390,19 +409,26 @@ window.addEventListener("load", function() {
     while(ARTISTS_UL.firstChild) {
       ARTISTS_UL.removeChild(ARTISTS_UL.firstChild);
     }
-    var i = 0;
-    for (var name in ARTISTS) {
-      const li = document.createElement("LI");
-      li.appendChild(document.createTextNode(name));
-      li.setAttribute("class", "nav_artist");
-      li.setAttribute("tabIndex", i);
-      ARTISTS_UL.appendChild(li);
-      i++;
-    }
-    setTimeout(function() {
+    localforage.getItem('ARTISTS')
+    .then((_ARTISTS_) => {
+      if (_ARTISTS_) {
+        var i = 0;
+        for (var name in _ARTISTS_) {
+          const li = document.createElement("LI");
+          li.appendChild(document.createTextNode(name));
+          li.setAttribute("class", "nav_artist");
+          li.setAttribute("tabIndex", i);
+          ARTISTS_UL.appendChild(li);
+          i++;
+        }
+      }
+    })
+    .finally(() => {
+      setTimeout(function() {
       nav(1, '.nav_artist');
-    }, 300);
-    ALB_ART_SK.classList.remove('sr-only');
+      }, 300);
+      ALB_ART_SK.classList.remove('sr-only');
+    })
   })
   .on('onConfirm', function() {SS
     
@@ -587,11 +613,164 @@ window.addEventListener("load", function() {
             if (TRACK.length === DONE) {
               setReadyState(true);
               if (cb !== undefined) {
-                //cb();
-                setReadyState(false);
-                parseMetadata(GLOBAL_AUDIO_BLOB[0]);
-                window['__POWER__'] = navigator.requestWakeLock('cpu');
+                // cb();
+                // setReadyState(false);
+                // parseMetadata(GLOBAL_AUDIO_BLOB[0]);
+                // window['__POWER__'] = navigator.requestWakeLock('cpu');
                 // console.time('BENCHMARK');
+                var LOCAL_GLOBAL_AUDIO = []
+                GLOBAL_AUDIO_BLOB.forEach((f) => {
+                  LOCAL_GLOBAL_AUDIO.push(f.name);
+                });
+                localforage.getItem('DATABASE_GLOBAL_AUDIO')
+                .then((DATABASE_GLOBAL_AUDIO) => {
+                  if (DATABASE_GLOBAL_AUDIO == null) {
+                    console.log(11111);
+                    localforage.setItem('DATABASE_GLOBAL_AUDIO', LOCAL_GLOBAL_AUDIO)
+                    setReadyState(false);
+                    parseMetadata(GLOBAL_AUDIO_BLOB[0]);
+                    window['__POWER__'] = navigator.requestWakeLock('cpu');
+                  } else {
+                    console.log(22222);
+                    setReadyState(true);
+                    indexingPlaylist();
+                    var missing_files = []
+                    var new_files = []
+                    LOCAL_GLOBAL_AUDIO.forEach((n) => {
+                      if (DATABASE_GLOBAL_AUDIO.indexOf(n) === -1) {
+                        new_files.push(n);
+                      }
+                    });
+                    DATABASE_GLOBAL_AUDIO.forEach((n) => {
+                      if (LOCAL_GLOBAL_AUDIO.indexOf(n) === -1) {
+                        missing_files.push(n);
+                      }
+                    });
+                    console.log(new_files);
+                    console.log(missing_files);
+                    localforage.setItem('DATABASE_GLOBAL_AUDIO', LOCAL_GLOBAL_AUDIO)
+                    .then(() => {
+                      //
+                      //localforage.getItem('DATABASE_GLOBAL_AUDIO').then((_DATABASE_GLOBAL_AUDIO) => {
+                        //console.log('_DATABASE_GLOBAL_AUDIO', _DATABASE_GLOBAL_AUDIO.length);
+                        //console.log('LOCAL_GLOBAL_AUDIO', LOCAL_GLOBAL_AUDIO.length);
+                      //});
+                      //
+                      localforage.getItem('ARTISTS')
+                      .then((_ARTISTS_) => {
+                        var UPDATE_ARTISTS = {}
+                        for (var _a in _ARTISTS_) {
+                          _ARTISTS_[_a].forEach((t, ti) => {
+                            if (missing_files.indexOf(t.name) > -1) {
+                              console.log(t.name)
+                              //_ARTISTS_[_a].splice(ti, 1); //BUG
+                              //if (_ARTISTS_[_a].length === 0) {
+                              //  delete _ARTISTS_[_a];
+                              //}
+                            } else {
+                              if (UPDATE_ARTISTS[_a] == null) {
+                                UPDATE_ARTISTS[_a] = [];
+                              }
+                              UPDATE_ARTISTS[_a].push(t);
+                            }
+                          });
+                        }
+                        console.log(UPDATE_ARTISTS);
+                        return localforage.setItem('ARTISTS', UPDATE_ARTISTS)
+                      })
+                      .then((_ARTISTS_) => {
+                        return localforage.getItem('ALBUMS')
+                        .then((_ALBUMS_) => {
+                          var UPDATE_ALBUMS = {}
+                          for (var _a in _ALBUMS_) {
+                            _ALBUMS_[_a].forEach((t, ti) => {
+                              if (missing_files.indexOf(t.name) > -1) {
+                                console.log(t.name)
+                                //_ALBUMS_[_a].splice(ti, 1); //BUG
+                                //if (_ALBUMS_[_a].length === 0) {
+                                  //delete _ALBUMS_[_a];
+                                //}
+                              } else {
+                                if (UPDATE_ALBUMS[_a] == null) {
+                                  UPDATE_ALBUMS[_a] = [];
+                                }
+                                UPDATE_ALBUMS[_a].push(t);
+                              }
+                            });
+                          }
+                          console.log(UPDATE_ALBUMS);
+                          return localforage.setItem('ALBUMS', UPDATE_ALBUMS)
+                          .then(() => {
+                            return localforage.getItem('ALBUMS')
+                            .then((_ALBUMS_) => {
+                              console.log({ _ARTISTS_: _ARTISTS_, _ALBUMS_: _ALBUMS_ });
+                              return Promise.resolve({ _ARTISTS_: _ARTISTS_, _ALBUMS_: _ALBUMS_ });
+                            })
+                          });
+                        })
+                      })
+                      .then((_LATEST_) => {
+                        var updated = 0;
+                        var SUB_WORKER = new Worker('/assets/js/worker.js');
+                        //console.log(_LATEST_['_ARTISTS_']);
+                        //console.log(_LATEST_['_ALBUMS_']);
+                        //console.log(GLOBAL_AUDIO_BLOB); //{file, name}
+                        SUB_WORKER.onmessage = (e) => {
+                          if (e.data.type === 'PARSE_METADATA_UPDATE') {
+                            const media = e.data.result;
+                            if (!e.data.error && media.tags.artist) {
+                              if (_LATEST_['_ARTISTS_'][media.tags.artist] == null) {
+                                _LATEST_['_ARTISTS_'][media.tags.artist] = [];
+                              }
+                              _LATEST_['_ARTISTS_'][media.tags.artist].push({name: e.data.file.name, selected: true})
+                            } else {
+                              if (_LATEST_['_ARTISTS_']['UNKNOWN'] == null) {
+                                _LATEST_['_ARTISTS_']['UNKNOWN'] = [];
+                              }
+                              _LATEST_['_ARTISTS_']['UNKNOWN'].push({name: e.data.file.name, selected: true})
+                            }
+                            if (!e.data.error && media.tags.album) {
+                              if (_LATEST_['_ALBUMS_'][media.tags.album] == null) {
+                                _LATEST_['_ALBUMS_'][media.tags.album] = [];
+                              }
+                              _LATEST_['_ALBUMS_'][media.tags.album].push({name: e.data.file.name, selected: true})
+                            } else {
+                              if (_LATEST_['_ALBUMS_']['UNKNOWN'] == null) {
+                                _LATEST_['_ALBUMS_']['UNKNOWN'] = [];
+                              }
+                              _LATEST_['_ALBUMS_']['UNKNOWN'].push({name: e.data.file.name, selected: true})
+                            }
+                            updated += 1
+                            if (updated === new_files.length) {
+                              localforage.setItem('ARTISTS', _LATEST_['_ARTISTS_'])
+                              .then(() => {
+                                return localforage.setItem('ALBUMS', _LATEST_['_ALBUMS_'])
+                              })
+                              .finally(() => {
+                                
+                              });
+                              //console.log(_LATEST_['_ARTISTS_']);
+                              //console.log(_LATEST_['_ALBUMS_']);
+                            }
+                          }
+                        }
+                        if (new_files.length === 0) {
+                          localforage.setItem('ARTISTS', _LATEST_['_ARTISTS_'])
+                          .then(() => {
+                            return localforage.setItem('ALBUMS', _LATEST_['_ALBUMS_'])
+                          })
+                          .finally(() => {
+                            
+                          });
+                        } else {
+                          new_files.forEach((n) => {
+                            SUB_WORKER.postMessage({file: GLOBAL_BLOB[n], type: 'PARSE_METADATA_UPDATE'});
+                          });
+                        }
+                      })
+                    })
+                  }
+                });
               }
             }
           });
@@ -663,34 +842,42 @@ window.addEventListener("load", function() {
   }
 
   function resumeApp() {
+    // COMPARE TRACK LENGTH WITH SEQUNCE LENGTH
     localforage.getItem('SEQUENCE')
     .then((SEQUENCE_DB) => {
+      console.log(SEQUENCE_DB.length, TRACK.length);
       if (SEQUENCE_DB == null) {
         processPlaylist();
       } else {
-        SEQUENCE = SEQUENCE_DB;
         localforage.getItem('SEQUENCE_INDEX')
         .then((SEQUENCE_INDEX_DB) => {
           if (SEQUENCE_INDEX_DB == null) {
             processPlaylist();
           } else {
+            var NEW_SEQUENCE = [];
             SEQUENCE_INDEX = SEQUENCE_INDEX_DB;
-            if (SEQUENCE.length > TRACK.length) {
+            if (SEQUENCE_DB.length > TRACK.length) {
               var max = TRACK.length - 1;
-              SEQUENCE.forEach((v, e) => {
-                if (v > max) {
-                  SEQUENCE.splice(e, 1);
+              SEQUENCE_DB.forEach((v, e) => {
+                if (!(v > max)) {
+                  NEW_SEQUENCE.push(v);
                 }
               });
               if (SEQUENCE_INDEX > max) {
                 SEQUENCE_INDEX = max;
               }
-            } else if (SEQUENCE.length < TRACK.length) {
-              var plus = TRACK.length - SEQUENCE.length
+              SEQUENCE = JSON.parse(JSON.stringify(NEW_SEQUENCE));
+            } else if (SEQUENCE_DB.length < TRACK.length) {
+              NEW_SEQUENCE = JSON.parse(JSON.stringify(SEQUENCE_DB));
+              var plus = TRACK.length - SEQUENCE_DB.length
               for(var e=0;e<plus;e++) {
-                SEQUENCE.push((SEQUENCE.length - 1) + 1);
+                NEW_SEQUENCE.push((NEW_SEQUENCE.length - 1) + 1);
               }
+              SEQUENCE = JSON.parse(JSON.stringify(NEW_SEQUENCE));
+            } else {
+              SEQUENCE = JSON.parse(JSON.stringify(SEQUENCE_DB));
             }
+            console.log(NEW_SEQUENCE.length, SEQUENCE.length);
             processPlaylist(false, SEQUENCE_INDEX);
           }
         })
@@ -859,51 +1046,67 @@ window.addEventListener("load", function() {
               running();
             } else {
               if (PLAY_TYPE == 'ALBUMS') {
-                if (ALBUMS[PLAY_NAME]) {
-                  localforage.setItem('PLAY_TYPE', 'ALBUMS')
-                  .then(() => {
-                    localforage.setItem('PLAY_NAME', PLAY_NAME)
-                  });
-                  TRACK = [];
-                  const filtered = [];
-                  PLAYLIST_LABEL.innerHTML = 'ALBUM';
-                  PLAYLIST_NAME.innerHTML = PLAY_NAME;
-                  ALBUMS[PLAY_NAME].forEach((t) => {
-                    if (t.selected === true) {
-                      filtered.push(t);
+                localforage.getItem('ALBUMS')
+                .then((_ALBUMS_) => {
+                  if (_ALBUMS_) {
+                    if (_ALBUMS_[PLAY_NAME]) {
+                      localforage.setItem('PLAY_TYPE', 'ALBUMS')
+                      .then(() => {
+                        localforage.setItem('PLAY_NAME', PLAY_NAME)
+                      });
+                      TRACK = [];
+                      const filtered = [];
+                      PLAYLIST_LABEL.innerHTML = 'ALBUM';
+                      PLAYLIST_NAME.innerHTML = PLAY_NAME;
+                      _ALBUMS_[PLAY_NAME].forEach((t) => {
+                        if (t.selected === true) {
+                          filtered.push(t);
+                        }
+                      });
+                      Object.assign(TRACK, filtered);
+                      CURRENT_PLAYLIST = PLAY_NAME;
+                      running(false);
+                      resumeApp();
+                    } else {
+                      playable = true;
+                      running();
                     }
-                  });
-                  Object.assign(TRACK, filtered);
-                  CURRENT_PLAYLIST = PLAY_NAME;
-                  running(false);
-                  resumeApp();
-                } else {
-                  playable = true;
-                  running();
-                }
+                  } else {
+                    playable = true;
+                    running();
+                  }
+                })
               } else if (PLAY_TYPE == 'ARTISTS') {
-                if (ARTISTS[PLAY_NAME]) {
-                  localforage.setItem('PLAY_TYPE', 'ARTISTS')
-                  .then(() => {
-                    localforage.setItem('PLAY_NAME', PLAY_NAME)
-                  });
-                  TRACK = [];
-                  const filtered = [];
-                  PLAYLIST_LABEL.innerHTML = 'ARTIST';
-                  PLAYLIST_NAME.innerHTML = PLAY_NAME;
-                  ARTISTS[PLAY_NAME].forEach((t) => {
-                    if (t.selected === true) {
-                      filtered.push(t);
+                localforage.getItem('ARTISTS')
+                .then((_ARTISTS_) => {
+                  if (_ARTISTS_) {
+                    if (_ARTISTS_[PLAY_NAME]) {
+                      localforage.setItem('PLAY_TYPE', 'ARTISTS')
+                      .then(() => {
+                        localforage.setItem('PLAY_NAME', PLAY_NAME)
+                      });
+                      TRACK = [];
+                      const filtered = [];
+                      PLAYLIST_LABEL.innerHTML = 'ARTIST';
+                      PLAYLIST_NAME.innerHTML = PLAY_NAME;
+                      _ARTISTS_[PLAY_NAME].forEach((t) => {
+                        if (t.selected === true) {
+                          filtered.push(t);
+                        }
+                      });
+                      Object.assign(TRACK, filtered);
+                      CURRENT_PLAYLIST = PLAY_NAME;
+                      running(false);
+                      resumeApp();
+                    } else {
+                      playable = true;
+                      running();
                     }
-                  });
-                  Object.assign(TRACK, filtered);
-                  CURRENT_PLAYLIST = PLAY_NAME;
-                  running(false);
-                  resumeApp();
-                } else {
-                  playable = true;
-                  running();
-                }
+                  } else {
+                    playable = true;
+                    running();
+                  }
+                })
               } else if (PLAY_TYPE == 'FOLDERS') {
                 if (FOLDERS[PLAY_NAME]) {
                   localforage.setItem('PLAY_TYPE', 'FOLDERS')
@@ -954,45 +1157,55 @@ window.addEventListener("load", function() {
   }
 
   function processAlbum(name) {
-    if (ALBUMS[name]) {
-      localforage.setItem('PLAY_TYPE', 'ALBUMS')
-      .then(() => {
-        localforage.setItem('PLAY_NAME', name)
-      });
-      CURRENT_PLAYLIST = name;
-      TRACK = [];
-      const filtered = [];
-      PLAYLIST_LABEL.innerHTML = 'ALBUM';
-      PLAYLIST_NAME.innerHTML = name;
-      ALBUMS[name].forEach((t) => {
-        if (t.selected === true) {
-          filtered.push(t);
+    localforage.getItem('ALBUMS')
+    .then((_ALBUMS_) => {
+      if (_ALBUMS_) {
+        if (_ALBUMS_[name]) {
+          localforage.setItem('PLAY_TYPE', 'ALBUMS')
+          .then(() => {
+            localforage.setItem('PLAY_NAME', name)
+          });
+          CURRENT_PLAYLIST = name;
+          TRACK = [];
+          const filtered = [];
+          PLAYLIST_LABEL.innerHTML = 'ALBUM';
+          PLAYLIST_NAME.innerHTML = name;
+          _ALBUMS_[name].forEach((t) => {
+            if (t.selected === true) {
+              filtered.push(t);
+            }
+          });
+          Object.assign(TRACK, filtered);
+          processPlaylist();
         }
-      });
-      Object.assign(TRACK, filtered);
-      processPlaylist();
-    }
+      }
+    })
   }
 
   function processArtist(name) {
-    if (ARTISTS[name]) {
-      localforage.setItem('PLAY_TYPE', 'ARTISTS')
-      .then(() => {
-        localforage.setItem('PLAY_NAME', name)
-      });
-      CURRENT_PLAYLIST = name;
-      TRACK = [];
-      const filtered = [];
-      PLAYLIST_LABEL.innerHTML = 'ARTIST';
-      PLAYLIST_NAME.innerHTML = name;
-      ARTISTS[name].forEach((t) => {
-        if (t.selected === true) {
-          filtered.push(t);
+    localforage.getItem('ARTISTS')
+    .then((_ARTISTS_) => {
+      if (_ARTISTS_) {
+        if (_ARTISTS_[name]) {
+          localforage.setItem('PLAY_TYPE', 'ARTISTS')
+          .then(() => {
+            localforage.setItem('PLAY_NAME', name)
+          });
+          CURRENT_PLAYLIST = name;
+          TRACK = [];
+          const filtered = [];
+          PLAYLIST_LABEL.innerHTML = 'ARTIST';
+          PLAYLIST_NAME.innerHTML = name;
+          _ARTISTS_[name].forEach((t) => {
+            if (t.selected === true) {
+              filtered.push(t);
+            }
+          });
+          Object.assign(TRACK, filtered);
+          processPlaylist();
         }
-      });
-      Object.assign(TRACK, filtered);
-      processPlaylist();
-    }
+      }
+    })
   }
 
   function processPlaylist(isShuffling = true, idx = null) {
