@@ -1713,7 +1713,7 @@ window.addEventListener("load", function() {
       case 'ArrowRight':
         if (CURRENT_SCREEN === 'HOME') {
           var threshold = new Date().getTime() - RGT_DBL_CLICK_TH;
-          if (threshold > 0 && threshold <= 500) {
+          if (threshold > 0 && threshold <= 300) {
             clearTimeout(RGT_DBL_CLICK_TIMER);
             RGT_DBL_CLICK_TH = 0;
             fastForward();
@@ -1731,7 +1731,7 @@ window.addEventListener("load", function() {
       case 'ArrowLeft':
         if (CURRENT_SCREEN === 'HOME') {
           var threshold = new Date().getTime() - LFT_DBL_CLICK_TH;
-          if (threshold > 0 && threshold <= 500) {
+          if (threshold > 0 && threshold <= 300) {
             clearTimeout(LFT_DBL_CLICK_TIMER);
             LFT_DBL_CLICK_TH = 0;
             rewind();
