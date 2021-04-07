@@ -1,7 +1,7 @@
 {
-  "version": "1.5.1",
+  "version": "1.6.0",
   "name": "K-Music",
-  "description": "An audio player for KaiOS with playlist manager",
+  "description": "An audio player for KaiOS with playlist manager + Equalizer",
   "launch_path": "/index.html",
   "theme": "#873eff",
   "theme_color": "#873eff",
@@ -38,8 +38,8 @@
   "locales": {
     "en-US": {
       "name": "K-Music",
-      "subtitle": "An audio player for KaiOS with playlist manager",
-      "description": "An audio player for KaiOS with playlist manager"
+      "subtitle": "An audio player for KaiOS with playlist manager + Equalizer",
+      "description": "An audio player for KaiOS with playlist manager + Equalizer"
     }
   },
   "default_locale": "en-US"

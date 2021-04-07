@@ -39,6 +39,7 @@ window.addEventListener("load", function() {
   var FOLDERS_MODAL = {};
   var ALBUMS_MODAL = {};
   var ARTISTS_MODAL = {};
+  var EQUALIZER_MODAL = {};
 
   var PLAYLIST_MANAGER_MODAL_INDEX = -1;
   var LFT_DBL_CLICK_TH = 0;
@@ -46,7 +47,102 @@ window.addEventListener("load", function() {
   var RGT_DBL_CLICK_TH = 0;
   var RGT_DBL_CLICK_TIMER = undefined;
 
-  const PLAYER = new Audio();
+  const CONTEXT = new AudioContext('content');
+  const PLAYER = document.createElement("audio");
+  const SOURCE = CONTEXT.createMediaElementSource(PLAYER);
+
+  var staticSource = CONTEXT.createGain();
+  var balance = new StereoBalanceNode(CONTEXT);
+  window['preamp'] = CONTEXT.createGain();
+  var gainNode = CONTEXT.createGain();
+
+  window['channel31'] = CONTEXT.createBiquadFilter();
+  window['channel63'] = CONTEXT.createBiquadFilter();
+  window['channel125'] = CONTEXT.createBiquadFilter();
+  window['channel250'] = CONTEXT.createBiquadFilter();
+  window['channel500'] = CONTEXT.createBiquadFilter();
+  window['channel1k'] = CONTEXT.createBiquadFilter();
+  window['channel2k'] = CONTEXT.createBiquadFilter();
+  window['channel4k'] = CONTEXT.createBiquadFilter();
+  window['channel8k'] = CONTEXT.createBiquadFilter();
+  window['channel16k'] = CONTEXT.createBiquadFilter();
+
+  staticSource.connect(window['preamp']);
+  SOURCE.connect(staticSource);
+  staticSource.connect(window['preamp']);
+  window['preamp'].connect(window['channel31']);
+  window['channel31'].connect(window['channel63']);
+  window['channel63'].connect(window['channel125']);
+  window['channel125'].connect(window['channel250']);
+  window['channel250'].connect(window['channel500']);
+  window['channel500'].connect(window['channel1k']);
+  window['channel1k'].connect(window['channel2k']);
+  window['channel2k'].connect(window['channel4k']);
+  window['channel4k'].connect(window['channel8k']);
+  window['channel8k'].connect(window['channel16k']);
+  window['channel16k'].connect(balance);
+  balance.connect(gainNode);
+  gainNode.connect(CONTEXT.destination);
+
+  window['preamp'].gain.value = 1;
+
+  channel31.type = "lowshelf";
+  channel31.frequency.value = 31;
+  channel31.gain.value = 0;
+
+  channel63.type = "peaking";
+  channel63.frequency.value = 63;
+  channel63.gain.value = 0;
+
+  channel125.type = "peaking";
+  channel125.frequency.value = 125;
+  channel125.gain.value = 0;
+
+  channel250.type = "peaking";
+  channel250.frequency.value = 250;
+  channel250.gain.value = 0;
+
+  channel500.type = "peaking";
+  channel500.frequency.value = 500;
+  channel500.gain.value = 0;
+
+  channel1k.type = "peaking";
+  channel1k.frequency.value = 1000;
+  channel1k.gain.value = 0;
+
+  channel2k.type = "peaking";
+  channel2k.frequency.value = 2000;
+  channel2k.gain.value = 0;
+
+  channel4k.type = "peaking";
+  channel4k.frequency.value = 4000;
+  channel4k.gain.value = 0;
+
+  channel8k.type = "peaking";
+  channel8k.frequency.value = 8000;
+  channel8k.gain.value = 0;
+
+  channel16k.type = "highshelf";
+  channel16k.frequency.value = 16000;
+  channel16k.gain.value = 0;
+
+  const channelRange = document.querySelectorAll('input[type=range]');
+
+  for (var x in channelRange) {
+    try {
+      channelRange[JSON.parse(x)].addEventListener('input', function() {
+        if (this.dataset.filter) {
+          // console.log(this.dataset.filter, this.dataset.param, window[this.dataset.filter][this.dataset.param].value);
+          if (this.dataset.filter === 'preamp') {
+            // window[this.dataset.filter][this.dataset.param].value = this.value == 0 ? 1 : this.value; // Math.pow(10, ((this.value / 100) * 24 - 12) / 20);
+          } else {
+            window[this.dataset.filter][this.dataset.param].value = this.value; //(this.value / 100) * 24 - 12;
+          }
+        }
+      });
+    } catch (e){}
+  }
+
   const DEFAULT_VOLUME = 0.02;
   const TRACK_TITLE = document.getElementById('track_title');
   const CURRENT_TIME = document.getElementById('current_time');
@@ -87,11 +183,12 @@ window.addEventListener("load", function() {
   const ALBUMS_UL = document.getElementById("albums_ul");
   const ARTISTS_UL = document.getElementById("artists_ul");
   const ALB_ART_SK = document.getElementById('albums_or_artists_software_key');
+  const EQUALIZER_SK = document.getElementById('equalizer_key');
 
   var WORKER = new Worker('/assets/js/worker.js');
 
   WORKER.onmessage = (e) => {
-    console.log(e.data.type)
+    // console.log(e.data.type)
     if (e.data.type === 'PARSE_METADATA') {
       const media = e.data.result;
       if (!e.data.error && media.tags.artist) {
@@ -330,6 +427,21 @@ window.addEventListener("load", function() {
     
   })
   .on('onHide', function() {
+    MENU_SK.classList.remove('sr-only');
+  });
+
+  EQUALIZER_MODAL = new Modalise('equalizer_modal')
+  .attach()
+  .on('onShow', function() {
+    CURRENT_SCREEN = 'EQUALIZER_MODAL';
+    MENU_SK.classList.add('sr-only');
+    EQUALIZER_SK.classList.remove('sr-only');
+  })
+  .on('onConfirm', function() {
+    
+  })
+  .on('onHide', function() {
+    EQUALIZER_SK.classList.add('sr-only');
     MENU_SK.classList.remove('sr-only');
   });
 
@@ -647,7 +759,7 @@ window.addEventListener("load", function() {
                         for (var _a in _ARTISTS_) {
                           _ARTISTS_[_a].forEach((t, ti) => {
                             if (missing_files.indexOf(t.name) > -1) {
-                              console.log(t.name)
+                              // console.log(t.name)
                             } else {
                               if (UPDATE_ARTISTS[_a] == null) {
                                 UPDATE_ARTISTS[_a] = [];
@@ -656,7 +768,7 @@ window.addEventListener("load", function() {
                             }
                           });
                         }
-                        console.log(UPDATE_ARTISTS);
+                        // console.log(UPDATE_ARTISTS);
                         return localforage.setItem('ARTISTS', UPDATE_ARTISTS)
                       })
                       .then((_ARTISTS_) => {
@@ -680,7 +792,7 @@ window.addEventListener("load", function() {
                           .then(() => {
                             return localforage.getItem('ALBUMS')
                             .then((_ALBUMS_) => {
-                              console.log({ _ARTISTS_: _ARTISTS_, _ALBUMS_: _ALBUMS_ });
+                              // console.log({ _ARTISTS_: _ARTISTS_, _ALBUMS_: _ALBUMS_ });
                               return Promise.resolve({ _ARTISTS_: _ARTISTS_, _ALBUMS_: _ALBUMS_ });
                             })
                           });
@@ -816,7 +928,7 @@ window.addEventListener("load", function() {
   function resumeApp() {
     localforage.getItem('SEQUENCE')
     .then((SEQUENCE_DB) => {
-      console.log(SEQUENCE_DB.length, TRACK.length);
+      // console.log(SEQUENCE_DB.length, TRACK.length);
       if (SEQUENCE_DB == null) {
         processPlaylist();
       } else {
@@ -848,7 +960,7 @@ window.addEventListener("load", function() {
             } else {
               SEQUENCE = JSON.parse(JSON.stringify(SEQUENCE_DB));
             }
-            console.log(NEW_SEQUENCE.length, SEQUENCE.length);
+            // console.log(NEW_SEQUENCE.length, SEQUENCE.length);
             processPlaylist(false, SEQUENCE_INDEX);
           }
         })
@@ -1666,6 +1778,27 @@ window.addEventListener("load", function() {
           removePlaylist(PLAYLISTS_UL.childNodes[PLAYLIST_MANAGER_MODAL_INDEX].textContent);
           e.preventDefault();
           e.stopPropagation();
+        } else if (CURRENT_SCREEN === 'EQUALIZER_MODAL') {
+          for (var x in channelRange) {
+            try {
+              if (channelRange[JSON.parse(x)].dataset.filter) {
+                channelRange[JSON.parse(x)].value = 0;
+              }
+            } catch (e){}
+          }
+          preamp.gain.value = 1;
+          window['channel31'].gain.value = 0;
+          window['channel63'].gain.value = 0;
+          window['channel125'].gain.value = 0;
+          window['channel250'].gain.value = 0;
+          window['channel500'].gain.value = 0;
+          window['channel1k'].gain.value = 0;
+          window['channel2k'].gain.value = 0;
+          window['channel4k'].gain.value = 0;
+          window['channel8k'].gain.value = 0;
+          window['channel16k'].gain.value = 0;
+          e.preventDefault();
+          e.stopPropagation();
         }
         break
       case 'ArrowUp':
@@ -1687,6 +1820,8 @@ window.addEventListener("load", function() {
           nav(-1, '.nav_folder');
         } else if (CURRENT_SCREEN === 'ALBUMS_MODAL') {
           nav(-1, '.nav_album');
+        } else if (CURRENT_SCREEN === 'EQUALIZER_MODAL') {
+          nav(-1, '.nav_equal');
         }
         break
       case 'ArrowDown':
@@ -1708,6 +1843,8 @@ window.addEventListener("load", function() {
           nav(1, '.nav_folder');
         } else if (CURRENT_SCREEN === 'ALBUMS_MODAL') {
           nav(1, '.nav_album');
+        } else if (CURRENT_SCREEN === 'EQUALIZER_MODAL') {
+          nav(1, '.nav_equal');
         }
         break
       case 'ArrowRight':
@@ -1726,6 +1863,14 @@ window.addEventListener("load", function() {
               }
             }, 500);
           }
+        } else if (CURRENT_SCREEN === 'EQUALIZER_MODAL') {
+          if (document.activeElement.tagName === 'LI') {
+            if (document.activeElement.children[1]) {
+              if (document.activeElement.children[1].children[1]) {
+                document.activeElement.children[1].children[1].focus();
+              }
+            }
+          }
         }
         break
       case 'ArrowLeft':
@@ -1743,6 +1888,14 @@ window.addEventListener("load", function() {
                 LFT_DBL_CLICK_TH = 0;
               }
             }, 500);
+          }
+        } else if (CURRENT_SCREEN === 'EQUALIZER_MODAL') {
+          if (document.activeElement.tagName === 'LI') {
+            if (document.activeElement.children[1]) {
+              if (document.activeElement.children[1].children[1]) {
+                document.activeElement.children[1].children[1].focus();
+              }
+            }
           }
         }
         break
@@ -1779,6 +1932,9 @@ window.addEventListener("load", function() {
               MENU_MODAL.hide();
             });
           } else if (document.activeElement.tabIndex === 5) {
+            MENU_MODAL.hide();
+            EQUALIZER_MODAL.show();
+          } else if (document.activeElement.tabIndex === 6) {
             MENU_MODAL.hide();
             ABOUT_MODAL.show();
           }
@@ -1880,7 +2036,12 @@ window.addEventListener("load", function() {
           ALBUMS_MODAL.hide();
           e.preventDefault();
           e.stopPropagation();
-        }
+        } else if (CURRENT_SCREEN === 'EQUALIZER_MODAL') {
+          CURRENT_SCREEN = 'HOME';
+          EQUALIZER_MODAL.hide();
+          e.preventDefault();
+          e.stopPropagation();
+        } 
         break
     }
   }

@@ -19,6 +19,7 @@
     <script src="/assets/js/aurora/flac.js" defer></script>
     <script src="/assets/js/polyfill.min.js" defer></script>
     <script src="/assets/js/localforage.min.js" defer></script>
+    <script src="/assets/js/StereoBalanceNode.js" defer></script>
     <script src="/assets/js/app.js" defer></script>
     <script src="/assets/js/modalise.min.js" defer></script>
     <script src="/assets/js/ads-sdk.v4.min.js" defer></script>
@@ -129,7 +130,8 @@
             <li class="nav_menu" tabIndex="2">Album</li>
             <li class="nav_menu" tabIndex="3">Folder</li>
             <li class="nav_menu" tabIndex="4">Reload Library</li>
-            <li class="nav_menu" tabIndex="5">Tips & About</li>
+            <li class="nav_menu" tabIndex="5">Equalizer</li>
+            <li class="nav_menu" tabIndex="6">Tips & About</li>
           </ul>
         </div>
       </div>
@@ -201,6 +203,143 @@
         <div class="mdl-body">
           <div id="confirm_label" style="color:#000;margin:5px;font-size:14px;"></div>
         </div>
+      </div>
+    </div>
+
+    <div id="equalizer_modal" class="mdl mdl-fadein kui-option-menu">
+      <div class="mdl-content mdl-slidein">
+
+        <center>
+          <div class="kui-option-title" style="background:#873eff;color:#fff;">Equalizer</div>
+        </center>
+        
+        <div class="mdl-body">
+        <ul class="kui-options text-dark" style="height:calc(100vh - 58px)!important;">
+          
+          <li class="nav_equal" tabIndex="0">
+            <div class="row" style="height:20px;line-height:20px;">
+              <span>Preamp(No effect/TOFIX)</span>
+            </div>
+            <div class="row" style="height:20px;line-height:20px;width:94%;">
+              <span>-12</span>
+              <input type="range" tabIndex="0" class="vertical equalizer-input" min=-12 max="12" step="1" value="0" data-filter="preamp" data-param="gain">
+              <span>12</span>
+            </div>
+          </li>
+
+          <li class="nav_equal" tabIndex="1">
+            <div class="row" style="height:20px;line-height:20px;">
+              <span>31Hz</span>
+            </div>
+            <div class="row" style="height:20px;line-height:20px;width:94%;">
+              <span>-12</span>
+              <input type="range" tabIndex="1" class="vertical" min=-12 max="12" step="1" value="0" data-filter="channel31" data-param="gain">
+              <span>12</span>
+            </div>
+          </li>
+            
+          <li class="nav_equal" tabIndex="2">
+            <div class="row" style="height:20px;line-height:20px;">
+              <span>63Hz</span>
+            </div>
+            <div class="row" style="height:20px;line-height:20px;width:94%;">
+              <span>-12</span>
+              <input type="range" tabIndex="2" class="vertical" min=-12 max="12" step="1" value="0" data-filter="channel63" data-param="gain">
+              <span>12</span>
+            </div>
+          </li>
+            
+          <li class="nav_equal" tabIndex="3">
+            <div class="row" style="height:20px;line-height:20px;">
+              <span>125Hz</span>
+            </div>
+            <div class="row" style="height:20px;line-height:20px;width:94%;">
+              <span>-12</span>
+              <input type="range" tabIndex="3" class="vertical" min=-12 max="12" step="1" value="0" data-filter="channel125" data-param="gain">
+              <span>12</span>
+            </div>
+          </li>
+
+          <li class="nav_equal" tabIndex="4">
+            <div class="row" style="height:20px;line-height:20px;">
+              <span>250Hz</span>
+            </div>
+            <div class="row" style="height:20px;line-height:20px;width:94%;">
+              <span>-12</span>
+              <input type="range" tabIndex="4" class="vertical" min=-12 max="12" step="1" value="0" data-filter="channel250" data-param="gain">
+              <span>12</span>
+            </div>
+          </li>
+            
+          <li class="nav_equal" tabIndex="5">
+            <div class="row" style="height:20px;line-height:20px;">
+              <span>500Hz</span>
+            </div>
+            <div class="row" style="height:20px;line-height:20px;width:94%;">
+              <span>-12</span>
+              <input type="range" tabIndex="5" class="vertical" min=-12 max="12" step="1" value="0" data-filter="channel500" data-param="gain">
+              <span>12</span>
+            </div>
+          </li>
+            
+          <li class="nav_equal" tabIndex="6">
+            <div class="row" style="height:20px;line-height:20px;">
+              <span>1KHz</span>
+            </div>
+            <div class="row" style="height:20px;line-height:20px;width:94%;">
+              <span>-12</span>
+              <input type="range" tabIndex="6" class="vertical" min=-12 max="12" step="1" value="0" data-filter="channel1k" data-param="gain">
+              <span>12</span>
+            </div>
+          </li>
+            
+          <li class="nav_equal" tabIndex="7">
+            <div class="row" style="height:20px;line-height:20px;">
+              <span>2KHz</span>
+            </div>
+            <div class="row" style="height:20px;line-height:20px;width:94%;">
+              <span>-12</span>
+              <input type="range" tabIndex="7" class="vertical" min=-12 max="12" step="1" value="0" data-filter="channel2k" data-param="gain">
+              <span>12</span>
+            </div>
+          </li>
+            
+          <li class="nav_equal" tabIndex="8">
+            <div class="row" style="height:20px;line-height:20px;">
+              <span>4KHz</span>
+            </div>
+            <div class="row" style="height:20px;line-height:20px;width:94%;">
+              <span>-12</span>
+              <input type="range" tabIndex="8" class="vertical" min=-12 max="12" step="1" value="0" data-filter="channel4k" data-param="gain">
+              <span>12</span>
+            </div>
+          </li>
+            
+          <li class="nav_equal" tabIndex="9">
+            <div class="row" style="height:20px;line-height:20px;">
+              <span>8KHz</span>
+            </div>
+            <div class="row" style="height:20px;line-height:20px;width:94%;">
+              <span>-12</span>
+              <input type="range" tabIndex="9" class="vertical" min=-12 max="12" step="1" value="0" data-filter="channel8k" data-param="gain">
+              <span>12</span>
+            </div>
+          </li>
+            
+          <li class="nav_equal" tabIndex="10">
+            <div class="row" style="height:20px;line-height:20px;">
+              <span>16KHz</span>
+            </div>
+            <div class="row" style="height:20px;line-height:20px;width:94%;">
+              <span>-12</span>
+              <input type="range" tabIndex="10" class="vertical" min=-12 max="12" step="1" value="0" data-filter="channel16k" data-param="gain">
+              <span>12</span>
+            <div>
+          </li>
+
+        </ul>
+        </div>
+
       </div>
     </div>
 
@@ -286,6 +425,12 @@
       <div style="width:30%;text-align:left;padding-left:5px;"></div>
       <div style="width:40%;text-align:center;">PLAY</div>
       <div style="width:30%;text-align:right;padding-right:5px;"></div>
+    </div>
+
+    <div id="equalizer_key" class="kui-software-key software-key sr-only">
+      <div style="width:30%;text-align:left;padding-left:5px;"></div>
+      <div style="width:40%;text-align:center;"></div>
+      <div style="width:30%;text-align:right;padding-right:5px;">RESET</div>
     </div>
 
     <div id="snackbar"></div>

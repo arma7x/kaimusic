@@ -270,3 +270,30 @@ input[type=range]::-moz-range-track {
     border: 0 !important;
   }
 }
+
+.nav_equal {
+  width:92%;
+  border-bottom: 1px solid #ccc;
+}
+
+
+li input[type=range] {
+  -webkit-appearance: none; /* Hides the slider so that custom slider can be made */
+  background: transparent; /* Otherwise white in Chrome */
+  border: 0px solid transparent;
+  width: 80%;
+}
+li input[type=range]::-moz-range-thumb {
+  border: 1px solid #ccc;
+  height: 12px;
+  width: 12px;
+  border-radius: 50%;
+  background: #ccc;
+  cursor: pointer;
+}
+li input[type=range]::-moz-range-track {
+  height: 4px;
+  cursor: pointer;
+  background: #ccc;
+  border-radius: 1.3px;
+}
