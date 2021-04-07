@@ -1792,7 +1792,11 @@ window.addEventListener("load", function() {
           for (var x in channelRange) {
             try {
               if (channelRange[JSON.parse(x)].dataset.filter) {
-                channelRange[JSON.parse(x)].value = 0;
+                if (channelRange[JSON.parse(x)].dataset.filter === 'preamp') {
+                  channelRange[JSON.parse(x)].value = 1;
+                } else {
+                  channelRange[JSON.parse(x)].value = 0;
+                }
               }
             } catch (e){}
           }
