@@ -2098,7 +2098,7 @@ window.addEventListener("load", function() {
             var n = channelRange[JSON.parse(x)].dataset.filter;
             if (n === 'preamp') {
               const idx = LOW.indexOf(parseFloat(eql[n]));
-              channelRange[JSON.parse(x)].value = idx === -1 ? 1 : (idx > 0 ? -idx : idx);
+              channelRange[JSON.parse(x)].value = idx === -1 ? parseFloat(eql[n]) : (idx > 0 ? -idx : idx);
             } else {
               channelRange[JSON.parse(x)].value = parseFloat(eql[n]);
             }
