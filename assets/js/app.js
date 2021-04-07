@@ -47,6 +47,7 @@ window.addEventListener("load", function() {
   var RGT_DBL_CLICK_TH = 0;
   var RGT_DBL_CLICK_TIMER = undefined;
 
+  const LOW = [0.92, 0.84, 0.76, 0.68, 0.60, 0.52, 0.44, 0.36, 0.28, 0.20, 0.12, 0.04];
   const CONTEXT = new AudioContext('content');
   const PLAYER = document.createElement("audio");
   const SOURCE = CONTEXT.createMediaElementSource(PLAYER);
@@ -67,7 +68,6 @@ window.addEventListener("load", function() {
   window['channel8k'] = CONTEXT.createBiquadFilter();
   window['channel16k'] = CONTEXT.createBiquadFilter();
 
-  staticSource.connect(window['preamp']);
   SOURCE.connect(staticSource);
   staticSource.connect(window['preamp']);
   window['preamp'].connect(window['channel31']);
@@ -86,45 +86,45 @@ window.addEventListener("load", function() {
 
   window['preamp'].gain.value = 1;
 
-  channel31.type = "lowshelf";
-  channel31.frequency.value = 31;
-  channel31.gain.value = 0;
+  window['channel31'].type = "lowshelf";
+  window['channel31'].frequency.value = 31;
+  window['channel31'].gain.value = 0;
 
-  channel63.type = "peaking";
-  channel63.frequency.value = 63;
-  channel63.gain.value = 0;
+  window['channel63'].type = "peaking";
+  window['channel63'].frequency.value = 63;
+  window['channel63'].gain.value = 0;
 
-  channel125.type = "peaking";
-  channel125.frequency.value = 125;
-  channel125.gain.value = 0;
+  window['channel125'].type = "peaking";
+  window['channel125'].frequency.value = 125;
+  window['channel125'].gain.value = 0;
 
-  channel250.type = "peaking";
-  channel250.frequency.value = 250;
-  channel250.gain.value = 0;
+  window['channel250'].type = "peaking";
+  window['channel250'].frequency.value = 250;
+  window['channel250'].gain.value = 0;
 
-  channel500.type = "peaking";
-  channel500.frequency.value = 500;
-  channel500.gain.value = 0;
+  window['channel500'].type = "peaking";
+  window['channel500'].frequency.value = 500;
+  window['channel500'].gain.value = 0;
 
-  channel1k.type = "peaking";
-  channel1k.frequency.value = 1000;
-  channel1k.gain.value = 0;
+  window['channel1k'].type = "peaking";
+  window['channel1k'].frequency.value = 1000;
+  window['channel1k'].gain.value = 0;
 
-  channel2k.type = "peaking";
-  channel2k.frequency.value = 2000;
-  channel2k.gain.value = 0;
+  window['channel2k'].type = "peaking";
+  window['channel2k'].frequency.value = 2000;
+  window['channel2k'].gain.value = 0;
 
-  channel4k.type = "peaking";
-  channel4k.frequency.value = 4000;
-  channel4k.gain.value = 0;
+  window['channel4k'].type = "peaking";
+  window['channel4k'].frequency.value = 4000;
+  window['channel4k'].gain.value = 0;
 
-  channel8k.type = "peaking";
-  channel8k.frequency.value = 8000;
-  channel8k.gain.value = 0;
+  window['channel8k'].type = "peaking";
+  window['channel8k'].frequency.value = 8000;
+  window['channel8k'].gain.value = 0;
 
-  channel16k.type = "highshelf";
-  channel16k.frequency.value = 16000;
-  channel16k.gain.value = 0;
+  window['channel16k'].type = "highshelf";
+  window['channel16k'].frequency.value = 16000;
+  window['channel16k'].gain.value = 0;
 
   const channelRange = document.querySelectorAll('input[type=range]');
 
@@ -132,22 +132,31 @@ window.addEventListener("load", function() {
     try {
       channelRange[JSON.parse(x)].addEventListener('input', function() {
         if (this.dataset.filter) {
+          var dbVal = 0;
           // console.log(this.dataset.filter, this.dataset.param, window[this.dataset.filter][this.dataset.param].value);
           if (this.dataset.filter === 'preamp') {
             // window[this.dataset.filter][this.dataset.param].value = this.value == 0 ? 1 : this.value; // Math.pow(10, ((this.value / 100) * 24 - 12) / 20);
-            var low = [0.92, 0.84, 0.76, 0.68, 0.60, 0.52, 0.44, 0.36, 0.28, 0.20, 0.12, 0.04];
             var i = this.value;
             if (this.value < 1) {
               if (this.value == 0) {
-                i = low[this.value];
+                i = LOW[this.value];
               } else {
-                i = low[(-(this.value))];
+                i = LOW[(-(this.value))];
               }
             }
+            dbVal = i;
             window[this.dataset.filter][this.dataset.param].value = i; //Math.pow(10, ((this.value / 100) * 24 - 12) / 20);
           } else {
+            dbVal = this.value;
             window[this.dataset.filter][this.dataset.param].value = this.value; //(this.value / 100) * 24 - 12;
           }
+          localforage.getItem('__EQUALIZER__')
+          .then((eql) => {
+            if (eql) {
+              eql[this.dataset.filter] = dbVal;
+              localforage.setItem('__EQUALIZER__', eql);
+            }
+          });
         }
       });
     } catch (e){}
@@ -797,7 +806,7 @@ window.addEventListener("load", function() {
                               }
                             });
                           }
-                          console.log(UPDATE_ALBUMS);
+                          // console.log(UPDATE_ALBUMS);
                           return localforage.setItem('ALBUMS', UPDATE_ALBUMS)
                           .then(() => {
                             return localforage.getItem('ALBUMS')
@@ -1789,28 +1798,24 @@ window.addEventListener("load", function() {
           e.preventDefault();
           e.stopPropagation();
         } else if (CURRENT_SCREEN === 'EQUALIZER_MODAL') {
+          var eql = {}
           for (var x in channelRange) {
             try {
               if (channelRange[JSON.parse(x)].dataset.filter) {
+                var n = channelRange[JSON.parse(x)].dataset.filter;
                 if (channelRange[JSON.parse(x)].dataset.filter === 'preamp') {
                   channelRange[JSON.parse(x)].value = 1;
+                  eql[n] = 1;
+                  window[n].gain.value = 1;
                 } else {
                   channelRange[JSON.parse(x)].value = 0;
+                  eql[n] = 0;
+                  window[n].gain.value = 0;
                 }
               }
             } catch (e){}
           }
-          preamp.gain.value = 1;
-          window['channel31'].gain.value = 0;
-          window['channel63'].gain.value = 0;
-          window['channel125'].gain.value = 0;
-          window['channel250'].gain.value = 0;
-          window['channel500'].gain.value = 0;
-          window['channel1k'].gain.value = 0;
-          window['channel2k'].gain.value = 0;
-          window['channel4k'].gain.value = 0;
-          window['channel8k'].gain.value = 0;
-          window['channel16k'].gain.value = 0;
+          localforage.setItem('__EQUALIZER__', eql);
           e.preventDefault();
           e.stopPropagation();
         }
@@ -2082,6 +2087,29 @@ window.addEventListener("load", function() {
     indexingStorage();
     CURRENT_SCREEN = 'HOME';
     MENU_MODAL.hide();
+  });
+
+  localforage.getItem('__EQUALIZER__')
+  .then((eql) => {
+    if (eql) {
+      for (var x in channelRange) {
+        try {
+          if (channelRange[JSON.parse(x)].dataset.filter) {
+            var n = channelRange[JSON.parse(x)].dataset.filter;
+            if (n === 'preamp') {
+              const idx = LOW.indexOf(parseFloat(eql[n]));
+              channelRange[JSON.parse(x)].value = idx === -1 ? 1 : (idx > 0 ? -idx : idx);
+            } else {
+              channelRange[JSON.parse(x)].value = parseFloat(eql[n]);
+            }
+            window[n].gain.value = parseFloat(eql[n]);
+          }
+        } catch (e){}
+      }
+    } else {
+      const sample = { 'preamp': 1, 'channel31': 0, 'channel63': 0, 'channel125': 0, 'channel250': 0, 'channel500': 0, 'channel1k': 0, 'channel2k': 0, 'channel4k': 0, 'channel8k': 0, 'channel16k': 0 };
+      localforage.setItem('__EQUALIZER__', sample);
+    }
   });
 
   getKaiAd({
