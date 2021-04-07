@@ -135,6 +135,16 @@ window.addEventListener("load", function() {
           // console.log(this.dataset.filter, this.dataset.param, window[this.dataset.filter][this.dataset.param].value);
           if (this.dataset.filter === 'preamp') {
             // window[this.dataset.filter][this.dataset.param].value = this.value == 0 ? 1 : this.value; // Math.pow(10, ((this.value / 100) * 24 - 12) / 20);
+            var low = [0.92, 0.84, 0.76, 0.68, 0.60, 0.52, 0.44, 0.36, 0.28, 0.20, 0.12, 0.04];
+            var i = this.value;
+            if (this.value < 1) {
+              if (this.value == 0) {
+                i = low[this.value];
+              } else {
+                i = low[(-(this.value))];
+              }
+            }
+            window[this.dataset.filter][this.dataset.param].value = i; //Math.pow(10, ((this.value / 100) * 24 - 12) / 20);
           } else {
             window[this.dataset.filter][this.dataset.param].value = this.value; //(this.value / 100) * 24 - 12;
           }
