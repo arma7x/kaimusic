@@ -291,7 +291,9 @@ window.addEventListener("load", function() {
   }
 
   function parseMetadata(audio) {
-    WORKER.postMessage({file: audio.file, type: 'PARSE_METADATA'});
+    getFile(audio.name, (file) => {
+      WORKER.postMessage({file: file, type: 'PARSE_METADATA'});
+    });
   }
 
   localforage.getItem('SHUFFLE')
@@ -683,14 +685,14 @@ window.addEventListener("load", function() {
           FILE_BY_GROUPS[mime[0]] = []
         }
         FILE_BY_GROUPS[mime[0]].push(file.name);
-        GLOBAL_BLOB[file.name] = file; //file.slice(file.size - 128, file.size, file.type);
+        GLOBAL_BLOB[file.name] = file.name; // file; //file.slice(file.size - 128, file.size, file.type);
         _taskDone++;
         if (_taskDone === _taskLength) {
           GLOBAL_TRACK = '';
           if (FILE_BY_GROUPS.hasOwnProperty('audio')) {
             FILE_BY_GROUPS['audio'].forEach((n) => {
               TRACK.push({name: n, selected: true});
-              GLOBAL_AUDIO_BLOB.push({name: n, file: GLOBAL_BLOB[n]});
+              GLOBAL_AUDIO_BLOB.push({name: n});
             });
           }
           if (FILE_BY_GROUPS.hasOwnProperty('video')) {
@@ -698,7 +700,7 @@ window.addEventListener("load", function() {
               const split = n.split('.');
               if (split[split.length - 1] === 'ogg') {
                 TRACK.push({name: n, selected: true});
-                GLOBAL_AUDIO_BLOB.push({name: n, file: GLOBAL_BLOB[n]});
+                GLOBAL_AUDIO_BLOB.push({name: n});
               }
             });
           }
@@ -867,7 +869,9 @@ window.addEventListener("load", function() {
                           });
                         } else {
                           new_files.forEach((n) => {
-                            SUB_WORKER.postMessage({file: GLOBAL_BLOB[n], type: 'PARSE_METADATA_UPDATE'});
+                            getFile(GLOBAL_BLOB[n], (file) => {
+                              SUB_WORKER.postMessage({file: file, type: 'PARSE_METADATA_UPDATE'});
+                            });
                           });
                         }
                       })
@@ -879,6 +883,218 @@ window.addEventListener("load", function() {
           });
         }
       });
+    })
+  }
+
+  function groupByTypeLocal(_files, cb) {
+    var _taskLength = _files.length;
+    var _taskDone = 0;
+    setReadyState(false);
+    if (_files.length === 0) {
+      setReadyState(true);
+    }
+    _files.forEach((element) => {
+      if (FILE_BY_GROUPS['audio'] == undefined) {
+        FILE_BY_GROUPS['audio'] = []
+      }
+      FILE_BY_GROUPS['audio'].push(element);
+      GLOBAL_BLOB[element] = element; // file; //file.slice(file.size - 128, file.size, file.type);
+      _taskDone++;
+      if (_taskDone === _taskLength) {
+        GLOBAL_TRACK = '';
+        if (FILE_BY_GROUPS.hasOwnProperty('audio')) {
+          FILE_BY_GROUPS['audio'].forEach((n) => {
+            TRACK.push({name: n, selected: true});
+            GLOBAL_AUDIO_BLOB.push({name: n});
+          });
+        }
+        if (FILE_BY_GROUPS.hasOwnProperty('video')) {
+          FILE_BY_GROUPS['video'].forEach((n) => {
+            const split = n.split('.');
+            if (split[split.length - 1] === 'ogg') {
+              TRACK.push({name: n, selected: true});
+              GLOBAL_AUDIO_BLOB.push({name: n});
+            }
+          });
+        }
+        TRACK.sort((a, b) => {
+          if (a['name'] > b['name'])
+            return 1;
+          else if (a['name'] < b['name'])
+            return -1;
+          return 0;
+        });
+        GLOBAL_AUDIO_BLOB.sort((a, b) => {
+          if (a['name'] > b['name'])
+            return 1;
+          else if (a['name'] < b['name'])
+            return -1;
+          return 0;
+        });
+        GLOBAL_TRACK = JSON.stringify(TRACK);
+        var DONE = 0;
+        if (TRACK.length == 0) {
+          setReadyState(true);
+          if (cb !== undefined) {
+            cb();
+          }
+        }
+        TRACK.forEach((n, i) => {
+          name_parts = n.name.split("/");
+          var playlist = [];
+          name_parts.pop();
+          name_parts.forEach((val, idx) => {
+            if (val !== '') {
+              playlist.push(val);
+            }
+          });
+          playlist.forEach((p) => {
+            if (FOLDERS[p] == null) {
+              FOLDERS[p] = [];
+            }
+            var f = JSON.parse(JSON.stringify(n));
+            FOLDERS[p].push(f);
+          });
+          DONE++;
+          if (TRACK.length === DONE) {
+            setReadyState(true);
+            if (cb !== undefined) {
+              var LOCAL_GLOBAL_AUDIO = []
+              GLOBAL_AUDIO_BLOB.forEach((f) => {
+                LOCAL_GLOBAL_AUDIO.push(f.name);
+              });
+              localforage.getItem('DATABASE_GLOBAL_AUDIO')
+              .then((DATABASE_GLOBAL_AUDIO) => {
+                if (DATABASE_GLOBAL_AUDIO == null) {
+                  localforage.setItem('DATABASE_GLOBAL_AUDIO', LOCAL_GLOBAL_AUDIO)
+                  setReadyState(false);
+                  parseMetadata(GLOBAL_AUDIO_BLOB[0]);
+                  window['__POWER__'] = navigator.requestWakeLock('cpu');
+                } else {
+                  setReadyState(true);
+                  indexingPlaylist();
+                  var missing_files = []
+                  var new_files = []
+                  LOCAL_GLOBAL_AUDIO.forEach((n) => {
+                    if (DATABASE_GLOBAL_AUDIO.indexOf(n) === -1) {
+                      new_files.push(n);
+                    }
+                  });
+                  DATABASE_GLOBAL_AUDIO.forEach((n) => {
+                    if (LOCAL_GLOBAL_AUDIO.indexOf(n) === -1) {
+                      missing_files.push(n);
+                    }
+                  });
+                  localforage.setItem('DATABASE_GLOBAL_AUDIO', LOCAL_GLOBAL_AUDIO)
+                  .then(() => {
+                    localforage.getItem('ARTISTS')
+                    .then((_ARTISTS_) => {
+                      var UPDATE_ARTISTS = {}
+                      for (var _a in _ARTISTS_) {
+                        _ARTISTS_[_a].forEach((t, ti) => {
+                          if (missing_files.indexOf(t.name) > -1) {
+                            // console.log(t.name)
+                          } else {
+                            if (UPDATE_ARTISTS[_a] == null) {
+                              UPDATE_ARTISTS[_a] = [];
+                            }
+                            UPDATE_ARTISTS[_a].push(t);
+                          }
+                        });
+                      }
+                      // console.log(UPDATE_ARTISTS);
+                      return localforage.setItem('ARTISTS', UPDATE_ARTISTS)
+                    })
+                    .then((_ARTISTS_) => {
+                      return localforage.getItem('ALBUMS')
+                      .then((_ALBUMS_) => {
+                        var UPDATE_ALBUMS = {}
+                        for (var _a in _ALBUMS_) {
+                          _ALBUMS_[_a].forEach((t, ti) => {
+                            if (missing_files.indexOf(t.name) > -1) {
+                              console.log(t.name)
+                            } else {
+                              if (UPDATE_ALBUMS[_a] == null) {
+                                UPDATE_ALBUMS[_a] = [];
+                              }
+                              UPDATE_ALBUMS[_a].push(t);
+                            }
+                          });
+                        }
+                        // console.log(UPDATE_ALBUMS);
+                        return localforage.setItem('ALBUMS', UPDATE_ALBUMS)
+                        .then(() => {
+                          return localforage.getItem('ALBUMS')
+                          .then((_ALBUMS_) => {
+                            // console.log({ _ARTISTS_: _ARTISTS_, _ALBUMS_: _ALBUMS_ });
+                            return Promise.resolve({ _ARTISTS_: _ARTISTS_, _ALBUMS_: _ALBUMS_ });
+                          })
+                        });
+                      })
+                    })
+                    .then((_LATEST_) => {
+                      var updated = 0;
+                      var SUB_WORKER = new Worker('/assets/js/worker.js');
+                      SUB_WORKER.onmessage = (e) => {
+                        if (e.data.type === 'PARSE_METADATA_UPDATE') {
+                          const media = e.data.result;
+                          if (!e.data.error && media.tags.artist) {
+                            if (_LATEST_['_ARTISTS_'][media.tags.artist] == null) {
+                              _LATEST_['_ARTISTS_'][media.tags.artist] = [];
+                            }
+                            _LATEST_['_ARTISTS_'][media.tags.artist].push({name: e.data.file.name, selected: true})
+                          } else {
+                            if (_LATEST_['_ARTISTS_']['UNKNOWN'] == null) {
+                              _LATEST_['_ARTISTS_']['UNKNOWN'] = [];
+                            }
+                            _LATEST_['_ARTISTS_']['UNKNOWN'].push({name: e.data.file.name, selected: true})
+                          }
+                          if (!e.data.error && media.tags.album) {
+                            if (_LATEST_['_ALBUMS_'][media.tags.album] == null) {
+                              _LATEST_['_ALBUMS_'][media.tags.album] = [];
+                            }
+                            _LATEST_['_ALBUMS_'][media.tags.album].push({name: e.data.file.name, selected: true})
+                          } else {
+                            if (_LATEST_['_ALBUMS_']['UNKNOWN'] == null) {
+                              _LATEST_['_ALBUMS_']['UNKNOWN'] = [];
+                            }
+                            _LATEST_['_ALBUMS_']['UNKNOWN'].push({name: e.data.file.name, selected: true})
+                          }
+                          updated += 1
+                          if (updated === new_files.length) {
+                            localforage.setItem('ARTISTS', _LATEST_['_ARTISTS_'])
+                            .then(() => {
+                              return localforage.setItem('ALBUMS', _LATEST_['_ALBUMS_'])
+                            })
+                            .finally(() => {
+                              
+                            });
+                          }
+                        }
+                      }
+                      if (new_files.length === 0) {
+                        localforage.setItem('ARTISTS', _LATEST_['_ARTISTS_'])
+                        .then(() => {
+                          return localforage.setItem('ALBUMS', _LATEST_['_ALBUMS_'])
+                        })
+                        .finally(() => {
+                          
+                        });
+                      } else {
+                        new_files.forEach((n) => {
+                          getFile(GLOBAL_BLOB[n], (file) => {
+                            SUB_WORKER.postMessage({file: file, type: 'PARSE_METADATA_UPDATE'});
+                          });
+                        });
+                      }
+                    })
+                  })
+                }
+              });
+            }
+          }
+        });
+      }
     })
   }
 
@@ -911,7 +1127,7 @@ window.addEventListener("load", function() {
     }
   }
 
-  function indexingStorage() {
+  function indexingStorage(F) {
     RESUME = true;
     FILES = [];
     FILE_BY_GROUPS = {};
@@ -922,6 +1138,17 @@ window.addEventListener("load", function() {
     GLOBAL_BLOB = {};
     GLOBAL_AUDIO_BLOB = [];
     GLOBAL_AUDIO_BLOB_INDEX = 0;
+    if (F) {
+      console.log('LOCAL');
+      setReadyState(false);
+      DOCUMENT_TREE = {};
+      DOCUMENT_TREE = indexingDocuments(F);
+      FILE_BY_GROUPS = {};
+      setReadyState(true);
+      groupByTypeLocal(F, indexingPlaylist);
+      return
+    }
+    console.log('REFRESH');
     const cursor = SDCARD.enumerate('');
     setReadyState(false);
     cursor.onsuccess = function () {
@@ -2084,7 +2311,14 @@ window.addEventListener("load", function() {
     RESUME_DURATION = null;
   })
   .finally(() => {
-    indexingStorage();
+    localforage.getItem('DATABASE_GLOBAL_AUDIO')
+    .then(function(f) {
+      indexingStorage(f);
+    })
+    .catch(function(err) {
+      indexingStorage();
+    })
+    // indexingStorage();
     CURRENT_SCREEN = 'HOME';
     MENU_MODAL.hide();
   });
