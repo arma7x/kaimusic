@@ -2218,6 +2218,8 @@ window.addEventListener("load", function() {
           } else if (document.activeElement.tabIndex === 7) {
             MENU_MODAL.hide();
             ABOUT_MODAL.show();
+          } else if (document.activeElement.tabIndex === 8) {
+            window.close();
           }
         } else if (CURRENT_SCREEN === 'PLAYLIST_MODAL') {
           playCurrentPlaylist(SEQUENCE.indexOf(document.activeElement.tabIndex));
