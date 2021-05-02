@@ -480,7 +480,9 @@ window.addEventListener("load", function() {
     var i = 0;
     for (var name in FOLDERS) {
       const li = document.createElement("LI");
-      li.appendChild(document.createTextNode(name));
+      const pr = document.createElement("pre");
+      pr.innerHTML = name;
+      li.appendChild(pr);
       li.setAttribute("class", "nav_folder");
       li.setAttribute("tabIndex", i);
       FOLDERS_UL.appendChild(li);
@@ -514,7 +516,9 @@ window.addEventListener("load", function() {
         var i = 0;
         for (var name in _ALBUMS_) {
           const li = document.createElement("LI");
-          li.appendChild(document.createTextNode(name));
+          const pr = document.createElement("pre");
+          pr.innerHTML = name;
+          li.appendChild(pr);
           li.setAttribute("class", "nav_album");
           li.setAttribute("tabIndex", i);
           ALBUMS_UL.appendChild(li);
@@ -551,7 +555,9 @@ window.addEventListener("load", function() {
         var i = 0;
         for (var name in _ARTISTS_) {
           const li = document.createElement("LI");
-          li.appendChild(document.createTextNode(name));
+          const pr = document.createElement("pre");
+        pr.innerHTML = name;
+        li.appendChild(pr);
           li.setAttribute("class", "nav_artist");
           li.setAttribute("tabIndex", i);
           ARTISTS_UL.appendChild(li);
@@ -1256,14 +1262,18 @@ window.addEventListener("load", function() {
       }
 
       const create_playlist_li = document.createElement("LI");
-      create_playlist_li.appendChild(document.createTextNode('+ Create Playlist'));
+      var pr = document.createElement("pre");
+      pr.innerHTML = '+ Create Playlist';
+      create_playlist_li.appendChild(pr);
       create_playlist_li.setAttribute("class", "nav_man_pl");
       create_playlist_li.setAttribute("tabIndex", _playlistUlIndex);
       PLAYLISTS_UL.appendChild(create_playlist_li);
       _playlistUlIndex++;
 
       const default_playlist_li = document.createElement("LI");
-      default_playlist_li.appendChild(document.createTextNode('DEFAULT'));
+      var pr = document.createElement("pre");
+      pr.innerHTML = 'DEFAULT';
+      default_playlist_li.appendChild(pr);
       default_playlist_li.setAttribute("class", "nav_man_pl");
       default_playlist_li.setAttribute("tabIndex", _playlistUlIndex);
       default_playlist_li.setAttribute("value", 'DEFAULT');
@@ -1327,7 +1337,9 @@ window.addEventListener("load", function() {
                 const store = localforage.setItem(playlistName, _newTracks);
                 store.then((savedTracks) => {
                   const custom_playlist_li = document.createElement("LI");
-                  custom_playlist_li.appendChild(document.createTextNode(playlistName));
+                  const pr = document.createElement("pre");
+                  pr.innerHTML = playlistName;
+                  custom_playlist_li.appendChild(pr);
                   custom_playlist_li.setAttribute("class", "nav_man_pl");
                   custom_playlist_li.setAttribute("tabIndex", _playlistUlIndex);
                   custom_playlist_li.setAttribute("value", playlistName);
@@ -1571,7 +1583,9 @@ window.addEventListener("load", function() {
         }
         const li = document.createElement("LI");
         const name = k.name.split('/');
-        li.appendChild(document.createTextNode((i + 1).toString() + ' - ' + name[name.length - 1]));
+        const pr = document.createElement("pre");
+        pr.innerHTML = (i + 1).toString() + ' - ' + name[name.length - 1];
+        li.appendChild(pr);
         li.setAttribute("class", "nav_track");
         li.setAttribute("tabIndex", i);
         PLAYLIST_TRACK_UL.appendChild(li);
@@ -2523,6 +2537,8 @@ window.addEventListener("load", function() {
     processPlaylist();
   }
 
+  
+
   function enterDir(path) {
     var tree = getDir(path);
     if (typeof tree === 'string')
@@ -2533,7 +2549,9 @@ window.addEventListener("load", function() {
     var i = 0;
     for (var name in tree) {
       const li = document.createElement("LI");
-      li.appendChild(document.createTextNode(name));
+      const pr = document.createElement("pre");
+      pr.innerHTML = name;
+      li.appendChild(pr);
       li.setAttribute("class", "nav_dir");
       li.setAttribute("tabIndex", i);
       DIRECTORY_UL.appendChild(li);
