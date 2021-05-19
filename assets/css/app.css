@@ -100,6 +100,7 @@ input[type=range]::-moz-range-track {
 }
 
 .slider_wrapper{
+  z-index: 9999999;
   top:0;
   position:fixed;
   background:#cccccc;

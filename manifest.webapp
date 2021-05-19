@@ -1,7 +1,7 @@
 {
-  "version": "1.7.2",
+  "version": "1.8.0",
   "name": "K-Music",
-  "description": "An audio player for KaiOS with playlist manager + Equalizer",
+  "description": "An audio player for KaiOS with playlist manager + Equalizer + MP3 Cutter/Trimmer",
   "launch_path": "/index.html",
   "theme": "#873eff",
   "theme_color": "#873eff",
@@ -38,8 +38,8 @@
   "locales": {
     "en-US": {
       "name": "K-Music",
-      "subtitle": "An audio player for KaiOS with playlist manager + Equalizer",
-      "description": "An audio player for KaiOS with playlist manager + Equalizer"
+      "subtitle": "An audio player for KaiOS with playlist manager + Equalizer + MP3 Cutter/Trimmer",
+      "description": "An audio player for KaiOS with playlist manager + Equalizer + MP3 Cutter/Trimmer"
     }
   },
   "default_locale": "en-US"

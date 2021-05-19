@@ -24,6 +24,7 @@
     <script src="/assets/js/modalise.min.js" defer></script>
     <script src="/assets/js/ads-sdk.v4.min.js" defer></script>
     <script src="/assets/js/parser/metadata_scripts.js" defer></script>
+    <script src="/assets/js/cutter.js" defer></script>
 
   </head>
 
@@ -131,9 +132,10 @@
             <li class="nav_menu" tabIndex="3">Folder</li>
             <li class="nav_menu" tabIndex="4">Directory</li>
             <li class="nav_menu" tabIndex="5">Equalizer</li>
-            <li class="nav_menu" tabIndex="6">Reload Library</li>
-            <li class="nav_menu" tabIndex="7">Tips & About</li>
-            <li class="nav_menu" tabIndex="8">Kill App</li>
+            <li class="nav_menu" tabIndex="6">Built-in Equalizer</li>
+            <li class="nav_menu" tabIndex="7">Reload Library</li>
+            <li class="nav_menu" tabIndex="8">Tips & About</li>
+            <li class="nav_menu" tabIndex="9">Kill App</li>
           </ul>
         </div>
       </div>
@@ -356,6 +358,44 @@
       </div>
     </div>
 
+    <div id="trim_modal" class="mdl mdl-fadein kui-option-menu">
+      <div class="mdl-content mdl-slidein">
+        <center>
+          <div class="kui-option-title" style="background:#873eff;color:#fff;">Trim MP3</div>
+        </center>
+        <div class="mdl-body" style="background:#873eff;color:#fff;font-size:14px;height:calc(100vh - 58px)!important;">
+          <div style="padding-top:15px;margin:0px 23px 0px 23px;">
+            <input id="cutter_duration_slider_start" value="0" type="range" min="0" max="100" style="width:81%;position: absolute;" disabled/>
+            <input id="cutter_duration_slider_end" value="100" type="range" min="0" max="100" style="width:81%;position: absolute;" disabled/>
+            <input id="cutter_duration_slider" value="0" type="range" min="0" max="100" style="width:81%;position: absolute;" disabled/>
+          </div>
+          <div class="row" style="margin:20px 23px 0px 23px;">
+            <div id="cutter_current_time" style="font-weight:bold;">00:00</div>
+            <div id="cutter_duration">00:00</div>
+          </div>
+          <div class="row" style="margin:10px 23px 0px 23px;">
+            <div>Start[<span id="cutter_start_time" style="font-weight:bold;">00:00</span>]</div>
+            <div>[<span id="cutter_end_time" style="font-weight:bold;">00:00</span>]End</div>
+          </div>
+          <div class="row" style="margin:5px 23px 0px 23px;font-weight:bold;">
+            <div>&#x21e1;[1] &#x21e3;[4]</div>
+            <div>&#x21e1;[3] &#x21e3;[6]</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="eql_modal" class="mdl mdl-fadein kui-option-menu">
+      <div class="mdl-content mdl-slidein">
+        <center>
+          <div class="kui-option-title" style="background:#873eff;color:#fff;">Built-in Equalizer</div>
+        </center>
+        <div class="mdl-body">
+          <ul id="eql_ul" class="kui-options text-dark" style="font-size:14px;height:calc(100vh - 58px)!important;"></ul>
+        </div>
+      </div>
+    </div>
+
     <div id="about_modal" class="mdl mdl-fadein kui-option-menu">
       <div class="mdl-content mdl-slidein">
         <center>
@@ -364,7 +404,9 @@
         <div id="about_content" class="mdl-body" style="height:calc(100vh - 58px)!important;overflow-y:scroll;">
           <div style="color:#000;margin:10px;font-size:14px;">
             <h4>Tips:</h4></br>
-              - Equalize not available for FLAC & ALAC codec</br>
+              - To trim mp3, goto `Directory` & click `Trim` on mp3 file(only support native codec)</br></br>
+              - To add `trimmed mp3` to ringtone, goto Settings > Personalisation > Sound > Tones > Manage Tones > My Ringtones & click `Add`</br></br>
+              - Equalize not available for ALAC codec</br></br>
               - To duplicate the playlist, please change its name before press `Save` button</br></br>
             <h4>Set Default Media Location</h4></br>
               - Goto Settings > Storage > Default Media Location. Pick your default media location, SD Card or Internal</br></br>
@@ -396,6 +438,8 @@
               - https://github.com/aadsm/jsmediatags</br></br>
               <h5>localforage</h5>
               - https://github.com/localForage/localForage</br></br>
+              <h5>Simple mp3 cutter</h5>
+              - https://github.com/lubenard/simple-mp3-cutter</br></br>
               <h5>modalise</h5>
               - https://github.com/AlexisTM/modalise.js</br></br>
               <h5>polyfill</h5>
@@ -450,6 +494,18 @@
     <div id="directory_software_key" class="kui-software-key software-key sr-only">
       <div style="width:30%;text-align:left;padding-left:5px;">Play</div>
       <div style="width:40%;text-align:center;">OPEN</div>
+      <div style="width:30%;text-align:right;padding-right:5px;">Trim</div>
+    </div>
+
+    <div id="trim_software_key" class="kui-software-key software-key sr-only">
+      <div id="cutter_toggle_play" style="width:30%;text-align:left;padding-left:5px;">Play</div>
+      <div style="width:40%;text-align:center;"></div>
+      <div style="width:30%;text-align:right;padding-right:5px;">Save</div>
+    </div>
+
+    <div id="eql_software_key" class="kui-software-key software-key sr-only">
+      <div style="width:30%;text-align:left;padding-left:5px;"></div>
+      <div style="width:40%;text-align:center;">SELECT</div>
       <div style="width:30%;text-align:right;padding-right:5px;"></div>
     </div>
 
