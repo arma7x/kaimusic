@@ -6,12 +6,15 @@ window.addEventListener("load", function() {
 
   localforage.setDriver(localforage.LOCALSTORAGE);
 
-  var EQL_PRESENT={},sample={Flat:[12,0,0,0,0,0,0,0,0,0,0],Classical:[12,-1.11022e-15,-1.11022e-15,-1.11022e-15,-1.11022e-15,-1.11022e-15,-1.11022e-15,-7.2,-7.2,-7.2,-9.6],Club:[6,-1.11022e-15,-1.11022e-15,8,5.6,5.6,5.6,3.2,-1.11022e-15,-1.11022e-15,-1.11022e-15],Dance:[5,9.6,7.2,2.4,-1.11022e-15,-1.11022e-15,-5.6,-7.2,-7.2,-1.11022e-15,-1.11022e-15],"Full bass":[5,-8,9.6,9.6,5.6,1.6,-4,-8,-10.4,-11.2,-11.2],"Full bass & treble":[4,7.2,5.6,-1.11022e-15,-7.2,-4.8,1.6,8,11.2,12,12],"Full treble":[3,-9.6,-9.6,-9.6,-4,2.4,11.2,16,16,16,16.8],Headphones:[4,4.8,11.2,5.6,-3.2,-2.4,1.6,4.8,9.6,12.8,14.4],Largehall:[5,10.4,10.4,5.6,5.6,-1.11022e-15,-4.8,-4.8,-4.8,-1.11022e-15,-1.11022e-15],Live:[7,-4.8,-1.11022e-15,4,5.6,5.6,5.6,4,2.4,2.4,2.4],Party:[6,7.2,7.2,-1.11022e-15,-1.11022e-15,-1.11022e-15,-1.11022e-15,-1.11022e-15,-1.11022e-15,7.2,7.2],Pop:[6,-1.6,4.8,7.2,8,5.6,-1.11022e-15,-2.4,-2.4,-1.6,-1.6],Reggae:[8,-1.11022e-15,-1.11022e-15,-1.11022e-15,-5.6,-1.11022e-15,6.4,6.4,-1.11022e-15,-1.11022e-15,-1.11022e-15],Rock:[5,8,4.8,-5.6,-8,-3.2,4,8.8,11.2,11.2,11.2],Ska:[6,-2.4,-4.8,-4,-1.11022e-15,4,5.6,8.8,9.6,11.2,9.6],Soft:[5,4.8,1.6,-1.11022e-15,-2.4,-1.11022e-15,4,8,9.6,11.2,12],Softrock:[7,4,4,2.4,-1.11022e-15,-4,-5.6,-3.2,-1.11022e-15,2.4,8.8],Techno:[5,8,5.6,-1.11022e-15,-5.6,-4.8,-1.11022e-15,8,9.6,9.6,8.8]},c=["preamp","channel31","channel63","channel125","channel250","channel500","channel1k","channel2k","channel4k","channel8k","channel16k"];for(var x in sample){EQL_PRESENT[x]={};for(var i=0;i<sample[x].length;i++)if(0===i)EQL_PRESENT[x][c[i]]=1;else if(0!==parseInt(sample[x][i])){var v=parseInt(sample[x][i])-2;v<=-12&&(EQL_PRESENT[x][c[i]]=parseInt(sample[x][i])),EQL_PRESENT[x][c[i]]=v>=12?v-9:v}else EQL_PRESENT[x][c[i]]=0}
+  var EQL_PRESENT={Classical:{hz60:33,hz170:33,hz310:33,hz600:33,hz1000:33,hz3000:33,hz6000:20,hz12000:20,hz14000:20,hz16000:16,preamp:33},Club:{hz60:33,hz170:33,hz310:38,hz600:42,hz1000:42,hz3000:42,hz6000:38,hz12000:33,hz14000:33,hz16000:33,preamp:33},Dance:{hz60:48,hz170:44,hz310:36,hz600:32,hz1000:32,hz3000:22,hz6000:20,hz12000:20,hz14000:32,hz16000:32,preamp:33},"Laptop speakers/headphones":{hz60:40,hz170:50,hz310:41,hz600:26,hz1000:28,hz3000:35,hz6000:40,hz12000:48,hz14000:53,hz16000:56,preamp:33},"Large hall":{hz60:49,hz170:49,hz310:42,hz600:42,hz1000:33,hz3000:24,hz6000:24,hz12000:24,hz14000:33,hz16000:33,preamp:33},Party:{hz60:44,hz170:44,hz310:33,hz600:33,hz1000:33,hz3000:33,hz6000:33,hz12000:33,hz14000:44,hz16000:44,preamp:33},Pop:{hz60:29,hz170:40,hz310:44,hz600:45,hz1000:41,hz3000:30,hz6000:28,hz12000:28,hz14000:29,hz16000:29,preamp:33},Reggae:{hz60:33,hz170:33,hz310:31,hz600:22,hz1000:33,hz3000:43,hz6000:43,hz12000:33,hz14000:33,hz16000:33,preamp:33},Rock:{hz60:45,hz170:40,hz310:23,hz600:19,hz1000:26,hz3000:39,hz6000:47,hz12000:50,hz14000:50,hz16000:50,preamp:33},Soft:{hz60:40,hz170:35,hz310:30,hz600:28,hz1000:30,hz3000:39,hz6000:46,hz12000:48,hz14000:50,hz16000:52,preamp:33},Ska:{hz60:28,hz170:24,hz310:25,hz600:31,hz1000:39,hz3000:42,hz6000:47,hz12000:48,hz14000:50,hz16000:48,preamp:33},"Full Bass":{hz60:48,hz170:48,hz310:48,hz600:42,hz1000:35,hz3000:25,hz6000:18,hz12000:15,hz14000:14,hz16000:14,preamp:33},"Soft Rock":{hz60:39,hz170:39,hz310:36,hz600:31,hz1000:25,hz3000:23,hz6000:26,hz12000:31,hz14000:37,hz16000:47,preamp:33},"Full Treble":{hz60:16,hz170:16,hz310:16,hz600:25,hz1000:37,hz3000:50,hz6000:58,hz12000:58,hz14000:58,hz16000:60,preamp:33},"Full Bass & Treble":{hz60:44,hz170:42,hz310:33,hz600:20,hz1000:24,hz3000:35,hz6000:46,hz12000:50,hz14000:52,hz16000:52,preamp:33},Live:{hz60:24,hz170:33,hz310:39,hz600:41,hz1000:42,hz3000:42,hz6000:39,hz12000:37,hz14000:37,hz16000:36,preamp:33},Techno:{hz60:45,hz170:42,hz310:33,hz600:23,hz1000:24,hz3000:33,hz6000:45,hz12000:48,hz14000:48,hz16000:47,preamp:33}};
+
+  var RANGE={"0":33,"1":35,"2":38,"3":40,"4":43,"5":46,"6":48,"7":51,"8":53,"9":56,"10":58,"11":61,"12":64,"-12":2,"-11":5,"-10":7,"-9":10,"-8":12,"-7":15,"-6":17,"-5":20,"-4":23,"-3":25,"-2":28,"-1":30};
 
   const SDCARD = navigator.getDeviceStorage('sdcard');
 
   const CUTTER = new mp3cutter(null, false);
   const CUTTER_PLAYER = new Audio();
+  CUTTER_PLAYER.volume = 0.5;
   var CUTTER_BLOB = null;
   var CUTTER_START_DURATION = 0;
   var CUTTER_END_DURATION = 0;
@@ -91,84 +94,116 @@ window.addEventListener("load", function() {
   var RGT_DBL_CLICK_TH = 0;
   var RGT_DBL_CLICK_TIMER = undefined;
 
-  const LOW = [0.92, 0.84, 0.76, 0.68, 0.60, 0.52, 0.44, 0.36, 0.28, 0.20, 0.12, 0.04];
-  const CONTEXT = new AudioContext('content');
   const PLAYER = document.createElement("audio");
-  const SOURCE = CONTEXT.createMediaElementSource(PLAYER);
+  PLAYER.volume = 1;
+
+  const CONTEXT = new AudioContext('content');
 
   var staticSource = CONTEXT.createGain();
   var balance = new StereoBalanceNode(CONTEXT);
   window['preamp'] = CONTEXT.createGain();
   var gainNode = CONTEXT.createGain();
 
-  window['channel31'] = CONTEXT.createBiquadFilter();
-  window['channel63'] = CONTEXT.createBiquadFilter();
-  window['channel125'] = CONTEXT.createBiquadFilter();
-  window['channel250'] = CONTEXT.createBiquadFilter();
-  window['channel500'] = CONTEXT.createBiquadFilter();
-  window['channel1k'] = CONTEXT.createBiquadFilter();
-  window['channel2k'] = CONTEXT.createBiquadFilter();
-  window['channel4k'] = CONTEXT.createBiquadFilter();
-  window['channel8k'] = CONTEXT.createBiquadFilter();
-  window['channel16k'] = CONTEXT.createBiquadFilter();
+  const SOURCE = CONTEXT.createMediaElementSource(PLAYER);
 
   SOURCE.connect(staticSource);
   staticSource.connect(window['preamp']);
-  window['preamp'].connect(window['channel31']);
-  window['channel31'].connect(window['channel63']);
-  window['channel63'].connect(window['channel125']);
-  window['channel125'].connect(window['channel250']);
-  window['channel250'].connect(window['channel500']);
-  window['channel500'].connect(window['channel1k']);
-  window['channel1k'].connect(window['channel2k']);
-  window['channel2k'].connect(window['channel4k']);
-  window['channel4k'].connect(window['channel8k']);
-  window['channel8k'].connect(window['channel16k']);
-  window['channel16k'].connect(balance);
+
+  window['hz60'] = CONTEXT.createBiquadFilter();
+  window['hz60'].type = "lowshelf";
+  window['hz60'].frequency.value = 60;
+  window['hz60'].gain.value = 0;
+  window['preamp'].connect(window['hz60']);
+
+  window['hz170'] = CONTEXT.createBiquadFilter();
+  window['hz170'].type = "peaking";
+  window['hz170'].frequency.value = 170;
+  window['hz170'].gain.value = 0;
+  window['hz60'].connect(window['hz170']);
+
+  window['hz310'] = CONTEXT.createBiquadFilter();
+  window['hz310'].type = "peaking";
+  window['hz310'].frequency.value = 310;
+  window['hz310'].gain.value = 0;
+  window['hz170'].connect(window['hz310']);
+
+  window['hz600'] = CONTEXT.createBiquadFilter();
+  window['hz600'].type = "peaking";
+  window['hz600'].frequency.value = 600;
+  window['hz600'].gain.value = 0;
+  window['hz310'].connect(window['hz600']);
+
+  window['hz1000'] = CONTEXT.createBiquadFilter();
+  window['hz1000'].type = "peaking";
+  window['hz1000'].frequency.value = 1000;
+  window['hz1000'].gain.value = 0;
+  window['hz600'].connect(window['hz1000']);
+
+  window['hz3000'] = CONTEXT.createBiquadFilter();
+  window['hz3000'].type = "peaking";
+  window['hz3000'].frequency.value = 3000;
+  window['hz3000'].gain.value = 0;
+  window['hz1000'].connect(window['hz3000']);
+
+  window['hz6000'] = CONTEXT.createBiquadFilter();
+  window['hz6000'].type = "peaking";
+  window['hz6000'].frequency.value = 6000;
+  window['hz6000'].gain.value = 0;
+  window['hz3000'].connect(window['hz6000']);
+
+  window['hz12000'] = CONTEXT.createBiquadFilter();
+  window['hz12000'].type = "peaking";
+  window['hz12000'].frequency.value = 12000;
+  window['hz12000'].gain.value = 0;
+  window['hz6000'].connect(window['hz12000']);
+
+  window['hz14000'] = CONTEXT.createBiquadFilter();
+  window['hz14000'].type = "peaking";
+  window['hz14000'].frequency.value = 14000;
+  window['hz14000'].gain.value = 0;
+  window['hz12000'].connect(window['hz14000']);
+
+  window['hz16000'] = CONTEXT.createBiquadFilter();
+  window['hz16000'].type = "highshelf";
+  window['hz16000'].frequency.value = 16000;
+  window['hz16000'].gain.value = 0;
+  window['hz14000'].connect(window['hz16000']);
+
+  window['hz16000'].connect(balance);
   balance.connect(gainNode);
   gainNode.connect(CONTEXT.destination);
 
-  window['preamp'].gain.value = 1;
+  const toPercent = (min, max, value) => {
+    return (value - min) / (max - min);
+  }
 
-  window['channel31'].type = "lowshelf";
-  window['channel31'].frequency.value = 31;
-  window['channel31'].gain.value = 0;
+  const percentToRange = (percent, min, max) => {
+    return min + Math.round(percent * (max - min));
+  }
 
-  window['channel63'].type = "peaking";
-  window['channel63'].frequency.value = 63;
-  window['channel63'].gain.value = 0;
+  const percentToIndex = (percent, length) => {
+    return percentToRange(percent, 0, length - 1);
+  }
 
-  window['channel125'].type = "peaking";
-  window['channel125'].frequency.value = 125;
-  window['channel125'].gain.value = 0;
+  const rebound = (oldMin, oldMax, newMin, newMax) => {
+    return (oldValue) => {
+      return percentToRange(toPercent(oldMin, oldMax, oldValue), newMin, newMax);
+    }
+  }
 
-  window['channel250'].type = "peaking";
-  window['channel250'].frequency.value = 250;
-  window['channel250'].gain.value = 0;
+  const normalizeEqBand = rebound(1, 64, 0, 100);
 
-  window['channel500'].type = "peaking";
-  window['channel500'].frequency.value = 500;
-  window['channel500'].gain.value = 0;
-
-  window['channel1k'].type = "peaking";
-  window['channel1k'].frequency.value = 1000;
-  window['channel1k'].gain.value = 0;
-
-  window['channel2k'].type = "peaking";
-  window['channel2k'].frequency.value = 2000;
-  window['channel2k'].gain.value = 0;
-
-  window['channel4k'].type = "peaking";
-  window['channel4k'].frequency.value = 4000;
-  window['channel4k'].gain.value = 0;
-
-  window['channel8k'].type = "peaking";
-  window['channel8k'].frequency.value = 8000;
-  window['channel8k'].gain.value = 0;
-
-  window['channel16k'].type = "highshelf";
-  window['channel16k'].frequency.value = 16000;
-  window['channel16k'].gain.value = 0;
+  const setEqualizerBand = (filter, value) => {
+    var db = 0
+    if (filter === 'preamp') {
+      db = (value / 100) * 24 - 12;
+      window[filter]["gain"].value = Math.pow(10, db / 20);
+    } else {
+      db = (value / 100) * 24 - 12;
+      window[filter]["gain"].value = db;
+    }
+    return db;
+  }
 
   const channelRange = document.querySelectorAll('input[type=range]');
 
@@ -176,28 +211,12 @@ window.addEventListener("load", function() {
     try {
       channelRange[JSON.parse(x)].addEventListener('input', function() {
         if (this.dataset.filter) {
-          var dbVal = 0;
-          // console.log(this.dataset.filter, this.dataset.param, window[this.dataset.filter][this.dataset.param].value);
-          if (this.dataset.filter === 'preamp') {
-            // window[this.dataset.filter][this.dataset.param].value = this.value == 0 ? 1 : this.value; // Math.pow(10, ((this.value / 100) * 24 - 12) / 20);
-            var i = this.value;
-            if (this.value < 1) {
-              if (this.value == 0) {
-                i = LOW[this.value];
-              } else {
-                i = LOW[(-(this.value))];
-              }
-            }
-            dbVal = i;
-            window[this.dataset.filter][this.dataset.param].value = i; //Math.pow(10, ((this.value / 100) * 24 - 12) / 20);
-          } else {
-            dbVal = this.value;
-            window[this.dataset.filter][this.dataset.param].value = this.value; //(this.value / 100) * 24 - 12;
-          }
+          console.log(this.dataset.filter, RANGE[this.value]);
+          setEqualizerBand(this.dataset.filter, normalizeEqBand(RANGE[this.value]));
           localforage.getItem('__EQUALIZER__')
           .then((eql) => {
             if (eql) {
-              eql[this.dataset.filter] = dbVal;
+              eql[this.dataset.filter] = parseInt(this.value);
               localforage.setItem('__EQUALIZER__', eql);
             }
           });
@@ -1256,7 +1275,8 @@ window.addEventListener("load", function() {
     var request = SDCARD.addNamed(blob, des);
     request.onsuccess = function (evt) {
       setReadyState(true);
-      showSnackbar('Saved to folder Ringtones');
+      const path = des.split('/');
+      showSnackbar('Saved to folder Ringtones, ' + path[path.length-1]);
     }
     request.onerror = function (err) {
       setReadyState(true);
@@ -2240,15 +2260,9 @@ window.addEventListener("load", function() {
             try {
               if (channelRange[JSON.parse(x)].dataset.filter) {
                 var n = channelRange[JSON.parse(x)].dataset.filter;
-                if (channelRange[JSON.parse(x)].dataset.filter === 'preamp') {
-                  channelRange[JSON.parse(x)].value = 1;
-                  eql[n] = 1;
-                  window[n].gain.value = 1;
-                } else {
-                  channelRange[JSON.parse(x)].value = 0;
-                  eql[n] = 0;
-                  window[n].gain.value = 0;
-                }
+                setEqualizerBand(n, normalizeEqBand(RANGE[0]));
+                channelRange[JSON.parse(x)].value = 0;
+                eql[n] = 0;
               }
             } catch (e){}
           }
@@ -2485,13 +2499,8 @@ window.addEventListener("load", function() {
               try {
                 if (channelRange[JSON.parse(x)].dataset.filter) {
                   var n = channelRange[JSON.parse(x)].dataset.filter;
-                  if (n === 'preamp') {
-                    const idx = LOW.indexOf(parseFloat(eql[n]));
-                    channelRange[JSON.parse(x)].value = idx === -1 ? parseFloat(eql[n]) : (idx > 0 ? -idx : idx);
-                  } else {
-                    channelRange[JSON.parse(x)].value = parseFloat(eql[n]);
-                  }
-                  window[n].gain.value = parseFloat(eql[n]);
+                  var i = setEqualizerBand(n, normalizeEqBand(eql[n]));
+                  channelRange[JSON.parse(x)].value = parseInt(i);
                 }
               } catch (e){}
             }
@@ -2656,18 +2665,13 @@ window.addEventListener("load", function() {
         try {
           if (channelRange[JSON.parse(x)].dataset.filter) {
             var n = channelRange[JSON.parse(x)].dataset.filter;
-            if (n === 'preamp') {
-              const idx = LOW.indexOf(parseFloat(eql[n]));
-              channelRange[JSON.parse(x)].value = idx === -1 ? parseFloat(eql[n]) : (idx > 0 ? -idx : idx);
-            } else {
-              channelRange[JSON.parse(x)].value = parseFloat(eql[n]);
-            }
-            window[n].gain.value = parseFloat(eql[n]);
+            setEqualizerBand(n, normalizeEqBand(RANGE[eql[n]]));
+            channelRange[JSON.parse(x)].value = parseInt(eql[n]);
           }
         } catch (e){}
       }
     } else {
-      const sample = { 'preamp': 1, 'channel31': 0, 'channel63': 0, 'channel125': 0, 'channel250': 0, 'channel500': 0, 'channel1k': 0, 'channel2k': 0, 'channel4k': 0, 'channel8k': 0, 'channel16k': 0 };
+      const sample = { 'preamp': 0, 'hz60': 0, 'hz170': 0, 'hz310': 0, 'hz600': 0, 'hz1000': 0, 'hz3000': 0, 'hz6000': 0, 'hz12000': 0, 'hz14000': 0, 'hz16000': 0 };
       localforage.setItem('__EQUALIZER__', sample);
     }
   });
