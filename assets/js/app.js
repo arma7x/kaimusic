@@ -236,6 +236,7 @@ window.addEventListener("load", function() {
   const CUTTER_START_TIME = document.getElementById('cutter_start_time');
   const CUTTER_END_TIME = document.getElementById('cutter_end_time');
 
+  const CLOCK = document.getElementById('clock');
   const TRACK_TITLE = document.getElementById('track_title');
   const CURRENT_TIME = document.getElementById('current_time');
   const DURATION = document.getElementById('duration');
@@ -359,11 +360,16 @@ window.addEventListener("load", function() {
           const byteArray = new Uint8Array(data);
           const blob = new Blob([byteArray], { type });
           ALBUM_COVER.src = URL.createObjectURL(blob);
+          document.body.style.background = `url(${ALBUM_COVER.src})`
         } else if (media.tags.picture.blob) {
           ALBUM_COVER.src = URL.createObjectURL(media.tags.picture.blob);
+          document.body.style.background = `url(${ALBUM_COVER.src})`
+        } else {
+          document.body.style.background = ``
         }
       } else {
         ALBUM_COVER.src = '/assets/img/baseline_album_white_48.png';
+        document.body.style.background = ``
       }
     }
   }
@@ -1325,6 +1331,27 @@ window.addEventListener("load", function() {
     }
   }
 
+  function filterNoMedia(files) {
+    var a = [];
+    var b = [];
+    files.forEach((i) => {
+      var t = i.split('/');
+      var i = t.indexOf('.nomedia');
+      if (i > -1) {
+        b.push(t.slice(0, i).join('/'));
+      }
+    });
+    files.forEach((i) => {
+      b.forEach((j) => {
+        if (i.startsWith(j))
+          a.push(i);
+      })
+    });
+    return files.filter((f) => {
+      return a.indexOf(f) === -1;
+    });
+  }
+
   function indexingStorage(F) {
     RESUME = true;
     FILES = [];
@@ -1336,14 +1363,15 @@ window.addEventListener("load", function() {
     GLOBAL_BLOB = {};
     GLOBAL_AUDIO_BLOB = [];
     GLOBAL_AUDIO_BLOB_INDEX = 0;
-    if (F) {
+    if (F) {localforage/DATABASE_GLOBAL_AUDIO
       console.log('LOCAL');
       setReadyState(false);
       DOCUMENT_TREE = {};
-      DOCUMENT_TREE = indexingDocuments(F);
+      const fil = filterNoMedia(F);
+      DOCUMENT_TREE = indexingDocuments(fil);
       FILE_BY_GROUPS = {};
       setReadyState(true);
-      groupByTypeLocal(F, indexingPlaylist);
+      groupByTypeLocal(fil, indexingPlaylist);
       return
     }
     console.log('REFRESH');
@@ -1357,10 +1385,11 @@ window.addEventListener("load", function() {
         }
       } else {
         DOCUMENT_TREE = {};
-        DOCUMENT_TREE = indexingDocuments(FILES);
+        const fil = filterNoMedia(FILES);
+        DOCUMENT_TREE = indexingDocuments(fil);
         FILE_BY_GROUPS = {};
         setReadyState(true);
-        groupByType(FILES, indexingPlaylist);
+        groupByType(fil, indexingPlaylist);
       }
     }
     cursor.onerror = function () { 
@@ -1488,21 +1517,31 @@ window.addEventListener("load", function() {
           PLAYLISTS.forEach((playlistName) => {
             localforage.getItem(playlistName)
             .then((oldTracks) => {
+
               const newTracks = [];
               Object.assign(newTracks, JSON.parse(GLOBAL_TRACK));
+              newTracks.forEach((newTrack, i) => {
+                newTracks[i].selected = false;
+              });
               const hiddenTracks = [];
+              const visibleTracks = [];
               if (oldTracks !== null) {
                 oldTracks.forEach((track) => {
                   if (track.selected === false) {
                     hiddenTracks.push(track);
+                  } else {
+                    visibleTracks.push(track);
                   }
                 });
                 newTracks.forEach((newTrack, i) => {
-                    hiddenTracks.forEach((hiddenTrack) => {
+                  hiddenTracks.forEach((hiddenTrack) => {
                     if (newTrack.name === hiddenTrack.name) {
                       newTracks[i].selected = hiddenTrack.selected;
-                    } else {
-                      newTracks[i].selected = false;
+                    }
+                  });
+                  visibleTracks.forEach((visibleTrack) => {
+                    if (newTrack.name === visibleTrack.name) {
+                      newTracks[i].selected = visibleTrack.selected;
                     }
                   });
                 });
@@ -2707,9 +2746,28 @@ window.addEventListener("load", function() {
 
   displayKaiAds();
 
+  function getTimeStr() {
+    var dt = new Date();
+    var t = dt.toLocaleTimeString();
+    t = t.replace(/\u200E/g, '');
+    t = t.replace(/^([^\d]*\d{1,2}:\d{1,2}):\d{1,2}([^\d]*)$/, '$1$2');
+    return t;
+  }
+
+  window['CLOCK'] = setInterval(() => {
+    CLOCK.innerHTML = getTimeStr()
+  }, 1000);
+
   document.addEventListener('visibilitychange', function(ev) {
     if (document.visibilityState === 'visible') {
       displayKaiAds();
+      window['CLOCK'] = setInterval(() => {
+        CLOCK.innerHTML = getTimeStr()
+      }, 1000);
+    } else {
+      if (window['CLOCK']) {
+        clearInterval(window['CLOCK']);
+      }
     }
   });
 

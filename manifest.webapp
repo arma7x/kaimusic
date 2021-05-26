@@ -1,11 +1,12 @@
 {
-  "version": "1.8.0",
+  "version": "1.8.1",
   "name": "K-Music",
   "description": "An audio player for KaiOS with playlist manager + Equalizer + MP3 Cutter/Trimmer",
   "launch_path": "/index.html",
   "theme": "#873eff",
   "theme_color": "#873eff",
   "background_color": "#873eff",
+  "fullscreen": "true",
   "categories": [
     "entertainment",
     "utilities"
