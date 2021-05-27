@@ -2,9 +2,6 @@ body {
   font-family: 'Open Sans';
   background: #873eff;
   color: #fff;
-  background-repeat: no-repeat;
-  background-attachment: fixed;
-  background-position: center;
 }
 h1, h2, h3, h4, h5, h6, ul, p, pre {
   margin: 0;

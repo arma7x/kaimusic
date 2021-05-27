@@ -236,7 +236,6 @@ window.addEventListener("load", function() {
   const CUTTER_START_TIME = document.getElementById('cutter_start_time');
   const CUTTER_END_TIME = document.getElementById('cutter_end_time');
 
-  const CLOCK = document.getElementById('clock');
   const TRACK_TITLE = document.getElementById('track_title');
   const CURRENT_TIME = document.getElementById('current_time');
   const DURATION = document.getElementById('duration');
@@ -360,16 +359,13 @@ window.addEventListener("load", function() {
           const byteArray = new Uint8Array(data);
           const blob = new Blob([byteArray], { type });
           ALBUM_COVER.src = URL.createObjectURL(blob);
-          document.body.style.background = `url(${ALBUM_COVER.src})`
         } else if (media.tags.picture.blob) {
           ALBUM_COVER.src = URL.createObjectURL(media.tags.picture.blob);
-          document.body.style.background = `url(${ALBUM_COVER.src})`
         } else {
-          document.body.style.background = ``
+          ALBUM_COVER.src = '/assets/img/baseline_album_white_48.png';
         }
       } else {
         ALBUM_COVER.src = '/assets/img/baseline_album_white_48.png';
-        document.body.style.background = ``
       }
     }
   }
@@ -2754,20 +2750,9 @@ window.addEventListener("load", function() {
     return t;
   }
 
-  window['CLOCK'] = setInterval(() => {
-    CLOCK.innerHTML = getTimeStr()
-  }, 1000);
-
   document.addEventListener('visibilitychange', function(ev) {
     if (document.visibilityState === 'visible') {
       displayKaiAds();
-      window['CLOCK'] = setInterval(() => {
-        CLOCK.innerHTML = getTimeStr()
-      }, 1000);
-    } else {
-      if (window['CLOCK']) {
-        clearInterval(window['CLOCK']);
-      }
     }
   });
 
