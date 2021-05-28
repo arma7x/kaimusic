@@ -1359,7 +1359,7 @@ window.addEventListener("load", function() {
     GLOBAL_BLOB = {};
     GLOBAL_AUDIO_BLOB = [];
     GLOBAL_AUDIO_BLOB_INDEX = 0;
-    if (F) {localforage/DATABASE_GLOBAL_AUDIO
+    if (F) {
       console.log('LOCAL');
       setReadyState(false);
       DOCUMENT_TREE = {};
