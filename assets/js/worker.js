@@ -18,16 +18,20 @@ onmessage = function(e) {
         if (bad) {
           metadata_audio_parser();
         } else {
-          const parser = MetadataFormats.findParser(header, {});
-          if (parser === null) {
-            metadata_audio_parser();
-          } else {
-            parser.then((result) => {
-              postMessage({type: e.data.type, result: {tags: result}, file: e.data.file, error: false});
-            })
-            .catch((_err) => {
+          try {
+            const parser = MetadataFormats.findParser(header, {});
+            if (parser === null) {
               metadata_audio_parser();
-            });
+            } else {
+              parser.then((result) => {
+                postMessage({type: e.data.type, result: {tags: result}, file: e.data.file, error: false});
+              })
+              .catch((_err) => {
+                metadata_audio_parser();
+              });
+            }
+          } catch(err) {
+            metadata_audio_parser();
           }
         }
       });
@@ -54,7 +58,6 @@ onmessage = function(e) {
         }
       },
       onError: (err) => {
-        const headersize = Math.min(64 * 1024, FILE.size);
         metadata_scripts();
       }
     });

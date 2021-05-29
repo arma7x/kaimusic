@@ -2847,8 +2847,6 @@ window.addEventListener("load", function() {
     processPlaylist();
   }
 
-  
-
   function enterDir(path) {
     var tree = getDir(path);
     if (typeof tree === 'string')
