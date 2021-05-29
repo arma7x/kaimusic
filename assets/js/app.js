@@ -2250,10 +2250,68 @@ window.addEventListener("load", function() {
 
   function searchAlbum(keyword) {
     console.log('searchAlbum', keyword);
+    while(ALBUMS_UL.firstChild) {
+      ALBUMS_UL.removeChild(ALBUMS_UL.firstChild);
+    }
+    localforage.getItem('ALBUMS')
+    .then((_ALBUMS_) => {
+      if (_ALBUMS_) {
+        var _temps = []
+        for (var name in _ALBUMS_) {
+          _temps.push(name);
+        }
+        _temps.sort();
+        var j = 0;
+        for (var i in _temps) {
+          if (keyword.length > 0) {
+            if (_temps[i].toLocaleLowerCase().indexOf(keyword.toLocaleLowerCase()) === -1) {
+              continue;
+            }
+          }
+          const li = document.createElement("LI");
+          const pr = document.createElement("pre");
+          pr.innerHTML = _temps[i];
+          li.appendChild(pr);
+          li.setAttribute("class", "nav_album");
+          li.setAttribute("tabIndex", j);
+          ALBUMS_UL.appendChild(li);
+          j++;
+        }
+      }
+    })
   }
 
   function searchArtist(keyword) {
     console.log('searchArtist', keyword);
+    while(ARTISTS_UL.firstChild) {
+      ARTISTS_UL.removeChild(ARTISTS_UL.firstChild);
+    }
+    localforage.getItem('ARTISTS')
+    .then((_ARTISTS_) => {
+      if (_ARTISTS_) {
+        var _temps = []
+        for (var name in _ARTISTS_) {
+          _temps.push(name);
+        }
+        _temps.sort();
+        var j = 0;
+        for (var i in _temps) {
+          if (keyword.length > 0) {
+            if (_temps[i].toLocaleLowerCase().indexOf(keyword.toLocaleLowerCase()) === -1) {
+              continue;
+            }
+          }
+          const li = document.createElement("LI");
+          const pr = document.createElement("pre");
+          pr.innerHTML = _temps[i];
+          li.appendChild(pr);
+          li.setAttribute("class", "nav_artist");
+          li.setAttribute("tabIndex", j);
+          ARTISTS_UL.appendChild(li);
+          j++;
+        }
+      }
+    })
   }
 
   function searchFolder(keyword) {
@@ -2267,14 +2325,14 @@ window.addEventListener("load", function() {
     _temps.sort((a, b) => a.localeCompare(b, undefined, {sensitivity: 'base'}));
     var j = 0;
     for (var i in _temps) {
-      const li = document.createElement("LI");
-      const pr = document.createElement("pre");
-      pr.innerHTML = _temps[i];
       if (keyword.length > 0) {
         if (_temps[i].toLocaleLowerCase().indexOf(keyword.toLocaleLowerCase()) === -1) {
           continue;
         }
       }
+      const li = document.createElement("LI");
+      const pr = document.createElement("pre");
+      pr.innerHTML = _temps[i];
       li.appendChild(pr);
       li.setAttribute("class", "nav_folder");
       li.setAttribute("tabIndex", j);
