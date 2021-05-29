@@ -281,6 +281,46 @@ window.addEventListener("load", function() {
   const DIRECTORY_SK = document.getElementById('directory_software_key');
   const TRIM_SK = document.getElementById('trim_software_key');
   const EQL_SK = document.getElementById('eql_software_key');
+  const SEARCH_TRACK = document.getElementById('search_track');
+  const SEARCH_ARTIST = document.getElementById('search_artist');
+  const SEARCH_ALBUM = document.getElementById('search_album');
+  const SEARCH_FOLDER = document.getElementById('search_folder');
+
+  SEARCH_TRACK.addEventListener('input', (evt) => {
+    if (window['TIMEOUT_SEARCH']) {
+      clearTimeout(window['TIMEOUT_SEARCH'])
+    }
+    window['TIMEOUT_SEARCH'] = setTimeout(() => {
+      searchPlaylist(evt.target.value || '');
+    }, 500);
+  });
+
+  SEARCH_ARTIST.addEventListener('input', (evt) => {
+    if (window['TIMEOUT_SEARCH']) {
+      clearTimeout(window['TIMEOUT_SEARCH'])
+    }
+    window['TIMEOUT_SEARCH'] = setTimeout(() => {
+      searchArtist(evt.target.value || '');
+    }, 500);
+  });
+
+  SEARCH_ALBUM.addEventListener('input', (evt) => {
+    if (window['TIMEOUT_SEARCH']) {
+      clearTimeout(window['TIMEOUT_SEARCH'])
+    }
+    window['TIMEOUT_SEARCH'] = setTimeout(() => {
+      searchAlbum(evt.target.value || '');
+    }, 500);
+  });
+
+  SEARCH_FOLDER.addEventListener('input', (evt) => {
+    if (window['TIMEOUT_SEARCH']) {
+      clearTimeout(window['TIMEOUT_SEARCH'])
+    }
+    window['TIMEOUT_SEARCH'] = setTimeout(() => {
+      searchFolder(evt.target.value || '');
+    }, 500);
+  });
 
   var WORKER = new Worker('/assets/js/worker.js');
 
@@ -412,6 +452,9 @@ window.addEventListener("load", function() {
     
   })
   .on('onHide', function() {
+    SEARCH_TRACK.value = '';
+    searchPlaylist('');
+    SEARCH_TRACK.blur();
     document.activeElement.tabIndex = -1;
     MENU_SK.classList.remove('sr-only');
     OFFMENU_SK.classList.add('sr-only');
@@ -586,16 +629,19 @@ window.addEventListener("load", function() {
     while(FOLDERS_UL.firstChild) {
       FOLDERS_UL.removeChild(FOLDERS_UL.firstChild);
     }
-    var i = 0;
+    var _temps = []
     for (var name in FOLDERS) {
+      _temps.push(name);
+    }
+    _temps.sort((a, b) => a.localeCompare(b, undefined, {sensitivity: 'base'}));
+    for (var i in _temps) {
       const li = document.createElement("LI");
       const pr = document.createElement("pre");
-      pr.innerHTML = name;
+      pr.innerHTML = _temps[i];
       li.appendChild(pr);
       li.setAttribute("class", "nav_folder");
       li.setAttribute("tabIndex", i);
       FOLDERS_UL.appendChild(li);
-      i++;
     }
     setTimeout(function() {
       nav(1, '.nav_folder');
@@ -606,6 +652,9 @@ window.addEventListener("load", function() {
     
   })
   .on('onHide', function() {
+    SEARCH_FOLDER.value = '';
+    searchFolder('');
+    SEARCH_FOLDER.blur();
     MENU_SK.classList.remove('sr-only');
     ALB_ART_SK.classList.add('sr-only');
   });
@@ -622,16 +671,19 @@ window.addEventListener("load", function() {
     localforage.getItem('ALBUMS')
     .then((_ALBUMS_) => {
       if (_ALBUMS_) {
-        var i = 0;
+        var _temps = []
         for (var name in _ALBUMS_) {
+          _temps.push(name);
+        }
+        _temps.sort();
+        for (var i in _temps) {
           const li = document.createElement("LI");
           const pr = document.createElement("pre");
-          pr.innerHTML = name;
+          pr.innerHTML = _temps[i];
           li.appendChild(pr);
           li.setAttribute("class", "nav_album");
           li.setAttribute("tabIndex", i);
           ALBUMS_UL.appendChild(li);
-          i++;
         }
       }
     })
@@ -647,9 +699,13 @@ window.addEventListener("load", function() {
     
   })
   .on('onHide', function() {
+    SEARCH_ALBUM.value = '';
+    searchAlbum('');
+    SEARCH_ALBUM.blur();
     MENU_SK.classList.remove('sr-only');
     ALB_ART_SK.classList.add('sr-only');
   });
+
   ARTISTS_MODAL = new Modalise('artists_modal')
   .attach()
   .on('onShow', function() {
@@ -661,16 +717,19 @@ window.addEventListener("load", function() {
     localforage.getItem('ARTISTS')
     .then((_ARTISTS_) => {
       if (_ARTISTS_) {
-        var i = 0;
+        var _temps = []
         for (var name in _ARTISTS_) {
+          _temps.push(name);
+        }
+        _temps.sort();
+        for (var i in _temps) {
           const li = document.createElement("LI");
           const pr = document.createElement("pre");
-        pr.innerHTML = name;
-        li.appendChild(pr);
+          pr.innerHTML = _temps[i];
+          li.appendChild(pr);
           li.setAttribute("class", "nav_artist");
           li.setAttribute("tabIndex", i);
           ARTISTS_UL.appendChild(li);
-          i++;
         }
       }
     })
@@ -685,6 +744,9 @@ window.addEventListener("load", function() {
     
   })
   .on('onHide', function() {
+    SEARCH_ARTIST.value = '';
+    searchArtist('');
+    SEARCH_ARTIST.blur();
     MENU_SK.classList.remove('sr-only');
     ALB_ART_SK.classList.add('sr-only');
   });
@@ -1786,7 +1848,7 @@ window.addEventListener("load", function() {
       PLAYLIST_TRACK_UL.removeChild(PLAYLIST_TRACK_UL.firstChild);
     }
     var i = 0;
-    TRACK.forEach(function(k) {
+    TRACK.forEach(function(k, idx) {
       if (k.selected === true) {
         if (isShuffling) {
           SEQUENCE.push(i);
@@ -1798,6 +1860,7 @@ window.addEventListener("load", function() {
         li.appendChild(pr);
         li.setAttribute("class", "nav_track");
         li.setAttribute("tabIndex", i);
+        li.setAttribute("data-playlist-idx", idx);
         PLAYLIST_TRACK_UL.appendChild(li);
         i++;
       }
@@ -2157,6 +2220,69 @@ window.addEventListener("load", function() {
     togglePlaylistModalSKButton();
   }
 
+  function searchPlaylist(keyword) {
+    while(PLAYLIST_TRACK_UL.firstChild) {
+      PLAYLIST_TRACK_UL.removeChild(PLAYLIST_TRACK_UL.firstChild);
+    }
+    var i = 0;
+    TRACK.forEach(function(k, idx) {
+      if (k.selected === true) {
+        document.activeElement.tabIndex = 0;
+        const li = document.createElement("LI");
+        const parts = k.name.split('/');
+        const name = parts[parts.length - 1];
+        if (keyword.length > 0) {
+          if (name.toLocaleLowerCase().indexOf(keyword.toLocaleLowerCase()) === -1) {
+            return;
+          }
+        }
+        const pr = document.createElement("pre");
+        pr.innerHTML = (i + 1).toString() + ' - ' + name;
+        li.appendChild(pr);
+        li.setAttribute("class", "nav_track");
+        li.setAttribute("tabIndex", i);
+        li.setAttribute("data-playlist-idx", idx);
+        PLAYLIST_TRACK_UL.appendChild(li);
+        i++;
+      }
+    });
+  }
+
+  function searchAlbum(keyword) {
+    console.log('searchAlbum', keyword);
+  }
+
+  function searchArtist(keyword) {
+    console.log('searchArtist', keyword);
+  }
+
+  function searchFolder(keyword) {
+    while(FOLDERS_UL.firstChild) {
+      FOLDERS_UL.removeChild(FOLDERS_UL.firstChild);
+    }
+    var _temps = []
+    for (var name in FOLDERS) {
+      _temps.push(name);
+    }
+    _temps.sort((a, b) => a.localeCompare(b, undefined, {sensitivity: 'base'}));
+    var j = 0;
+    for (var i in _temps) {
+      const li = document.createElement("LI");
+      const pr = document.createElement("pre");
+      pr.innerHTML = _temps[i];
+      if (keyword.length > 0) {
+        if (_temps[i].toLocaleLowerCase().indexOf(keyword.toLocaleLowerCase()) === -1) {
+          continue;
+        }
+      }
+      li.appendChild(pr);
+      li.setAttribute("class", "nav_folder");
+      li.setAttribute("tabIndex", j);
+      FOLDERS_UL.appendChild(li);
+      j++;
+    }
+  }
+
   function showSnackbar(text) {
     if (SNACKBAR_STATUS !== undefined) {
       clearTimeout(SNACKBAR_STATUS);
@@ -2266,6 +2392,22 @@ window.addEventListener("load", function() {
           }
           e.preventDefault();
           e.stopPropagation();
+        } else if (CURRENT_SCREEN === 'PLAYLIST_MODAL') {
+          SEARCH_TRACK.focus();
+          e.preventDefault();
+          e.stopPropagation();
+        } else if (CURRENT_SCREEN === 'FOLDERS_MODAL') {
+          SEARCH_FOLDER.focus();
+          e.preventDefault();
+          e.stopPropagation();
+        } else if (CURRENT_SCREEN === 'ARTISTS_MODAL') {
+          SEARCH_ARTIST.focus();
+          e.preventDefault();
+          e.stopPropagation();
+        } else if (CURRENT_SCREEN === 'ALBUMS_MODAL') {
+          SEARCH_ALBUM.focus();
+          e.preventDefault();
+          e.stopPropagation();
         }
         break
       case 'SoftRight':
@@ -2325,6 +2467,30 @@ window.addEventListener("load", function() {
             return;
           }
           mp3Trimmer(CUTTER_BLOB, CUTTER_START_DURATION, CUTTER_END_DURATION, saveRingtone);
+          e.preventDefault();
+          e.stopPropagation();
+        } else if (CURRENT_SCREEN === 'PLAYLIST_MODAL') {
+          SEARCH_TRACK.value = '';
+          searchPlaylist('');
+          SEARCH_TRACK.blur();
+          e.preventDefault();
+          e.stopPropagation();
+        } else if (CURRENT_SCREEN === 'FOLDERS_MODAL') {
+          SEARCH_FOLDER.value = '';
+          searchFolder('');
+          SEARCH_FOLDER.blur();
+          e.preventDefault();
+          e.stopPropagation();
+        } else if (CURRENT_SCREEN === 'ARTISTS_MODAL') {
+          SEARCH_ARTIST.value = '';
+          searchArtist('');
+          SEARCH_ARTIST.blur();
+          e.preventDefault();
+          e.stopPropagation();
+        } else if (CURRENT_SCREEN === 'ALBUMS_MODAL') {
+          SEARCH_ALBUM.value = '';
+          searchAlbum('');
+          SEARCH_ALBUM.blur();
           e.preventDefault();
           e.stopPropagation();
         }
@@ -2483,7 +2649,11 @@ window.addEventListener("load", function() {
             window.close();
           }
         } else if (CURRENT_SCREEN === 'PLAYLIST_MODAL') {
-          playCurrentPlaylist(SEQUENCE.indexOf(document.activeElement.tabIndex));
+          if (document.activeElement) {
+            // document.activeElement.tabIndex
+            var i = parseInt(document.activeElement.dataset.playlistIdx);
+            playCurrentPlaylist(SEQUENCE.indexOf(i));
+          };
         } else if (CURRENT_SCREEN === 'PLAYLIST_MANAGER_MODAL') {
           if (PLAYLIST_MANAGER_MODAL_INDEX === 0) {
             playlistEditor(undefined, JSON.parse(GLOBAL_TRACK), false);
@@ -2551,8 +2721,17 @@ window.addEventListener("load", function() {
           e.stopPropagation();
           break
         } else if (CURRENT_SCREEN === 'PLAYLIST_MODAL') {
-          CURRENT_SCREEN = 'HOME';
-          PLAYLIST_MODAL.hide();
+          if (document.activeElement.tagName === 'INPUT') {
+            if (document.activeElement.value.length === 0) {
+              document.activeElement.blur();
+            }
+          } else {
+            SEARCH_TRACK.value = '';
+            searchPlaylist('');
+            SEARCH_TRACK.blur();
+            CURRENT_SCREEN = 'HOME';
+            PLAYLIST_MODAL.hide();
+          }
           e.preventDefault();
           e.stopPropagation();
         } else if (CURRENT_SCREEN === 'PLAYLIST_MANAGER_MODAL') {
@@ -2585,18 +2764,45 @@ window.addEventListener("load", function() {
           e.preventDefault();
           e.stopPropagation();
         } else if (CURRENT_SCREEN === 'ARTISTS_MODAL') {
-          CURRENT_SCREEN = 'HOME';
-          ARTISTS_MODAL.hide();
+          if (document.activeElement.tagName === 'INPUT') {
+            if (document.activeElement.value.length === 0) {
+              document.activeElement.blur();
+            }
+          } else {
+            SEARCH_ARTIST.value = '';
+            searchArtist('');
+            SEARCH_ARTIST.blur();
+            CURRENT_SCREEN = 'HOME';
+            ARTISTS_MODAL.hide();
+          }
           e.preventDefault();
           e.stopPropagation();
         } else if (CURRENT_SCREEN === 'FOLDERS_MODAL') {
-          CURRENT_SCREEN = 'HOME';
-          FOLDERS_MODAL.hide();
+          if (document.activeElement.tagName === 'INPUT') {
+            if (document.activeElement.value.length === 0) {
+              document.activeElement.blur();
+            }
+          } else {
+            SEARCH_FOLDER.value = '';
+            searchFolder('');
+            SEARCH_FOLDER.blur();
+            CURRENT_SCREEN = 'HOME';
+            FOLDERS_MODAL.hide();
+          }
           e.preventDefault();
           e.stopPropagation();
         } else if (CURRENT_SCREEN === 'ALBUMS_MODAL') {
-          CURRENT_SCREEN = 'HOME';
-          ALBUMS_MODAL.hide();
+          if (document.activeElement.tagName === 'INPUT') {
+            if (document.activeElement.value.length === 0) {
+              document.activeElement.blur();
+            }
+          } else {
+            SEARCH_ALBUM.value = '';
+            searchAlbum('');
+            SEARCH_ALBUM.blur();
+            CURRENT_SCREEN = 'HOME';
+            ALBUMS_MODAL.hide();
+          }
           e.preventDefault();
           e.stopPropagation();
         } else if (CURRENT_SCREEN === 'EQUALIZER_MODAL') {
@@ -2623,7 +2829,7 @@ window.addEventListener("load", function() {
           EQL_MODAL.hide();
           e.preventDefault();
           e.stopPropagation();
-        } 
+        }
         break
       case '1':
         if (CUTTER_PLAYER.paused && CUTTER_START_DURATION < CUTTER_PLAYER.duration && CUTTER_START_DURATION < CUTTER_END_DURATION && CURRENT_SCREEN === 'TRIM_MODAL') {

@@ -113,7 +113,10 @@
           <div id="playlist_name" class="kui-option-title" style="background:#873eff;color:#fff;">Playlist Name</div>
         </center>
         <div class="mdl-body">
-          <ul id="playlist_track_ul" class="kui-options text-dark" style="font-size:14px;height:calc(100vh - 58px)!important;">
+          <div  class="bg-primary" style="padding:2px;">
+            <input id="search_track" name="search_track" placeholder="Search track" class="kui-input" style="height:30px;"/>
+          </div>
+          <ul id="playlist_track_ul" class="kui-options text-dark" style="font-size:14px;height:calc(100vh - 92px)!important;">
           </ul>
         </div>
       </div>
@@ -157,11 +160,11 @@
         <center>
           <div id="editor_mode_label" class="kui-option-title" style="background:#873eff;color:#fff;">Create Playlist</div>
         </center>
-        <div class="bg-primary" style="padding:5px">
-          <input id="playlist_name_input" class="kui-input" value="" placeholder="Playlist Name"/>
-        </div>
         <div class="mdl-body">
-          <ul id="track_editor_ul" class="kui-options text-dark" style="font-size:14px;height:calc(100vh - (58px + 46px))!important;"></ul>
+          <div  class="bg-primary" style="padding:2px;">
+            <input id="playlist_name_input" class="kui-input" value="" placeholder="Playlist Name" style="height:30px;"/>
+          </div>
+          <ul id="track_editor_ul" class="kui-options text-dark" style="font-size:14px;height:calc(100vh - 92px)!important;"></ul>
         </div>
       </div>
     </div>
@@ -172,7 +175,10 @@
           <div class="kui-option-title" style="background:#873eff;color:#fff;">Artist</div>
         </center>
         <div class="mdl-body">
-          <ul id="artists_ul" class="kui-options text-dark" style="font-size:14px;height:calc(100vh - 58px)!important;"></ul>
+          <div  class="bg-primary" style="padding:2px;">
+            <input id="search_artist" class="kui-input" name="search_artist" placeholder="Search artist" style="height:30px;"/>
+          </div>
+          <ul id="artists_ul" class="kui-options text-dark" style="font-size:14px;height:calc(100vh - 92px)!important;"></ul>
         </div>
       </div>
     </div>
@@ -183,7 +189,10 @@
           <div class="kui-option-title" style="background:#873eff;color:#fff;">Albums</div>
         </center>
         <div class="mdl-body">
-          <ul id="albums_ul" class="kui-options text-dark" style="font-size:14px;height:calc(100vh - 58px)!important;"></ul>
+          <div  class="bg-primary" style="padding:2px;">
+            <input id="search_album" name="search_album" placeholder="Search album" class="kui-input" style="height:30px;"/>
+          </div>
+          <ul id="albums_ul" class="kui-options text-dark" style="font-size:14px;height:calc(100vh - 92px)!important;"></ul>
         </div>
       </div>
     </div>
@@ -194,7 +203,10 @@
           <div class="kui-option-title" style="background:#873eff;color:#fff;">Folders</div>
         </center>
         <div class="mdl-body">
-          <ul id="folders_ul" class="kui-options text-dark" style="font-size:14px;height:calc(100vh - 58px)!important;"></ul>
+          <div  class="bg-primary" style="padding:2px;">
+            <input id="search_folder" name="search_folder" placeholder="Search folder" class="kui-input" style="height:30px;"/>
+          </div>
+          <ul id="folders_ul" class="kui-options text-dark" style="font-size:14px;height:calc(100vh - 92px)!important;"></ul>
         </div>
       </div>
     </div>
@@ -460,7 +472,9 @@
     </div>
 
     <div id="offmenu_software_key" class="kui-software-key software-key sr-only">
-      SELECT
+      <div id="pm_sk_left" style="width:30%;text-align:left;padding-left:5px;">Search</div>
+      <div id="pm_sk_center" style="width:40%;text-align:center;">SELECT</div>
+      <div id="pm_sk_right" style="width:30%;text-align:right;padding-right:5px;">Clear</div>
     </div>
 
     <div id="pm_software_key" class="kui-software-key software-key sr-only">
@@ -481,9 +495,9 @@
     </div>
 
     <div id="albums_or_artists_software_key" class="kui-software-key software-key sr-only">
-      <div style="width:30%;text-align:left;padding-left:5px;"></div>
+      <div style="width:30%;text-align:left;padding-left:5px;">Search</div>
       <div style="width:40%;text-align:center;">PLAY</div>
-      <div style="width:30%;text-align:right;padding-right:5px;"></div>
+      <div style="width:30%;text-align:right;padding-right:5px;">Clear</div>
     </div>
 
     <div id="equalizer_software_key" class="kui-software-key software-key sr-only">
