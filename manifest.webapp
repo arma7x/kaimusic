@@ -3,9 +3,13 @@
   "name": "K-Music",
   "description": "An audio player for KaiOS with playlist manager + Equalizer + MP3 Cutter/Trimmer",
   "launch_path": "/index.html",
-  "theme": "#873eff",
-  "theme_color": "#873eff",
-  "background_color": "#873eff",
+  "theme": "#431F7F",
+  "theme_color": "#431F7F",
+  "background_color": "#431F7F",
+  "fullscreen": "true",
+  "chrome": {
+    "statusbar": "overlap"
+  },
   "categories": [
     "entertainment",
     "utilities"

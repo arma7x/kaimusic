@@ -2,6 +2,9 @@ body {
   font-family: 'Open Sans';
   background: #873eff;
   color: #fff;
+  background-repeat: no-repeat!important;
+  background-attachment: fixed!important;
+  background-position: center!important;
 }
 h1, h2, h3, h4, h5, h6, ul, p, pre {
   margin: 0;
@@ -32,7 +35,18 @@ h5 {
   background-color: #CCCCCC!important;
 }
 .control-panel {
+  padding-top:28px;
   text-align: center;
+  height:calc(290px - 28px);
+  background-color:rgba(0, 0, 0, 0.5)
+}
+@media screen and (orientation: landscape) {
+  .control-panel {
+    padding-top:28px;
+    text-align: center;
+    height:calc(290px - 108px);
+    background-color:rgba(0, 0, 0, 0.5)
+  }
 }
 .sr-only,
 .sr-only-focusable:not(:focus) {
@@ -45,6 +59,12 @@ h5 {
   clip: rect(0, 0, 0, 0) !important;
   white-space: nowrap !important;
   border: 0 !important;
+}
+.mdl {
+  height:90%;
+}
+.mdl-content {
+  top:25;
 }
 .mdl-body {
   padding: 0 0 30px 0!important;

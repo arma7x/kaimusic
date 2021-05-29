@@ -211,7 +211,7 @@ window.addEventListener("load", function() {
     try {
       channelRange[JSON.parse(x)].addEventListener('input', function() {
         if (this.dataset.filter) {
-          console.log(this.dataset.filter, RANGE[this.value]);
+          // console.log(this.dataset.filter, RANGE[this.value]);
           setEqualizerBand(this.dataset.filter, normalizeEqBand(RANGE[this.value]));
           localforage.getItem('__EQUALIZER__')
           .then((eql) => {
@@ -399,13 +399,17 @@ window.addEventListener("load", function() {
           const byteArray = new Uint8Array(data);
           const blob = new Blob([byteArray], { type });
           ALBUM_COVER.src = URL.createObjectURL(blob);
+          document.body.style.background = `url(${ALBUM_COVER.src})`
         } else if (media.tags.picture.blob) {
           ALBUM_COVER.src = URL.createObjectURL(media.tags.picture.blob);
+          document.body.style.background = `url(${ALBUM_COVER.src})`
         } else {
           ALBUM_COVER.src = '/assets/img/baseline_album_white_48.png';
+          document.body.style.background = ``
         }
       } else {
         ALBUM_COVER.src = '/assets/img/baseline_album_white_48.png';
+        document.body.style.background = ``
       }
     }
   }
@@ -445,19 +449,20 @@ window.addEventListener("load", function() {
       nav(1, '.nav_track');
     }, 200);
     MENU_SK.classList.add('sr-only');
-    OFFMENU_SK.classList.remove('sr-only');
+    ALB_ART_SK.classList.remove('sr-only');
     
   })
   .on('onConfirm', function() {
     
   })
   .on('onHide', function() {
+    CURRENT_SCREEN = 'HOME';
     SEARCH_TRACK.value = '';
     searchPlaylist('');
     SEARCH_TRACK.blur();
     document.activeElement.tabIndex = -1;
     MENU_SK.classList.remove('sr-only');
-    OFFMENU_SK.classList.add('sr-only');
+    ALB_ART_SK.classList.add('sr-only');
   });
 
   MENU_MODAL = new Modalise('menu_modal')
@@ -2249,7 +2254,6 @@ window.addEventListener("load", function() {
   }
 
   function searchAlbum(keyword) {
-    console.log('searchAlbum', keyword);
     while(ALBUMS_UL.firstChild) {
       ALBUMS_UL.removeChild(ALBUMS_UL.firstChild);
     }
@@ -2282,7 +2286,6 @@ window.addEventListener("load", function() {
   }
 
   function searchArtist(keyword) {
-    console.log('searchArtist', keyword);
     while(ARTISTS_UL.firstChild) {
       ARTISTS_UL.removeChild(ARTISTS_UL.firstChild);
     }
@@ -2347,6 +2350,7 @@ window.addEventListener("load", function() {
       SNACKBAR_STATUS = undefined;
     }
     SNACKBAR.className = "show";
+    SNACKBAR.style.textAlign = "center";
     SNACKBAR.innerHTML = text;
     SNACKBAR_STATUS = setTimeout(function() {
       SNACKBAR.className = SNACKBAR.className.replace("show", "hide");
@@ -2402,15 +2406,40 @@ window.addEventListener("load", function() {
 
   function handleKeydown(e) {
     switch(e.key) {
+      case '0':
+        if (CURRENT_SCREEN === 'PLAYLIST_EDITOR_MODAL' && document.activeElement.tagName !== 'INPUT') {
+          const nav = document.querySelectorAll('.nav_track_editor');
+          if (nav != null) {
+            for (x in nav) {
+              nav[x].children[0].children[0].checked = !nav[x].children[0].children[0].checked;
+            }
+          }
+        }
+        break
+      case '#':
       case 'Call':
         if (CURRENT_SCREEN === 'HOME') {
           toggleShuffle();
+        } else if (CURRENT_SCREEN === 'PLAYLIST_EDITOR_MODAL' && e.key === '#' && document.activeElement.tagName !== 'INPUT') {
+          const nav = document.querySelectorAll('.nav_track_editor');
+          if (nav != null) {
+            for (x in nav) {
+              nav[x].children[0].children[0].checked = false;
+            }
+          }
         }
         break
       case '*':
       case 'Alt':
         if (CURRENT_SCREEN === 'HOME') {
           toggleRepeat();
+        } else if (CURRENT_SCREEN === 'PLAYLIST_EDITOR_MODAL' && e.key === '*' && document.activeElement.tagName !== 'INPUT') {
+          const nav = document.querySelectorAll('.nav_track_editor');
+          if (nav != null) {
+            for (x in nav) {
+              nav[x].children[0].children[0].checked = true;
+            }
+          }
         }
         break
       case 'SoftLeft':
@@ -2711,6 +2740,8 @@ window.addEventListener("load", function() {
             // document.activeElement.tabIndex
             var i = parseInt(document.activeElement.dataset.playlistIdx);
             playCurrentPlaylist(SEQUENCE.indexOf(i));
+            CURRENT_SCREEN = 'HOME';
+            PLAYLIST_MODAL.hide();
           };
         } else if (CURRENT_SCREEN === 'PLAYLIST_MANAGER_MODAL') {
           if (PLAYLIST_MANAGER_MODAL_INDEX === 0) {
@@ -2757,6 +2788,7 @@ window.addEventListener("load", function() {
         } else if (CURRENT_SCREEN === 'EQL_MODAL') {
           const nav = document.querySelectorAll('.nav_eql');
           if (nav.length > 0 && nav[document.activeElement.tabIndex]) {
+            var _eql = {}
             var eql = EQL_PRESENT[nav[document.activeElement.tabIndex].innerText];
             for (var x in channelRange) {
               try {
@@ -2764,9 +2796,11 @@ window.addEventListener("load", function() {
                   var n = channelRange[JSON.parse(x)].dataset.filter;
                   var i = setEqualizerBand(n, normalizeEqBand(eql[n]));
                   channelRange[JSON.parse(x)].value = parseInt(i);
+                  _eql[channelRange[JSON.parse(x)].dataset.filter] = parseInt(i);
                 }
               } catch (e){}
             }
+            localforage.setItem('__EQUALIZER__', _eql);
           }
         }
         break
@@ -2987,7 +3021,7 @@ window.addEventListener("load", function() {
         window['kaiadstimer'] = now;
       }
     }
-    console.log('Display Ads:', display);
+    // console.log('Display Ads:', display);
     if (!display)
       return;
     getKaiAd({

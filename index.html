@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1">
-    <meta name="theme-color" content="#873eff">
+    <meta name="theme-color" content="transparent">
 
     <title>K-Music</title>
 
@@ -30,7 +30,6 @@
 
   <body>
     <!-- This code is in the public domain. Enjoy! -->
-
     <div id="loading" class="slider_wrapper">
       <div class="slider">
         <div class="line"></div>
@@ -110,13 +109,13 @@
     <div id="playlist_modal" class="mdl mdl-fadein kui-option-menu">
       <div class="mdl-content mdl-slidein">
         <center>
-          <div id="playlist_name" class="kui-option-title" style="background:#873eff;color:#fff;">Playlist Name</div>
+          <div id="playlist_name" class="kui-option-title">Playlist Name</div>
         </center>
         <div class="mdl-body">
           <div  class="bg-primary" style="padding:2px;">
             <input id="search_track" name="search_track" placeholder="Search track" class="kui-input" style="height:30px;"/>
           </div>
-          <ul id="playlist_track_ul" class="kui-options text-dark" style="font-size:14px;height:calc(100vh - 92px)!important;">
+          <ul id="playlist_track_ul" class="kui-options text-dark" style="font-size:14px;height:calc(100vh - (92px + 25px))!important;">
           </ul>
         </div>
       </div>
@@ -128,7 +127,7 @@
           <div class="kui-option-title">Menu</div>
         </center>
         <div class="mdl-body">
-          <ul class="kui-options text-dark" style="font-size:14px;height:calc(100vh - 58px)!important;">
+          <ul class="kui-options text-dark" style="font-size:14px;height:calc(100vh - (58px + 25px))!important;">
             <li class="nav_menu" tabIndex="0">Playlist</li>
             <li class="nav_menu" tabIndex="1">Artist</li>
             <li class="nav_menu" tabIndex="2">Album</li>
@@ -147,10 +146,10 @@
     <div id="playlist_manager_modal" class="mdl mdl-fadein kui-option-menu">
       <div class="mdl-content mdl-slidein">
         <center>
-          <div class="kui-option-title" style="background:#873eff;color:#fff;">Playlist</div>
+          <div class="kui-option-title">Playlist</div>
         </center>
         <div class="mdl-body">
-          <ul id="playlists_ul" class="kui-options text-dark" style="font-size:14px;height:calc(100vh - 58px)!important;"></ul>
+          <ul id="playlists_ul" class="kui-options text-dark" style="font-size:14px;height:calc(100vh - (58px + 25px))!important;"></ul>
         </div>
       </div>
     </div>
@@ -158,13 +157,13 @@
     <div id="playlist_editor_modal" class="mdl mdl-fadein kui-option-menu">
       <div class="mdl-content mdl-slidein">
         <center>
-          <div id="editor_mode_label" class="kui-option-title" style="background:#873eff;color:#fff;">Create Playlist</div>
+          <div id="editor_mode_label" class="kui-option-title">Create Playlist</div>
         </center>
         <div class="mdl-body">
           <div  class="bg-primary" style="padding:2px;">
             <input id="playlist_name_input" class="kui-input" value="" placeholder="Playlist Name" style="height:30px;"/>
           </div>
-          <ul id="track_editor_ul" class="kui-options text-dark" style="font-size:14px;height:calc(100vh - 92px)!important;"></ul>
+          <ul id="track_editor_ul" class="kui-options text-dark" style="font-size:14px;height:calc(100vh - (92px + 25px))!important;"></ul>
         </div>
       </div>
     </div>
@@ -172,13 +171,13 @@
     <div id="artists_modal" class="mdl mdl-fadein kui-option-menu">
       <div class="mdl-content mdl-slidein">
         <center>
-          <div class="kui-option-title" style="background:#873eff;color:#fff;">Artist</div>
+          <div class="kui-option-title">Artist</div>
         </center>
         <div class="mdl-body">
           <div  class="bg-primary" style="padding:2px;">
             <input id="search_artist" class="kui-input" name="search_artist" placeholder="Search artist" style="height:30px;"/>
           </div>
-          <ul id="artists_ul" class="kui-options text-dark" style="font-size:14px;height:calc(100vh - 92px)!important;"></ul>
+          <ul id="artists_ul" class="kui-options text-dark" style="font-size:14px;height:calc(100vh - (92px + 25px))!important;"></ul>
         </div>
       </div>
     </div>
@@ -186,13 +185,13 @@
     <div id="albums_modal" class="mdl mdl-fadein kui-option-menu">
       <div class="mdl-content mdl-slidein">
         <center>
-          <div class="kui-option-title" style="background:#873eff;color:#fff;">Albums</div>
+          <div class="kui-option-title">Albums</div>
         </center>
         <div class="mdl-body">
           <div  class="bg-primary" style="padding:2px;">
             <input id="search_album" name="search_album" placeholder="Search album" class="kui-input" style="height:30px;"/>
           </div>
-          <ul id="albums_ul" class="kui-options text-dark" style="font-size:14px;height:calc(100vh - 92px)!important;"></ul>
+          <ul id="albums_ul" class="kui-options text-dark" style="font-size:14px;height:calc(100vh - (92px + 25px))!important;"></ul>
         </div>
       </div>
     </div>
@@ -200,13 +199,13 @@
     <div id="folders_modal" class="mdl mdl-fadein kui-option-menu">
       <div class="mdl-content mdl-slidein">
         <center>
-          <div class="kui-option-title" style="background:#873eff;color:#fff;">Folders</div>
+          <div class="kui-option-title">Folders</div>
         </center>
         <div class="mdl-body">
           <div  class="bg-primary" style="padding:2px;">
             <input id="search_folder" name="search_folder" placeholder="Search folder" class="kui-input" style="height:30px;"/>
           </div>
-          <ul id="folders_ul" class="kui-options text-dark" style="font-size:14px;height:calc(100vh - 92px)!important;"></ul>
+          <ul id="folders_ul" class="kui-options text-dark" style="font-size:14px;height:calc(100vh - (92px + 25px))!important;"></ul>
         </div>
       </div>
     </div>
@@ -226,11 +225,11 @@
       <div class="mdl-content mdl-slidein">
 
         <center>
-          <div class="kui-option-title" style="background:#873eff;color:#fff;">Equalizer</div>
+          <div class="kui-option-title">Equalizer</div>
         </center>
         
         <div class="mdl-body">
-        <ul class="kui-options text-dark" style="font-size:14px;height:calc(100vh - 58px)!important;">
+        <ul class="kui-options text-dark" style="font-size:14px;height:calc(100vh - (58px + 25px))!important;">
           
           <li class="nav_equal" tabIndex="0">
             <div class="row" style="height:20px;line-height:20px;">
@@ -362,10 +361,10 @@
     <div id="directory_modal" class="mdl mdl-fadein kui-option-menu">
       <div class="mdl-content mdl-slidein">
         <center>
-          <div class="kui-option-title" style="background:#873eff;color:#fff;">Directory</div>
+          <div class="kui-option-title">Directory</div>
         </center>
         <div class="mdl-body">
-          <ul id="directory_ul" class="kui-options text-dark" style="font-size:14px;height:calc(100vh - 58px)!important;"></ul>
+          <ul id="directory_ul" class="kui-options text-dark" style="font-size:14px;height:calc(100vh - (58px + 25px))!important;"></ul>
         </div>
       </div>
     </div>
@@ -373,9 +372,9 @@
     <div id="trim_modal" class="mdl mdl-fadein kui-option-menu">
       <div class="mdl-content mdl-slidein">
         <center>
-          <div class="kui-option-title" style="background:#873eff;color:#fff;">Trim MP3</div>
+          <div class="kui-option-title">Trim MP3</div>
         </center>
-        <div class="mdl-body" style="background:#873eff;color:#fff;font-size:14px;height:calc(100vh - 58px)!important;">
+        <div class="mdl-body" style="background:#873eff;color:#fff;font-size:14px;height:calc(100vh - (58px + 25px))!important;">
           <div style="padding-top:15px;margin:0px 23px 0px 23px;">
             <input id="cutter_duration_slider_start" value="0" type="range" min="0" max="100" style="width:81%;position: absolute;" disabled/>
             <input id="cutter_duration_slider_end" value="100" type="range" min="0" max="100" style="width:81%;position: absolute;" disabled/>
@@ -400,10 +399,10 @@
     <div id="eql_modal" class="mdl mdl-fadein kui-option-menu">
       <div class="mdl-content mdl-slidein">
         <center>
-          <div class="kui-option-title" style="background:#873eff;color:#fff;">Built-in Equalizer</div>
+          <div class="kui-option-title">Built-in Equalizer</div>
         </center>
         <div class="mdl-body">
-          <ul id="eql_ul" class="kui-options text-dark" style="font-size:14px;height:calc(100vh - 58px)!important;"></ul>
+          <ul id="eql_ul" class="kui-options text-dark" style="font-size:14px;height:calc(100vh - (58px + 25px))!important;"></ul>
         </div>
       </div>
     </div>
@@ -411,70 +410,76 @@
     <div id="about_modal" class="mdl mdl-fadein kui-option-menu">
       <div class="mdl-content mdl-slidein">
         <center>
-          <div class="kui-option-title" style="background:#873eff;color:#fff;">Tips & About</div>
+          <div class="kui-option-title">Tips & About</div>
         </center>
-        <div id="about_content" class="mdl-body" style="height:calc(100vh - 58px)!important;overflow-y:scroll;">
+        <div id="about_content" class="mdl-body" style="height:calc(100vh - (58px + 25px))!important;overflow-y:scroll;">
           <div style="color:#000;margin:10px;font-size:12px;">
             <h4>Tips:</h4></br>
-              - To trim mp3, goto `Directory` & click `Trim` on mp3 file(only support native codec)</br></br>
-              - To add `trimmed mp3` to ringtone, goto Settings > Personalisation > Sound > Tones > Manage Tones > My Ringtones & click `Add`</br></br>
-              - Equalize not available for ALAC codec</br></br>
-              - To duplicate the playlist, please change its name before press `Save` button</br></br>
-              - support .nomedia file to exclude certain directory/folder(and any directories/folders beneath it) whenever an application scans for media files</br></br>
+              -> Equalize not available for ALAC codec</br></br>
+              -> support .nomedia file to exclude certain directory/folder(and any directories/folders beneath it) whenever an application scans for media files</br></br>
+            <h4>Trim MP3:</h4></br>
+              -> To trim mp3, goto `Directory` & click `Trim` on mp3 file(only support native codec)</br></br>
+              -> To add `trimmed mp3` to ringtone, goto Settings > Personalisation > Sound > Tones > Manage Tones > My Ringtones & click `Add`</br></br>
+              -> The name of the ringtone that has been trimmed starts with a number</br></br>
+            <h4>Playlist Editor</h4></br>
+              -> `0` to invert selection</br></br>
+              -> `#` to unselect all checkbox</br></br>
+              -> `*` to select all checkbox</br></br>
+              -> To duplicate the playlist, please change its name before press `Save` button</br></br>
             <h4>Set Default Media Location</h4></br>
-              - Goto Settings > Storage > Default Media Location. Pick your default media location, SD Card or Internal</br></br>
-              - Open K-Music, goto Menu > Reload Library or restart your device to reload all songs from default media location</br></br>
+              -> Goto Settings > Storage > Default Media Location. Pick your default media location, SD Card or Internal</br></br>
+              -> Open K-Music, goto Menu > Reload Library or restart your device to reload all songs from default media location</br></br>
             <h4>Button shortcut:</h4></br>
-              <h5>Call</h5>
-              - toggle shuffle</br></br>
+              <h5>Call or #</h5>
+              -> toggle shuffle</br></br>
               <h5>Alt or *</h5>
-              - toggle repeat</br></br>
+              -> toggle repeat</br></br>
               <h5>DoubleClick Left Arrow</h5>
-              - rewind -10 seconds to duration</br></br>
+              -> rewind -10 seconds to duration</br></br>
               <h5>DoubleClick Right Arrow</h5>
-              - fast-forward +10 seconds to duration</br></br>
+              -> fast-forward +10 seconds to duration</br></br>
               <h5>Up Arrow</h5>
-              - Volume up</br></br>
+              -> Volume up</br></br>
               <h5>Down Arrow</h5>
-              - Volume down</br></br>
+              -> Volume down</br></br>
             <hr>
             <h4>Credits:</h4></br>
               <h5>FOLDER PLAYLIST</h5>
-              - https://github.com/wobfan</br></br>
+              https://github.com/wobfan</br></br>
               <h5>aurora.js</h5>
-              - https://github.com/audiocogs/aurora.js</br></br>
+              https://github.com/audiocogs/aurora.js</br></br>
               <h5>alac.js</h5>
-              - https://github.com/audiocogs/alac.js</br></br>
+              https://github.com/audiocogs/alac.js</br></br>
               <h5>flac.js</h5>
-              - https://github.com/audiocogs/flac.js</br></br>
+              https://github.com/audiocogs/flac.js</br></br>
               <h5>jsmediatags</h5>
-              - https://github.com/aadsm/jsmediatags</br></br>
+              https://github.com/aadsm/jsmediatags</br></br>
               <h5>localforage</h5>
-              - https://github.com/localForage/localForage</br></br>
+              https://github.com/localForage/localForage</br></br>
               <h5>Simple mp3 cutter</h5>
-              - https://github.com/lubenard/simple-mp3-cutter</br></br>
+              https://github.com/lubenard/simple-mp3-cutter</br></br>
               <h5>modalise</h5>
-              - https://github.com/AlexisTM/modalise.js</br></br>
+              https://github.com/AlexisTM/modalise.js</br></br>
               <h5>polyfill</h5>
-              - https://github.com/taylorhakes/promise-polyfill</br></br>
+              https://github.com/taylorhakes/promise-polyfill</br></br>
               <h5>kaiui</h5>
-              - https://github.com/nadim1992/KaiUI</br></br>
+              https://github.com/nadim1992/KaiUI</br></br>
               <h5>normalize.css</h5>
-              - https://github.com/necolas/normalize.css</br></br>
+              https://github.com/necolas/normalize.css</br></br>
           </div>
         </div>
       </div>
     </div>
 
-    <div id="menu_software_key" class="kui-software-key software-key" style="background-color:transparent;color: #fff!important;">
+    <div id="menu_software_key" class="kui-software-key software-key" style="background-color:rgba(0, 0, 0, 0.5);color: #fff!important;">
       <div style="width:50%;text-align:left;padding-left:5px;">Track</div>
       <div style="width:50%;text-align:right;padding-right:5px;">Menu</div>
     </div>
 
     <div id="offmenu_software_key" class="kui-software-key software-key sr-only">
-      <div id="pm_sk_left" style="width:30%;text-align:left;padding-left:5px;">Search</div>
+      <div id="pm_sk_left" style="width:30%;text-align:left;padding-left:5px;"></div>
       <div id="pm_sk_center" style="width:40%;text-align:center;">SELECT</div>
-      <div id="pm_sk_right" style="width:30%;text-align:right;padding-right:5px;">Clear</div>
+      <div id="pm_sk_right" style="width:30%;text-align:right;padding-right:5px;"></div>
     </div>
 
     <div id="pm_software_key" class="kui-software-key software-key sr-only">
