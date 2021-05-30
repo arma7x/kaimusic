@@ -3154,7 +3154,6 @@ window.addEventListener("load", function() {
     .catch(function(err) {
       indexingStorage();
     })
-    // indexingStorage();
     CURRENT_SCREEN = 'HOME';
     MENU_MODAL.hide();
   });
