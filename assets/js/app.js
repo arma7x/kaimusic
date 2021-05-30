@@ -1,9 +1,5 @@
 window.addEventListener("load", function() {
 
-  navigator.mozSetMessageHandler('headset-button', function(evt) {
-    console.log('headset-button', evt);
-  });
-
   localforage.setDriver(localforage.LOCALSTORAGE);
 
   const EQL_PRESENT={Classical:{hz60:33,hz170:33,hz310:33,hz600:33,hz1000:33,hz3000:33,hz6000:20,hz12000:20,hz14000:20,hz16000:16,preamp:33},Club:{hz60:33,hz170:33,hz310:38,hz600:42,hz1000:42,hz3000:42,hz6000:38,hz12000:33,hz14000:33,hz16000:33,preamp:33},Dance:{hz60:48,hz170:44,hz310:36,hz600:32,hz1000:32,hz3000:22,hz6000:20,hz12000:20,hz14000:32,hz16000:32,preamp:33},"Laptop speakers/headphones":{hz60:40,hz170:50,hz310:41,hz600:26,hz1000:28,hz3000:35,hz6000:40,hz12000:48,hz14000:53,hz16000:56,preamp:33},"Large hall":{hz60:49,hz170:49,hz310:42,hz600:42,hz1000:33,hz3000:24,hz6000:24,hz12000:24,hz14000:33,hz16000:33,preamp:33},Party:{hz60:44,hz170:44,hz310:33,hz600:33,hz1000:33,hz3000:33,hz6000:33,hz12000:33,hz14000:44,hz16000:44,preamp:33},Pop:{hz60:29,hz170:40,hz310:44,hz600:45,hz1000:41,hz3000:30,hz6000:28,hz12000:28,hz14000:29,hz16000:29,preamp:33},Reggae:{hz60:33,hz170:33,hz310:31,hz600:22,hz1000:33,hz3000:43,hz6000:43,hz12000:33,hz14000:33,hz16000:33,preamp:33},Rock:{hz60:45,hz170:40,hz310:23,hz600:19,hz1000:26,hz3000:39,hz6000:47,hz12000:50,hz14000:50,hz16000:50,preamp:33},Soft:{hz60:40,hz170:35,hz310:30,hz600:28,hz1000:30,hz3000:39,hz6000:46,hz12000:48,hz14000:50,hz16000:52,preamp:33},Ska:{hz60:28,hz170:24,hz310:25,hz600:31,hz1000:39,hz3000:42,hz6000:47,hz12000:48,hz14000:50,hz16000:48,preamp:33},"Full Bass":{hz60:48,hz170:48,hz310:48,hz600:42,hz1000:35,hz3000:25,hz6000:18,hz12000:15,hz14000:14,hz16000:14,preamp:33},"Soft Rock":{hz60:39,hz170:39,hz310:36,hz600:31,hz1000:25,hz3000:23,hz6000:26,hz12000:31,hz14000:37,hz16000:47,preamp:33},"Full Treble":{hz60:16,hz170:16,hz310:16,hz600:25,hz1000:37,hz3000:50,hz6000:58,hz12000:58,hz14000:58,hz16000:60,preamp:33},"Full Bass & Treble":{hz60:44,hz170:42,hz310:33,hz600:20,hz1000:24,hz3000:35,hz6000:46,hz12000:50,hz14000:52,hz16000:52,preamp:33},Live:{hz60:24,hz170:33,hz310:39,hz600:41,hz1000:42,hz3000:42,hz6000:39,hz12000:37,hz14000:37,hz16000:36,preamp:33},Techno:{hz60:45,hz170:42,hz310:33,hz600:23,hz1000:24,hz3000:33,hz6000:45,hz12000:48,hz14000:48,hz16000:47,preamp:33}};
@@ -264,7 +260,6 @@ window.addEventListener("load", function() {
     try {
       channelRange[JSON.parse(x)].addEventListener('input', function() {
         if (this.dataset.filter) {
-          // console.log(this.dataset.filter, RANGE[this.value]);
           setEqualizerBand(this.dataset.filter, normalizeEqBand(RANGE[this.value]));
           localforage.getItem('__EQUALIZER__')
           .then((eql) => {
@@ -355,7 +350,7 @@ window.addEventListener("load", function() {
       clearTimeout(window['TIMEOUT_SEARCH'])
     }
     window['TIMEOUT_SEARCH'] = setTimeout(() => {
-      searchArtist(evt.target.value || '');
+      searchGeneric(evt.target.value || '' , "ARTISTS", ARTISTS_UL, "nav_artist");
     }, 500);
   });
 
@@ -364,7 +359,7 @@ window.addEventListener("load", function() {
       clearTimeout(window['TIMEOUT_SEARCH'])
     }
     window['TIMEOUT_SEARCH'] = setTimeout(() => {
-      searchAlbum(evt.target.value || '');
+      searchGeneric(evt.target.value || '' , "ALBUMS", ALBUMS_UL, "nav_album");
     }, 500);
   });
 
@@ -373,7 +368,7 @@ window.addEventListener("load", function() {
       clearTimeout(window['TIMEOUT_SEARCH'])
     }
     window['TIMEOUT_SEARCH'] = setTimeout(() => {
-      searchGenre(evt.target.value || '');
+      searchGeneric(evt.target.value || '' , "GENRES", GENRES_UL, "nav_genre");
     }, 500);
   });
 
@@ -389,7 +384,6 @@ window.addEventListener("load", function() {
   var WORKER = new Worker('/assets/js/worker.js');
 
   WORKER.onmessage = (e) => {
-    // console.log(e.data.type)
     if (e.data.type === 'PARSE_METADATA') {
       const media = e.data.result;
       if (!e.data.error && media.tags.artist) {
@@ -782,7 +776,7 @@ window.addEventListener("load", function() {
   })
   .on('onHide', function() {
     SEARCH_ALBUM.value = '';
-    searchAlbum('');
+    searchGeneric('' , "ALBUMS", ALBUMS_UL, "nav_album");
     SEARCH_ALBUM.blur();
     MENU_SK.classList.remove('sr-only');
     SEARCH_SK.classList.add('sr-only');
@@ -827,7 +821,7 @@ window.addEventListener("load", function() {
   })
   .on('onHide', function() {
     SEARCH_ARTIST.value = '';
-    searchArtist('');
+    searchGeneric('' , "ARTISTS", ARTISTS_UL, "nav_artist");
     SEARCH_ARTIST.blur();
     MENU_SK.classList.remove('sr-only');
     SEARCH_SK.classList.add('sr-only');
@@ -873,7 +867,7 @@ window.addEventListener("load", function() {
   })
   .on('onHide', function() {
     SEARCH_GENRE.value = '';
-    searchGenre('');
+    searchGeneric('' , "GENRES", GENRES_UL, "nav_genre");
     SEARCH_GENRE.blur();
     MENU_SK.classList.remove('sr-only');
     SEARCH_SK.classList.add('sr-only');
@@ -1136,7 +1130,6 @@ window.addEventListener("load", function() {
                             }
                           });
                         }
-                        // console.log(UPDATE_ARTISTS);
                         return localforage.setItem('ARTISTS', UPDATE_ARTISTS)
                       })
                       .then((_ARTISTS_) => {
@@ -1146,7 +1139,7 @@ window.addEventListener("load", function() {
                           for (var _a in _ALBUMS_) {
                             _ALBUMS_[_a].forEach((t, ti) => {
                               if (missing_files.indexOf(t.name) > -1) {
-                                console.log(t.name)
+                                // console.log(t.name)
                               } else {
                                 if (UPDATE_ALBUMS[_a] == null) {
                                   UPDATE_ALBUMS[_a] = [];
@@ -1155,12 +1148,10 @@ window.addEventListener("load", function() {
                               }
                             });
                           }
-                          // console.log(UPDATE_ALBUMS);
                           return localforage.setItem('ALBUMS', UPDATE_ALBUMS)
                           .then(() => {
                             return localforage.getItem('ALBUMS')
                             .then((_ALBUMS_) => {
-                              // console.log({ _ARTISTS_: _ARTISTS_, _ALBUMS_: _ALBUMS_ });
                               return Promise.resolve({ _ARTISTS_: _ARTISTS_, _ALBUMS_: _ALBUMS_ });
                             })
                           });
@@ -1173,7 +1164,7 @@ window.addEventListener("load", function() {
                           for (var _a in _GENRES_) {
                             _GENRES_[_a].forEach((t, ti) => {
                               if (missing_files.indexOf(t.name) > -1) {
-                                console.log(t.name)
+                                // console.log(t.name)
                               } else {
                                 if (UPDATE_GENRES[_a] == null) {
                                   UPDATE_GENRES[_a] = [];
@@ -1182,12 +1173,10 @@ window.addEventListener("load", function() {
                               }
                             });
                           }
-                          // console.log(UPDATE_GENRES);
                           return localforage.setItem('GENRES', UPDATE_GENRES)
                           .then(() => {
                             return localforage.getItem('GENRES')
                             .then((_GENRES_) => {
-                              // console.log({ _ARTISTS_: _ARTISTS_, _GENRES_: _GENRES_ });
                               return Promise.resolve({ _ARTISTS_: _LATEST_['_ARTISTS_'], _ALBUMS_: _LATEST_['_ALBUMS_'], _GENRES_: _GENRES_ });
                             })
                           });
@@ -1393,7 +1382,6 @@ window.addEventListener("load", function() {
                           }
                         });
                       }
-                      // console.log(UPDATE_ARTISTS);
                       return localforage.setItem('ARTISTS', UPDATE_ARTISTS)
                     })
                     .then((_ARTISTS_) => {
@@ -1403,7 +1391,7 @@ window.addEventListener("load", function() {
                         for (var _a in _ALBUMS_) {
                           _ALBUMS_[_a].forEach((t, ti) => {
                             if (missing_files.indexOf(t.name) > -1) {
-                              console.log(t.name)
+                              // console.log(t.name)
                             } else {
                               if (UPDATE_ALBUMS[_a] == null) {
                                 UPDATE_ALBUMS[_a] = [];
@@ -1412,12 +1400,10 @@ window.addEventListener("load", function() {
                             }
                           });
                         }
-                        // console.log(UPDATE_ALBUMS);
                         return localforage.setItem('ALBUMS', UPDATE_ALBUMS)
                         .then(() => {
                           return localforage.getItem('ALBUMS')
                           .then((_ALBUMS_) => {
-                            // console.log({ _ARTISTS_: _ARTISTS_, _ALBUMS_: _ALBUMS_ });
                             return Promise.resolve({ _ARTISTS_: _ARTISTS_, _ALBUMS_: _ALBUMS_ });
                           })
                         });
@@ -1430,7 +1416,7 @@ window.addEventListener("load", function() {
                         for (var _a in _GENRES_) {
                           _GENRES_[_a].forEach((t, ti) => {
                             if (missing_files.indexOf(t.name) > -1) {
-                              console.log(t.name)
+                              // console.log(t.name)
                             } else {
                               if (UPDATE_GENRES[_a] == null) {
                                 UPDATE_GENRES[_a] = [];
@@ -1439,12 +1425,10 @@ window.addEventListener("load", function() {
                             }
                           });
                         }
-                        // console.log(UPDATE_GENRES);
                         return localforage.setItem('GENRES', UPDATE_GENRES)
                         .then(() => {
                           return localforage.getItem('GENRES')
                           .then((_GENRES_) => {
-                            // console.log({ _ARTISTS_: _ARTISTS_, _ALBUMS_: _ALBUMS_ });
                             return Promise.resolve({ _ARTISTS_: _LATEST_['_ARTISTS_'], _ALBUMS_: _LATEST_['_ALBUMS_'], _GENRES_: _GENRES_ });
                           })
                         });
@@ -1651,7 +1635,6 @@ window.addEventListener("load", function() {
     }
     console.log('REFRESH');
     getAllFiles((files) => {
-      console.log(files);
       DOCUMENT_TREE = {};
       const fil = filterNoMedia(files);
       DOCUMENT_TREE = indexingDocuments(fil);
@@ -1664,7 +1647,6 @@ window.addEventListener("load", function() {
   function resumeApp() {
     localforage.getItem('SEQUENCE')
     .then((SEQUENCE_DB) => {
-      // console.log(SEQUENCE_DB.length, TRACK.length);
       if (SEQUENCE_DB == null) {
         processPlaylist();
       } else {
@@ -1696,7 +1678,6 @@ window.addEventListener("load", function() {
             } else {
               SEQUENCE = JSON.parse(JSON.stringify(SEQUENCE_DB));
             }
-            // console.log(NEW_SEQUENCE.length, SEQUENCE.length);
             processPlaylist(false, SEQUENCE_INDEX);
           }
         })
@@ -2024,73 +2005,21 @@ window.addEventListener("load", function() {
     }
   }
 
-  function processAlbum(name) {
-    localforage.getItem('ALBUMS')
-    .then((_ALBUMS_) => {
-      if (_ALBUMS_) {
-        if (_ALBUMS_[name]) {
-          localforage.setItem('PLAY_TYPE', 'ALBUMS')
+  function processGeneric(name, TYPE) {
+    localforage.getItem(TYPE)
+    .then((_TYPE_) => {
+      if (_TYPE_) {
+        if (_TYPE_[name]) {
+          localforage.setItem('PLAY_TYPE', TYPE)
           .then(() => {
             localforage.setItem('PLAY_NAME', name)
           });
           CURRENT_PLAYLIST = name;
           TRACK = [];
           const filtered = [];
-          PLAYLIST_LABEL.innerHTML = 'ALBUM';
+          PLAYLIST_LABEL.innerHTML = TYPE.substring(0, TYPE.length - 1);
           PLAYLIST_NAME.innerHTML = name;
-          _ALBUMS_[name].forEach((t) => {
-            if (t.selected === true) {
-              filtered.push(t);
-            }
-          });
-          Object.assign(TRACK, filtered);
-          processPlaylist();
-        }
-      }
-    })
-  }
-
-  function processArtist(name) {
-    localforage.getItem('ARTISTS')
-    .then((_ARTISTS_) => {
-      if (_ARTISTS_) {
-        if (_ARTISTS_[name]) {
-          localforage.setItem('PLAY_TYPE', 'ARTISTS')
-          .then(() => {
-            localforage.setItem('PLAY_NAME', name)
-          });
-          CURRENT_PLAYLIST = name;
-          TRACK = [];
-          const filtered = [];
-          PLAYLIST_LABEL.innerHTML = 'ARTIST';
-          PLAYLIST_NAME.innerHTML = name;
-          _ARTISTS_[name].forEach((t) => {
-            if (t.selected === true) {
-              filtered.push(t);
-            }
-          });
-          Object.assign(TRACK, filtered);
-          processPlaylist();
-        }
-      }
-    })
-  }
-
-  function processGenre(name) {
-    localforage.getItem('GENRES')
-    .then((_GENRES_) => {
-      if (_GENRES_) {
-        if (_GENRES_[name]) {
-          localforage.setItem('PLAY_TYPE', 'GENRES')
-          .then(() => {
-            localforage.setItem('PLAY_NAME', name)
-          });
-          CURRENT_PLAYLIST = name;
-          TRACK = [];
-          const filtered = [];
-          PLAYLIST_LABEL.innerHTML = 'GENRE';
-          PLAYLIST_NAME.innerHTML = name;
-          _GENRES_[name].forEach((t) => {
+          _TYPE_[name].forEach((t) => {
             if (t.selected === true) {
               filtered.push(t);
             }
@@ -2510,102 +2439,6 @@ window.addEventListener("load", function() {
     });
   }
 
-  function searchAlbum(keyword) {
-    while(ALBUMS_UL.firstChild) {
-      ALBUMS_UL.removeChild(ALBUMS_UL.firstChild);
-    }
-    localforage.getItem('ALBUMS')
-    .then((_ALBUMS_) => {
-      if (_ALBUMS_) {
-        var _temps = []
-        for (var name in _ALBUMS_) {
-          _temps.push(name);
-        }
-        _temps.sort();
-        var j = 0;
-        for (var i in _temps) {
-          if (keyword.length > 0) {
-            if (_temps[i].toLocaleLowerCase().indexOf(keyword.toLocaleLowerCase()) === -1) {
-              continue;
-            }
-          }
-          const li = document.createElement("LI");
-          const pr = document.createElement("pre");
-          pr.innerHTML = _temps[i];
-          li.appendChild(pr);
-          li.setAttribute("class", "nav_album");
-          li.setAttribute("tabIndex", j);
-          ALBUMS_UL.appendChild(li);
-          j++;
-        }
-      }
-    })
-  }
-
-  function searchArtist(keyword) {
-    while(ARTISTS_UL.firstChild) {
-      ARTISTS_UL.removeChild(ARTISTS_UL.firstChild);
-    }
-    localforage.getItem('ARTISTS')
-    .then((_ARTISTS_) => {
-      if (_ARTISTS_) {
-        var _temps = []
-        for (var name in _ARTISTS_) {
-          _temps.push(name);
-        }
-        _temps.sort();
-        var j = 0;
-        for (var i in _temps) {
-          if (keyword.length > 0) {
-            if (_temps[i].toLocaleLowerCase().indexOf(keyword.toLocaleLowerCase()) === -1) {
-              continue;
-            }
-          }
-          const li = document.createElement("LI");
-          const pr = document.createElement("pre");
-          pr.innerHTML = _temps[i];
-          li.appendChild(pr);
-          li.setAttribute("class", "nav_artist");
-          li.setAttribute("tabIndex", j);
-          ARTISTS_UL.appendChild(li);
-          j++;
-        }
-      }
-    })
-  }
-
-  function searchGenre(keyword) {
-    while(GENRES_UL.firstChild) {
-      GENRES_UL.removeChild(GENRES_UL.firstChild);
-    }
-    localforage.getItem('GENRES')
-    .then((_GENRES_) => {
-      if (_GENRES_) {
-        var _temps = []
-        for (var name in _GENRES_) {
-          _temps.push(name);
-        }
-        _temps.sort();
-        var j = 0;
-        for (var i in _temps) {
-          if (keyword.length > 0) {
-            if (_temps[i].toLocaleLowerCase().indexOf(keyword.toLocaleLowerCase()) === -1) {
-              continue;
-            }
-          }
-          const li = document.createElement("LI");
-          const pr = document.createElement("pre");
-          pr.innerHTML = _temps[i];
-          li.appendChild(pr);
-          li.setAttribute("class", "nav_genre");
-          li.setAttribute("tabIndex", j);
-          GENRES_UL.appendChild(li);
-          j++;
-        }
-      }
-    })
-  }
-
   function searchFolder(keyword) {
     while(FOLDERS_UL.firstChild) {
       FOLDERS_UL.removeChild(FOLDERS_UL.firstChild);
@@ -2631,6 +2464,38 @@ window.addEventListener("load", function() {
       FOLDERS_UL.appendChild(li);
       j++;
     }
+  }
+
+  function searchGeneric(keyword, TYPE, UL, nav) {
+    while(UL.firstChild) {
+      UL.removeChild(UL.firstChild);
+    }
+    localforage.getItem(TYPE)
+    .then((_TYPES_) => {
+      if (_TYPES_) {
+        var _temps = []
+        for (var name in _TYPES_) {
+          _temps.push(name);
+        }
+        _temps.sort();
+        var j = 0;
+        for (var i in _temps) {
+          if (keyword.length > 0) {
+            if (_temps[i].toLocaleLowerCase().indexOf(keyword.toLocaleLowerCase()) === -1) {
+              continue;
+            }
+          }
+          const li = document.createElement("LI");
+          const pr = document.createElement("pre");
+          pr.innerHTML = _temps[i];
+          li.appendChild(pr);
+          li.setAttribute("class", nav);
+          li.setAttribute("tabIndex", j);
+          UL.appendChild(li);
+          j++;
+        }
+      }
+    })
   }
 
   function showSnackbar(text) {
@@ -2746,8 +2611,6 @@ window.addEventListener("load", function() {
           CURRENT_SCREEN = 'HOME';
           CONFIRM_MODAL.hide();
           PLAYLIST_MANAGER_MODAL.show();
-          e.preventDefault();
-          e.stopPropagation();
         } else if (CURRENT_SCREEN === 'DIRECTORY_MODAL') {
           const nav = document.querySelectorAll('.nav_dir');
           if (nav.length > 0 && nav[document.activeElement.tabIndex]) {
@@ -2755,8 +2618,6 @@ window.addEventListener("load", function() {
           }
           CURRENT_SCREEN = 'HOME';
           DIRECTORY_MODAL.hide();
-          e.preventDefault();
-          e.stopPropagation();
         } else if (CURRENT_SCREEN === 'TRIM_MODAL') {
           if (CUTTER_PLAYER.duration > 0 && !CUTTER_PLAYER.paused) {
             CUTTER_PLAYER.currentTime = CUTTER_START_DURATION;
@@ -2766,28 +2627,16 @@ window.addEventListener("load", function() {
             CUTTER_PLAYER.play();
             CUTTER_TOGGLE_PLAY.innerHTML = 'Stop';
           }
-          e.preventDefault();
-          e.stopPropagation();
         } else if (CURRENT_SCREEN === 'PLAYLIST_MODAL') {
           SEARCH_TRACK.focus();
-          e.preventDefault();
-          e.stopPropagation();
         } else if (CURRENT_SCREEN === 'FOLDERS_MODAL') {
           SEARCH_FOLDER.focus();
-          e.preventDefault();
-          e.stopPropagation();
         } else if (CURRENT_SCREEN === 'ARTISTS_MODAL') {
           SEARCH_ARTIST.focus();
-          e.preventDefault();
-          e.stopPropagation();
         } else if (CURRENT_SCREEN === 'ALBUMS_MODAL') {
           SEARCH_ALBUM.focus();
-          e.preventDefault();
-          e.stopPropagation();
         } else if (CURRENT_SCREEN === 'GENRES_MODAL') {
           SEARCH_GENRE.focus();
-          e.preventDefault();
-          e.stopPropagation();
         }
         break
       case 'SoftRight':
@@ -2809,8 +2658,6 @@ window.addEventListener("load", function() {
           }
         } else if (CURRENT_SCREEN === 'CONFIRM_MODAL') {
           removePlaylist(PLAYLISTS_UL.childNodes[PLAYLIST_MANAGER_MODAL_INDEX].textContent);
-          e.preventDefault();
-          e.stopPropagation();
         } else if (CURRENT_SCREEN === 'EQUALIZER_MODAL') {
           var eql = {}
           for (var x in channelRange) {
@@ -2824,8 +2671,6 @@ window.addEventListener("load", function() {
             } catch (e){}
           }
           localforage.setItem('__EQUALIZER__', eql);
-          e.preventDefault();
-          e.stopPropagation();
         } else if (CURRENT_SCREEN === 'DIRECTORY_MODAL') {
           const nav = document.querySelectorAll('.nav_dir');
           if (nav.length > 0 && nav[document.activeElement.tabIndex]) {
@@ -2839,46 +2684,32 @@ window.addEventListener("load", function() {
               showSnackbar('Please select a file');
             }
           }
-          e.preventDefault();
-          e.stopPropagation();
         } else if (CURRENT_SCREEN === 'TRIM_MODAL') {
           if (!CUTTER_PLAYER.paused) {
             showSnackbar('Stop the music');
             return;
           }
           mp3Trimmer(CUTTER_BLOB, CUTTER_START_DURATION, CUTTER_END_DURATION, saveRingtone);
-          e.preventDefault();
-          e.stopPropagation();
         } else if (CURRENT_SCREEN === 'PLAYLIST_MODAL') {
           SEARCH_TRACK.value = '';
           searchPlaylist('');
           SEARCH_TRACK.blur();
-          e.preventDefault();
-          e.stopPropagation();
         } else if (CURRENT_SCREEN === 'FOLDERS_MODAL') {
           SEARCH_FOLDER.value = '';
           searchFolder('');
           SEARCH_FOLDER.blur();
-          e.preventDefault();
-          e.stopPropagation();
         } else if (CURRENT_SCREEN === 'ARTISTS_MODAL') {
           SEARCH_ARTIST.value = '';
-          searchArtist('');
+          searchGeneric('' , "ARTISTS", ARTISTS_UL, "nav_artist");
           SEARCH_ARTIST.blur();
-          e.preventDefault();
-          e.stopPropagation();
         } else if (CURRENT_SCREEN === 'ALBUMS_MODAL') {
           SEARCH_ALBUM.value = '';
-          searchAlbum('');
+          searchGeneric('' , "ALBUMS", ALBUMS_UL, "nav_album");
           SEARCH_ALBUM.blur();
-          e.preventDefault();
-          e.stopPropagation();
         } else if (CURRENT_SCREEN === 'GENRES_MODAL') {
           SEARCH_GENRE.value = '';
-          searchGenre('');
+          searchGeneric('' , "GENRES", GENRES_UL, "nav_genre");
           SEARCH_GENRE.blur();
-          e.preventDefault();
-          e.stopPropagation();
         }
         break
       case 'ArrowUp':
@@ -3068,16 +2899,26 @@ window.addEventListener("load", function() {
         } else if (CURRENT_SCREEN === 'ARTISTS_MODAL') {
           const nav = document.querySelectorAll('.nav_artist');
           if (nav.length > 0 && nav[document.activeElement.tabIndex]) {
-            processArtist(nav[document.activeElement.tabIndex].innerText);
+            // processArtist(nav[document.activeElement.tabIndex].innerText);
+            processGeneric(nav[document.activeElement.tabIndex].innerText, "ARTISTS");
             CURRENT_SCREEN = 'HOME';
             ARTISTS_MODAL.hide();
           }
         } else if (CURRENT_SCREEN === 'GENRES_MODAL') {
           const nav = document.querySelectorAll('.nav_genre');
           if (nav.length > 0 && nav[document.activeElement.tabIndex]) {
-            processGenre(nav[document.activeElement.tabIndex].innerText);
+            //processGenre(nav[document.activeElement.tabIndex].innerText);
+            processGeneric(nav[document.activeElement.tabIndex].innerText, "GENRES");
             CURRENT_SCREEN = 'HOME';
             GENRES_MODAL.hide();
+          }
+        } else if (CURRENT_SCREEN === 'ALBUMS_MODAL') {
+          const nav = document.querySelectorAll('.nav_album');
+          if (nav.length > 0 && nav[document.activeElement.tabIndex]) {
+            // processAlbum(nav[document.activeElement.tabIndex].innerText);
+            processGeneric(nav[document.activeElement.tabIndex].innerText, "ALBUMS");
+            CURRENT_SCREEN = 'HOME';
+            ALBUMS_MODAL.hide();
           }
         } else if (CURRENT_SCREEN === 'FOLDERS_MODAL') {
           const nav = document.querySelectorAll('.nav_folder');
@@ -3086,14 +2927,7 @@ window.addEventListener("load", function() {
             CURRENT_SCREEN = 'HOME';
             FOLDERS_MODAL.hide();
           }
-        } else if (CURRENT_SCREEN === 'ALBUMS_MODAL') {
-          const nav = document.querySelectorAll('.nav_album');
-          if (nav.length > 0 && nav[document.activeElement.tabIndex]) {
-            processAlbum(nav[document.activeElement.tabIndex].innerText);
-            CURRENT_SCREEN = 'HOME';
-            ALBUMS_MODAL.hide();
-          }
-        } else if (CURRENT_SCREEN === 'DIRECTORY_MODAL') {
+        }else if (CURRENT_SCREEN === 'DIRECTORY_MODAL') {
           const nav = document.querySelectorAll('.nav_dir');
           if (nav.length > 0 && nav[document.activeElement.tabIndex]) {
             enterDir(nav[document.activeElement.tabIndex].innerText);
@@ -3175,7 +3009,7 @@ window.addEventListener("load", function() {
             }
           } else {
             SEARCH_ARTIST.value = '';
-            searchArtist('');
+            searchGeneric('' , "ARTISTS", ARTISTS_UL, "nav_artist");
             SEARCH_ARTIST.blur();
             CURRENT_SCREEN = 'HOME';
             ARTISTS_MODAL.hide();
@@ -3189,7 +3023,7 @@ window.addEventListener("load", function() {
             }
           } else {
             SEARCH_GENRE.value = '';
-            searchGenre('');
+            searchGeneric('' , "GENRES", GENRES_UL, "nav_genre");
             SEARCH_GENRE.blur();
             CURRENT_SCREEN = 'HOME';
             GENRES_MODAL.hide();
@@ -3217,7 +3051,7 @@ window.addEventListener("load", function() {
             }
           } else {
             SEARCH_ALBUM.value = '';
-            searchAlbum('');
+            searchGeneric('' , "ALBUMS", ALBUMS_UL, "nav_album");
             SEARCH_ALBUM.blur();
             CURRENT_SCREEN = 'HOME';
             ALBUMS_MODAL.hide();
@@ -3348,7 +3182,6 @@ window.addEventListener("load", function() {
         window['kaiadstimer'] = now;
       }
     }
-    // console.log('Display Ads:', display);
     if (!display)
       return;
     getKaiAd({
@@ -3366,14 +3199,6 @@ window.addEventListener("load", function() {
   }
 
   displayKaiAds();
-
-  function getTimeStr() {
-    var dt = new Date();
-    var t = dt.toLocaleTimeString();
-    t = t.replace(/\u200E/g, '');
-    t = t.replace(/^([^\d]*\d{1,2}:\d{1,2}):\d{1,2}([^\d]*)$/, '$1$2');
-    return t;
-  }
 
   document.addEventListener('visibilitychange', function(ev) {
     if (document.visibilityState === 'visible') {
