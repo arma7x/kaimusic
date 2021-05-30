@@ -3140,7 +3140,14 @@ window.addEventListener("load", function() {
     RESUME_DURATION = null;
   })
   .finally(() => {
-    localforage.getItem('DATABASE_GLOBAL_AUDIO')
+    localforage.getItem('GENRES')
+    .then((_GENRES_) => {
+      if (_GENRES_ == null) {
+        return localforage.removeItem('DATABASE_GLOBAL_AUDIO')
+      } else {
+        return localforage.getItem('DATABASE_GLOBAL_AUDIO')
+      }
+    })
     .then(function(f) {
       indexingStorage(f);
     })
