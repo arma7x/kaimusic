@@ -6,11 +6,63 @@ window.addEventListener("load", function() {
 
   localforage.setDriver(localforage.LOCALSTORAGE);
 
-  var EQL_PRESENT={Classical:{hz60:33,hz170:33,hz310:33,hz600:33,hz1000:33,hz3000:33,hz6000:20,hz12000:20,hz14000:20,hz16000:16,preamp:33},Club:{hz60:33,hz170:33,hz310:38,hz600:42,hz1000:42,hz3000:42,hz6000:38,hz12000:33,hz14000:33,hz16000:33,preamp:33},Dance:{hz60:48,hz170:44,hz310:36,hz600:32,hz1000:32,hz3000:22,hz6000:20,hz12000:20,hz14000:32,hz16000:32,preamp:33},"Laptop speakers/headphones":{hz60:40,hz170:50,hz310:41,hz600:26,hz1000:28,hz3000:35,hz6000:40,hz12000:48,hz14000:53,hz16000:56,preamp:33},"Large hall":{hz60:49,hz170:49,hz310:42,hz600:42,hz1000:33,hz3000:24,hz6000:24,hz12000:24,hz14000:33,hz16000:33,preamp:33},Party:{hz60:44,hz170:44,hz310:33,hz600:33,hz1000:33,hz3000:33,hz6000:33,hz12000:33,hz14000:44,hz16000:44,preamp:33},Pop:{hz60:29,hz170:40,hz310:44,hz600:45,hz1000:41,hz3000:30,hz6000:28,hz12000:28,hz14000:29,hz16000:29,preamp:33},Reggae:{hz60:33,hz170:33,hz310:31,hz600:22,hz1000:33,hz3000:43,hz6000:43,hz12000:33,hz14000:33,hz16000:33,preamp:33},Rock:{hz60:45,hz170:40,hz310:23,hz600:19,hz1000:26,hz3000:39,hz6000:47,hz12000:50,hz14000:50,hz16000:50,preamp:33},Soft:{hz60:40,hz170:35,hz310:30,hz600:28,hz1000:30,hz3000:39,hz6000:46,hz12000:48,hz14000:50,hz16000:52,preamp:33},Ska:{hz60:28,hz170:24,hz310:25,hz600:31,hz1000:39,hz3000:42,hz6000:47,hz12000:48,hz14000:50,hz16000:48,preamp:33},"Full Bass":{hz60:48,hz170:48,hz310:48,hz600:42,hz1000:35,hz3000:25,hz6000:18,hz12000:15,hz14000:14,hz16000:14,preamp:33},"Soft Rock":{hz60:39,hz170:39,hz310:36,hz600:31,hz1000:25,hz3000:23,hz6000:26,hz12000:31,hz14000:37,hz16000:47,preamp:33},"Full Treble":{hz60:16,hz170:16,hz310:16,hz600:25,hz1000:37,hz3000:50,hz6000:58,hz12000:58,hz14000:58,hz16000:60,preamp:33},"Full Bass & Treble":{hz60:44,hz170:42,hz310:33,hz600:20,hz1000:24,hz3000:35,hz6000:46,hz12000:50,hz14000:52,hz16000:52,preamp:33},Live:{hz60:24,hz170:33,hz310:39,hz600:41,hz1000:42,hz3000:42,hz6000:39,hz12000:37,hz14000:37,hz16000:36,preamp:33},Techno:{hz60:45,hz170:42,hz310:33,hz600:23,hz1000:24,hz3000:33,hz6000:45,hz12000:48,hz14000:48,hz16000:47,preamp:33}};
+  const EQL_PRESENT={Classical:{hz60:33,hz170:33,hz310:33,hz600:33,hz1000:33,hz3000:33,hz6000:20,hz12000:20,hz14000:20,hz16000:16,preamp:33},Club:{hz60:33,hz170:33,hz310:38,hz600:42,hz1000:42,hz3000:42,hz6000:38,hz12000:33,hz14000:33,hz16000:33,preamp:33},Dance:{hz60:48,hz170:44,hz310:36,hz600:32,hz1000:32,hz3000:22,hz6000:20,hz12000:20,hz14000:32,hz16000:32,preamp:33},"Laptop speakers/headphones":{hz60:40,hz170:50,hz310:41,hz600:26,hz1000:28,hz3000:35,hz6000:40,hz12000:48,hz14000:53,hz16000:56,preamp:33},"Large hall":{hz60:49,hz170:49,hz310:42,hz600:42,hz1000:33,hz3000:24,hz6000:24,hz12000:24,hz14000:33,hz16000:33,preamp:33},Party:{hz60:44,hz170:44,hz310:33,hz600:33,hz1000:33,hz3000:33,hz6000:33,hz12000:33,hz14000:44,hz16000:44,preamp:33},Pop:{hz60:29,hz170:40,hz310:44,hz600:45,hz1000:41,hz3000:30,hz6000:28,hz12000:28,hz14000:29,hz16000:29,preamp:33},Reggae:{hz60:33,hz170:33,hz310:31,hz600:22,hz1000:33,hz3000:43,hz6000:43,hz12000:33,hz14000:33,hz16000:33,preamp:33},Rock:{hz60:45,hz170:40,hz310:23,hz600:19,hz1000:26,hz3000:39,hz6000:47,hz12000:50,hz14000:50,hz16000:50,preamp:33},Soft:{hz60:40,hz170:35,hz310:30,hz600:28,hz1000:30,hz3000:39,hz6000:46,hz12000:48,hz14000:50,hz16000:52,preamp:33},Ska:{hz60:28,hz170:24,hz310:25,hz600:31,hz1000:39,hz3000:42,hz6000:47,hz12000:48,hz14000:50,hz16000:48,preamp:33},"Full Bass":{hz60:48,hz170:48,hz310:48,hz600:42,hz1000:35,hz3000:25,hz6000:18,hz12000:15,hz14000:14,hz16000:14,preamp:33},"Soft Rock":{hz60:39,hz170:39,hz310:36,hz600:31,hz1000:25,hz3000:23,hz6000:26,hz12000:31,hz14000:37,hz16000:47,preamp:33},"Full Treble":{hz60:16,hz170:16,hz310:16,hz600:25,hz1000:37,hz3000:50,hz6000:58,hz12000:58,hz14000:58,hz16000:60,preamp:33},"Full Bass & Treble":{hz60:44,hz170:42,hz310:33,hz600:20,hz1000:24,hz3000:35,hz6000:46,hz12000:50,hz14000:52,hz16000:52,preamp:33},Live:{hz60:24,hz170:33,hz310:39,hz600:41,hz1000:42,hz3000:42,hz6000:39,hz12000:37,hz14000:37,hz16000:36,preamp:33},Techno:{hz60:45,hz170:42,hz310:33,hz600:23,hz1000:24,hz3000:33,hz6000:45,hz12000:48,hz14000:48,hz16000:47,preamp:33}};
 
-  var RANGE={"0":33,"1":35,"2":38,"3":40,"4":43,"5":46,"6":48,"7":51,"8":53,"9":56,"10":58,"11":61,"12":64,"-12":2,"-11":5,"-10":7,"-9":10,"-8":12,"-7":15,"-6":17,"-5":20,"-4":23,"-3":25,"-2":28,"-1":30};
+  const RANGE={"0":33,"1":35,"2":38,"3":40,"4":43,"5":46,"6":48,"7":51,"8":53,"9":56,"10":58,"11":61,"12":64,"-12":2,"-11":5,"-10":7,"-9":10,"-8":12,"-7":15,"-6":17,"-5":20,"-4":23,"-3":25,"-2":28,"-1":30};
 
+  const SDCARDS = navigator.getDeviceStorages('sdcard');
   const SDCARD = navigator.getDeviceStorage('sdcard');
+
+  function getStorageNameByPath(path) {
+    var split = path.split('/')
+    if (split[0] !== '' && split[0].length > 0) {
+      return ''; // emulator
+    } else {
+      return split[1]; // realdevice
+    }
+  }
+
+  function getSDCard(name) {
+    var card;
+    for (var x in SDCARDS) {
+      if (SDCARDS[x].storageName === name) {
+        card = SDCARDS[x];
+        break;
+      }
+    }
+    return card;
+  }
+
+  function enumerate(cards, index, files, cb) {
+    const cursor = cards[index].enumerate('');
+    cursor.onsuccess = function () {
+      if (!this.done) {
+        if(cursor.result.name !== null) {
+          files.push(cursor.result.name);
+          this.continue();
+        }
+      } else {
+        if (cards.length === (index + 1)) {
+          cb(files);
+        } else {
+          enumerate(SDCARDS, (index + 1), files, cb);
+        }
+      }
+    }
+    cursor.onerror = (err) => {
+      console.warn(`No file found: ${err.toString()}`);
+      if (cards.length === (index + 1)) {
+        cb(files);
+      } else {
+        enumerate(SDCARDS, (index + 1), files, cb);
+      }
+    }
+  }
+
+  function getAllFiles(cb = function(x){}) {
+    var files = [];
+    enumerate(SDCARDS, 0, files, cb);
+  }
 
   const CUTTER = new mp3cutter(null, false);
   const CUTTER_PLAYER = new Audio();
@@ -1323,7 +1375,7 @@ window.addEventListener("load", function() {
   }
 
   function getFile(name, handler) {
-    var request = SDCARD.get(name);
+    var request = getSDCard(getStorageNameByPath(name)).get(name);
     request.onsuccess = function () {
       const file = this.result;
       if (handler !== undefined) {
@@ -1438,27 +1490,15 @@ window.addEventListener("load", function() {
       return
     }
     console.log('REFRESH');
-    const cursor = SDCARD.enumerate('');
-    setReadyState(false);
-    cursor.onsuccess = function () {
-      if (!this.done) {
-        if(cursor.result.name !== null) {
-          FILES.push(cursor.result.name);
-          this.continue();
-        }
-      } else {
-        DOCUMENT_TREE = {};
-        const fil = filterNoMedia(FILES);
-        DOCUMENT_TREE = indexingDocuments(fil);
-        FILE_BY_GROUPS = {};
-        setReadyState(true);
-        groupByType(fil, indexingPlaylist);
-      }
-    }
-    cursor.onerror = function () { 
+    getAllFiles((files) => {
+      console.log(files);
+      DOCUMENT_TREE = {};
+      const fil = filterNoMedia(files);
+      DOCUMENT_TREE = indexingDocuments(fil);
+      FILE_BY_GROUPS = {};
       setReadyState(true);
-      console.warn("No file found: " + this.error); 
-    }
+      groupByType(fil, indexingPlaylist);
+    });
   }
 
   function resumeApp() {
