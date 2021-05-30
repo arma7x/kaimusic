@@ -120,6 +120,7 @@ window.addEventListener("load", function() {
   var FOLDERS = {};
   var ALBUMS = {};
   var ARTISTS = {};
+  var GENRES = {};
   var TRACK = [];
   var GLOBAL_TRACK = '';
   var GLOBAL_BLOB = {}
@@ -326,9 +327,10 @@ window.addEventListener("load", function() {
   const FOLDERS_UL = document.getElementById("folders_ul");
   const ALBUMS_UL = document.getElementById("albums_ul");
   const ARTISTS_UL = document.getElementById("artists_ul");
+  const GENRES_UL = document.getElementById("genres_ul");
   const DIRECTORY_UL = document.getElementById("directory_ul");
   const EQL_UL = document.getElementById("eql_ul");
-  const ALB_ART_SK = document.getElementById('albums_or_artists_software_key');
+  const SEARCH_SK = document.getElementById('search_software_key');
   const EQUALIZER_SK = document.getElementById('equalizer_software_key');
   const DIRECTORY_SK = document.getElementById('directory_software_key');
   const TRIM_SK = document.getElementById('trim_software_key');
@@ -337,6 +339,7 @@ window.addEventListener("load", function() {
   const SEARCH_ARTIST = document.getElementById('search_artist');
   const SEARCH_ALBUM = document.getElementById('search_album');
   const SEARCH_FOLDER = document.getElementById('search_folder');
+  const SEARCH_GENRE = document.getElementById('search_genre');
 
   SEARCH_TRACK.addEventListener('input', (evt) => {
     if (window['TIMEOUT_SEARCH']) {
@@ -362,6 +365,15 @@ window.addEventListener("load", function() {
     }
     window['TIMEOUT_SEARCH'] = setTimeout(() => {
       searchAlbum(evt.target.value || '');
+    }, 500);
+  });
+
+  SEARCH_GENRE.addEventListener('input', (evt) => {
+    if (window['TIMEOUT_SEARCH']) {
+      clearTimeout(window['TIMEOUT_SEARCH'])
+    }
+    window['TIMEOUT_SEARCH'] = setTimeout(() => {
+      searchGenre(evt.target.value || '');
     }, 500);
   });
 
@@ -402,6 +414,17 @@ window.addEventListener("load", function() {
         }
         ALBUMS['UNKNOWN'].push({name: e.data.file.name, selected: true})
       }
+      if (!e.data.error && media.tags.genre) {
+        if (GENRES[media.tags.genre] == null) {
+          GENRES[media.tags.genre] = [];
+        }
+        GENRES[media.tags.genre].push({name: e.data.file.name, selected: true})
+      } else {
+        if (GENRES['UNKNOWN'] == null) {
+          GENRES['UNKNOWN'] = [];
+        }
+        GENRES['UNKNOWN'].push({name: e.data.file.name, selected: true})
+      }
       GLOBAL_AUDIO_BLOB_INDEX += 1;
       if (GLOBAL_AUDIO_BLOB_INDEX < GLOBAL_AUDIO_BLOB.length) {
         showSnackbar('Only Run Once | ' + (GLOBAL_AUDIO_BLOB_INDEX + 1).toString() + '/' + GLOBAL_AUDIO_BLOB.length.toString());
@@ -410,6 +433,9 @@ window.addEventListener("load", function() {
         localforage.setItem('ARTISTS', ARTISTS)
         .then(() => {
           return localforage.setItem('ALBUMS', ALBUMS);
+        })
+        .then(() => {
+          return localforage.setItem('GENRES', GENRES);
         })
         .finally(() => {
           setReadyState(false);
@@ -501,7 +527,7 @@ window.addEventListener("load", function() {
       nav(1, '.nav_track');
     }, 200);
     MENU_SK.classList.add('sr-only');
-    ALB_ART_SK.classList.remove('sr-only');
+    SEARCH_SK.classList.remove('sr-only');
     
   })
   .on('onConfirm', function() {
@@ -514,7 +540,7 @@ window.addEventListener("load", function() {
     SEARCH_TRACK.blur();
     document.activeElement.tabIndex = -1;
     MENU_SK.classList.remove('sr-only');
-    ALB_ART_SK.classList.add('sr-only');
+    SEARCH_SK.classList.add('sr-only');
   });
 
   MENU_MODAL = new Modalise('menu_modal')
@@ -703,7 +729,7 @@ window.addEventListener("load", function() {
     setTimeout(function() {
       nav(1, '.nav_folder');
     }, 200);
-    ALB_ART_SK.classList.remove('sr-only');
+    SEARCH_SK.classList.remove('sr-only');
   })
   .on('onConfirm', function() {SS
     
@@ -713,9 +739,8 @@ window.addEventListener("load", function() {
     searchFolder('');
     SEARCH_FOLDER.blur();
     MENU_SK.classList.remove('sr-only');
-    ALB_ART_SK.classList.add('sr-only');
+    SEARCH_SK.classList.add('sr-only');
   });
-
 
   ALBUMS_MODAL = new Modalise('albums_modal')
   .attach()
@@ -748,7 +773,7 @@ window.addEventListener("load", function() {
       setTimeout(function() {
         nav(1, '.nav_album');
       }, 200);
-      ALB_ART_SK.classList.remove('sr-only');
+      SEARCH_SK.classList.remove('sr-only');
     })
     
   })
@@ -760,7 +785,7 @@ window.addEventListener("load", function() {
     searchAlbum('');
     SEARCH_ALBUM.blur();
     MENU_SK.classList.remove('sr-only');
-    ALB_ART_SK.classList.add('sr-only');
+    SEARCH_SK.classList.add('sr-only');
   });
 
   ARTISTS_MODAL = new Modalise('artists_modal')
@@ -794,7 +819,7 @@ window.addEventListener("load", function() {
       setTimeout(function() {
       nav(1, '.nav_artist');
       }, 200);
-      ALB_ART_SK.classList.remove('sr-only');
+      SEARCH_SK.classList.remove('sr-only');
     })
   })
   .on('onConfirm', function() {SS
@@ -805,7 +830,53 @@ window.addEventListener("load", function() {
     searchArtist('');
     SEARCH_ARTIST.blur();
     MENU_SK.classList.remove('sr-only');
-    ALB_ART_SK.classList.add('sr-only');
+    SEARCH_SK.classList.add('sr-only');
+  });
+
+  GENRES_MODAL = new Modalise('genres_modal')
+  .attach()
+  .on('onShow', function() {
+    CURRENT_SCREEN = 'GENRES_MODAL';
+    MENU_SK.classList.add('sr-only');
+    while(GENRES_UL.firstChild) {
+      GENRES_UL.removeChild(GENRES_UL.firstChild);
+    }
+    localforage.getItem('GENRES')
+    .then((_GENRES_) => {
+      if (_GENRES_) {
+        var _temps = []
+        for (var name in _GENRES_) {
+          _temps.push(name);
+        }
+        _temps.sort();
+        for (var i in _temps) {
+          const li = document.createElement("LI");
+          const pr = document.createElement("pre");
+          pr.innerHTML = _temps[i];
+          li.appendChild(pr);
+          li.setAttribute("class", "nav_genre");
+          li.setAttribute("tabIndex", i);
+          GENRES_UL.appendChild(li);
+        }
+      }
+    })
+    .finally(() => {
+      setTimeout(function() {
+        nav(1, '.nav_genre');
+      }, 200);
+      SEARCH_SK.classList.remove('sr-only');
+    })
+    
+  })
+  .on('onConfirm', function() {
+    
+  })
+  .on('onHide', function() {
+    SEARCH_GENRE.value = '';
+    searchGenre('');
+    SEARCH_GENRE.blur();
+    MENU_SK.classList.remove('sr-only');
+    SEARCH_SK.classList.add('sr-only');
   });
 
   DIRECTORY_MODAL = new Modalise('directory_modal')
@@ -1096,6 +1167,33 @@ window.addEventListener("load", function() {
                         })
                       })
                       .then((_LATEST_) => {
+                        return localforage.getItem('GENRES')
+                        .then((_GENRES_) => {
+                          var UPDATE_GENRES = {}
+                          for (var _a in _GENRES_) {
+                            _GENRES_[_a].forEach((t, ti) => {
+                              if (missing_files.indexOf(t.name) > -1) {
+                                console.log(t.name)
+                              } else {
+                                if (UPDATE_GENRES[_a] == null) {
+                                  UPDATE_GENRES[_a] = [];
+                                }
+                                UPDATE_GENRES[_a].push(t);
+                              }
+                            });
+                          }
+                          // console.log(UPDATE_GENRES);
+                          return localforage.setItem('GENRES', UPDATE_GENRES)
+                          .then(() => {
+                            return localforage.getItem('GENRES')
+                            .then((_GENRES_) => {
+                              // console.log({ _ARTISTS_: _ARTISTS_, _GENRES_: _GENRES_ });
+                              return Promise.resolve({ _ARTISTS_: _LATEST_['_ARTISTS_'], _ALBUMS_: _LATEST_['_ALBUMS_'], _GENRES_: _GENRES_ });
+                            })
+                          });
+                        })
+                      })
+                      .then((_LATEST_) => {
                         var updated = 0;
                         var SUB_WORKER = new Worker('/assets/js/worker.js');
                         SUB_WORKER.onmessage = (e) => {
@@ -1123,11 +1221,25 @@ window.addEventListener("load", function() {
                               }
                               _LATEST_['_ALBUMS_']['UNKNOWN'].push({name: e.data.file.name, selected: true})
                             }
+                            if (!e.data.error && media.tags.genre) {
+                              if (_LATEST_['_GENRES_'][media.tags.genre] == null) {
+                                _LATEST_['_GENRES_'][media.tags.genre] = [];
+                              }
+                              _LATEST_['_GENRES_'][media.tags.genre].push({name: e.data.file.name, selected: true})
+                            } else {
+                              if (_LATEST_['_GENRES_']['UNKNOWN'] == null) {
+                                _LATEST_['_GENRES_']['UNKNOWN'] = [];
+                              }
+                              _LATEST_['_GENRES_']['UNKNOWN'].push({name: e.data.file.name, selected: true})
+                            }
                             updated += 1
                             if (updated === new_files.length) {
                               localforage.setItem('ARTISTS', _LATEST_['_ARTISTS_'])
                               .then(() => {
                                 return localforage.setItem('ALBUMS', _LATEST_['_ALBUMS_'])
+                              })
+                              .then(() => {
+                                return localforage.setItem('GENRES', _LATEST_['_GENRES_'])
                               })
                               .finally(() => {
                                 
@@ -1139,6 +1251,9 @@ window.addEventListener("load", function() {
                           localforage.setItem('ARTISTS', _LATEST_['_ARTISTS_'])
                           .then(() => {
                             return localforage.setItem('ALBUMS', _LATEST_['_ALBUMS_'])
+                          })
+                          .then(() => {
+                            return localforage.setItem('GENRES', _LATEST_['_GENRES_'])
                           })
                           .finally(() => {
                             
@@ -1309,6 +1424,33 @@ window.addEventListener("load", function() {
                       })
                     })
                     .then((_LATEST_) => {
+                      return localforage.getItem('GENRES')
+                      .then((_GENRES_) => {
+                        var UPDATE_GENRES = {}
+                        for (var _a in _GENRES_) {
+                          _GENRES_[_a].forEach((t, ti) => {
+                            if (missing_files.indexOf(t.name) > -1) {
+                              console.log(t.name)
+                            } else {
+                              if (UPDATE_GENRES[_a] == null) {
+                                UPDATE_GENRES[_a] = [];
+                              }
+                              UPDATE_GENRES[_a].push(t);
+                            }
+                          });
+                        }
+                        // console.log(UPDATE_GENRES);
+                        return localforage.setItem('GENRES', UPDATE_GENRES)
+                        .then(() => {
+                          return localforage.getItem('GENRES')
+                          .then((_GENRES_) => {
+                            // console.log({ _ARTISTS_: _ARTISTS_, _ALBUMS_: _ALBUMS_ });
+                            return Promise.resolve({ _ARTISTS_: _LATEST_['_ARTISTS_'], _ALBUMS_: _LATEST_['_ALBUMS_'], _GENRES_: _GENRES_ });
+                          })
+                        });
+                      })
+                    })
+                    .then((_LATEST_) => {
                       var updated = 0;
                       var SUB_WORKER = new Worker('/assets/js/worker.js');
                       SUB_WORKER.onmessage = (e) => {
@@ -1336,11 +1478,25 @@ window.addEventListener("load", function() {
                             }
                             _LATEST_['_ALBUMS_']['UNKNOWN'].push({name: e.data.file.name, selected: true})
                           }
+                          if (!e.data.error && media.tags.genre) {
+                            if (_LATEST_['_GENRES_'][media.tags.genre] == null) {
+                              _LATEST_['_GENRES_'][media.tags.genre] = [];
+                            }
+                            _LATEST_['_GENRES_'][media.tags.genre].push({name: e.data.file.name, selected: true})
+                          } else {
+                            if (_LATEST_['_GENRES_']['UNKNOWN'] == null) {
+                              _LATEST_['_GENRES_']['UNKNOWN'] = [];
+                            }
+                            _LATEST_['_GENRES_']['UNKNOWN'].push({name: e.data.file.name, selected: true})
+                          }
                           updated += 1
                           if (updated === new_files.length) {
                             localforage.setItem('ARTISTS', _LATEST_['_ARTISTS_'])
                             .then(() => {
                               return localforage.setItem('ALBUMS', _LATEST_['_ALBUMS_'])
+                            })
+                            .then(() => {
+                              return localforage.setItem('GENRES', _LATEST_['_GENRES_'])
                             })
                             .finally(() => {
                               
@@ -1352,6 +1508,9 @@ window.addEventListener("load", function() {
                         localforage.setItem('ARTISTS', _LATEST_['_ARTISTS_'])
                         .then(() => {
                           return localforage.setItem('ALBUMS', _LATEST_['_ALBUMS_'])
+                        })
+                        .then(() => {
+                          return localforage.setItem('GENRES', _LATEST_['_GENRES_'])
                         })
                         .finally(() => {
                           
@@ -1473,6 +1632,7 @@ window.addEventListener("load", function() {
     FILE_BY_GROUPS = {};
     TRACK = [];
     ALBUMS = {};
+    GENRES = {};
     FOLDERS = {};
     ARTISTS = {};
     GLOBAL_BLOB = {};
@@ -1784,6 +1944,37 @@ window.addEventListener("load", function() {
                     running();
                   }
                 })
+              } else if (PLAY_TYPE == 'GENRES') {
+                localforage.getItem('GENRES')
+                .then((_GENRES_) => {
+                  if (_GENRES_) {
+                    if (_GENRES_[PLAY_NAME]) {
+                      localforage.setItem('PLAY_TYPE', 'GENRES')
+                      .then(() => {
+                        localforage.setItem('PLAY_NAME', PLAY_NAME)
+                      });
+                      TRACK = [];
+                      const filtered = [];
+                      PLAYLIST_LABEL.innerHTML = 'GENRE';
+                      PLAYLIST_NAME.innerHTML = PLAY_NAME;
+                      _GENRES_[PLAY_NAME].forEach((t) => {
+                        if (t.selected === true) {
+                          filtered.push(t);
+                        }
+                      });
+                      Object.assign(TRACK, filtered);
+                      CURRENT_PLAYLIST = PLAY_NAME;
+                      running(false);
+                      resumeApp();
+                    } else {
+                      playable = true;
+                      running();
+                    }
+                  } else {
+                    playable = true;
+                    running();
+                  }
+                })
               } else if (PLAY_TYPE == 'FOLDERS') {
                 if (FOLDERS[PLAY_NAME]) {
                   localforage.setItem('PLAY_TYPE', 'FOLDERS')
@@ -1874,6 +2065,32 @@ window.addEventListener("load", function() {
           PLAYLIST_LABEL.innerHTML = 'ARTIST';
           PLAYLIST_NAME.innerHTML = name;
           _ARTISTS_[name].forEach((t) => {
+            if (t.selected === true) {
+              filtered.push(t);
+            }
+          });
+          Object.assign(TRACK, filtered);
+          processPlaylist();
+        }
+      }
+    })
+  }
+
+  function processGenre(name) {
+    localforage.getItem('GENRES')
+    .then((_GENRES_) => {
+      if (_GENRES_) {
+        if (_GENRES_[name]) {
+          localforage.setItem('PLAY_TYPE', 'GENRES')
+          .then(() => {
+            localforage.setItem('PLAY_NAME', name)
+          });
+          CURRENT_PLAYLIST = name;
+          TRACK = [];
+          const filtered = [];
+          PLAYLIST_LABEL.innerHTML = 'GENRE';
+          PLAYLIST_NAME.innerHTML = name;
+          _GENRES_[name].forEach((t) => {
             if (t.selected === true) {
               filtered.push(t);
             }
@@ -2357,6 +2574,38 @@ window.addEventListener("load", function() {
     })
   }
 
+  function searchGenre(keyword) {
+    while(GENRES_UL.firstChild) {
+      GENRES_UL.removeChild(GENRES_UL.firstChild);
+    }
+    localforage.getItem('GENRES')
+    .then((_GENRES_) => {
+      if (_GENRES_) {
+        var _temps = []
+        for (var name in _GENRES_) {
+          _temps.push(name);
+        }
+        _temps.sort();
+        var j = 0;
+        for (var i in _temps) {
+          if (keyword.length > 0) {
+            if (_temps[i].toLocaleLowerCase().indexOf(keyword.toLocaleLowerCase()) === -1) {
+              continue;
+            }
+          }
+          const li = document.createElement("LI");
+          const pr = document.createElement("pre");
+          pr.innerHTML = _temps[i];
+          li.appendChild(pr);
+          li.setAttribute("class", "nav_genre");
+          li.setAttribute("tabIndex", j);
+          GENRES_UL.appendChild(li);
+          j++;
+        }
+      }
+    })
+  }
+
   function searchFolder(keyword) {
     while(FOLDERS_UL.firstChild) {
       FOLDERS_UL.removeChild(FOLDERS_UL.firstChild);
@@ -2535,6 +2784,10 @@ window.addEventListener("load", function() {
           SEARCH_ALBUM.focus();
           e.preventDefault();
           e.stopPropagation();
+        } else if (CURRENT_SCREEN === 'GENRES_MODAL') {
+          SEARCH_GENRE.focus();
+          e.preventDefault();
+          e.stopPropagation();
         }
         break
       case 'SoftRight':
@@ -2620,6 +2873,12 @@ window.addEventListener("load", function() {
           SEARCH_ALBUM.blur();
           e.preventDefault();
           e.stopPropagation();
+        } else if (CURRENT_SCREEN === 'GENRES_MODAL') {
+          SEARCH_GENRE.value = '';
+          searchGenre('');
+          SEARCH_GENRE.blur();
+          e.preventDefault();
+          e.stopPropagation();
         }
         break
       case 'ArrowUp':
@@ -2641,6 +2900,8 @@ window.addEventListener("load", function() {
           nav(-1, '.nav_folder');
         } else if (CURRENT_SCREEN === 'ALBUMS_MODAL') {
           nav(-1, '.nav_album');
+        } else if (CURRENT_SCREEN === 'GENRES_MODAL') {
+          nav(-1, '.nav_genre');
         } else if (CURRENT_SCREEN === 'EQUALIZER_MODAL') {
           nav(-1, '.nav_equal');
         } else if (CURRENT_SCREEN === 'DIRECTORY_MODAL') {
@@ -2666,6 +2927,8 @@ window.addEventListener("load", function() {
           nav(1, '.nav_artist');
         } else if (CURRENT_SCREEN === 'FOLDERS_MODAL') {
           nav(1, '.nav_folder');
+        } else if (CURRENT_SCREEN === 'GENRES_MODAL') {
+          nav(1, '.nav_genre');
         } else if (CURRENT_SCREEN === 'ALBUMS_MODAL') {
           nav(1, '.nav_album');
         } else if (CURRENT_SCREEN === 'EQUALIZER_MODAL') {
@@ -2746,17 +3009,20 @@ window.addEventListener("load", function() {
             ALBUMS_MODAL.show();
           } else if (document.activeElement.tabIndex === 3) {
             MENU_MODAL.hide();
-            FOLDERS_MODAL.show();
+            GENRES_MODAL.show();
           } else if (document.activeElement.tabIndex === 4) {
             MENU_MODAL.hide();
-            DIRECTORY_MODAL.show();
+            FOLDERS_MODAL.show();
           } else if (document.activeElement.tabIndex === 5) {
             MENU_MODAL.hide();
-            EQUALIZER_MODAL.show();
+            DIRECTORY_MODAL.show();
           } else if (document.activeElement.tabIndex === 6) {
             MENU_MODAL.hide();
-            EQL_MODAL.show();
+            EQUALIZER_MODAL.show();
           } else if (document.activeElement.tabIndex === 7) {
+            MENU_MODAL.hide();
+            EQL_MODAL.show();
+          } else if (document.activeElement.tabIndex === 8) {
             localforage.getItem('PLAY_DURATION')
             .then(function(PLAY_DURATION) {
               RESUME_DURATION = PLAY_DURATION;
@@ -2769,10 +3035,10 @@ window.addEventListener("load", function() {
               CURRENT_SCREEN = 'HOME';
               MENU_MODAL.hide();
             });
-          } else if (document.activeElement.tabIndex === 8) {
+          } else if (document.activeElement.tabIndex === 9) {
             MENU_MODAL.hide();
             ABOUT_MODAL.show();
-          } else if (document.activeElement.tabIndex === 9) {
+          } else if (document.activeElement.tabIndex === 10) {
             window.close();
           }
         } else if (CURRENT_SCREEN === 'PLAYLIST_MODAL') {
@@ -2805,6 +3071,13 @@ window.addEventListener("load", function() {
             processArtist(nav[document.activeElement.tabIndex].innerText);
             CURRENT_SCREEN = 'HOME';
             ARTISTS_MODAL.hide();
+          }
+        } else if (CURRENT_SCREEN === 'GENRES_MODAL') {
+          const nav = document.querySelectorAll('.nav_genre');
+          if (nav.length > 0 && nav[document.activeElement.tabIndex]) {
+            processGenre(nav[document.activeElement.tabIndex].innerText);
+            CURRENT_SCREEN = 'HOME';
+            GENRES_MODAL.hide();
           }
         } else if (CURRENT_SCREEN === 'FOLDERS_MODAL') {
           const nav = document.querySelectorAll('.nav_folder');
@@ -2906,6 +3179,20 @@ window.addEventListener("load", function() {
             SEARCH_ARTIST.blur();
             CURRENT_SCREEN = 'HOME';
             ARTISTS_MODAL.hide();
+          }
+          e.preventDefault();
+          e.stopPropagation();
+        } else if (CURRENT_SCREEN === 'GENRES_MODAL') {
+          if (document.activeElement.tagName === 'INPUT') {
+            if (document.activeElement.value.length === 0) {
+              document.activeElement.blur();
+            }
+          } else {
+            SEARCH_GENRE.value = '';
+            searchGenre('');
+            SEARCH_GENRE.blur();
+            CURRENT_SCREEN = 'HOME';
+            GENRES_MODAL.hide();
           }
           e.preventDefault();
           e.stopPropagation();

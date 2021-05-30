@@ -131,13 +131,14 @@
             <li class="nav_menu" tabIndex="0">Playlist</li>
             <li class="nav_menu" tabIndex="1">Artist</li>
             <li class="nav_menu" tabIndex="2">Album</li>
-            <li class="nav_menu" tabIndex="3">Folder</li>
-            <li class="nav_menu" tabIndex="4">Directory</li>
-            <li class="nav_menu" tabIndex="5">Equalizer</li>
-            <li class="nav_menu" tabIndex="6">Built-in Equalizer</li>
-            <li class="nav_menu" tabIndex="7">Reload Library</li>
-            <li class="nav_menu" tabIndex="8">Tips & About</li>
-            <li class="nav_menu" tabIndex="9">Kill App</li>
+            <li class="nav_menu" tabIndex="3">Genre</li>
+            <li class="nav_menu" tabIndex="4">Folder</li>
+            <li class="nav_menu" tabIndex="5">Directory</li>
+            <li class="nav_menu" tabIndex="6">Equalizer</li>
+            <li class="nav_menu" tabIndex="7">Built-in Equalizer</li>
+            <li class="nav_menu" tabIndex="8">Reload Library</li>
+            <li class="nav_menu" tabIndex="9">Tips & About</li>
+            <li class="nav_menu" tabIndex="10">Kill App</li>
           </ul>
         </div>
       </div>
@@ -192,6 +193,20 @@
             <input id="search_album" name="search_album" placeholder="Search album" class="kui-input" style="height:30px;"/>
           </div>
           <ul id="albums_ul" class="kui-options text-dark" style="font-size:14px;height:calc(100vh - (92px + 25px))!important;"></ul>
+        </div>
+      </div>
+    </div>
+
+    <div id="genres_modal" class="mdl mdl-fadein kui-option-menu">
+      <div class="mdl-content mdl-slidein">
+        <center>
+          <div class="kui-option-title">Genres</div>
+        </center>
+        <div class="mdl-body">
+          <div  class="bg-primary" style="padding:2px;">
+            <input id="search_genre" name="search_genre" placeholder="Search genre" class="kui-input" style="height:30px;"/>
+          </div>
+          <ul id="genres_ul" class="kui-options text-dark" style="font-size:14px;height:calc(100vh - (92px + 25px))!important;"></ul>
         </div>
       </div>
     </div>
@@ -427,11 +442,6 @@
               -> `#` to unselect all checkbox</br></br>
               -> `*` to select all checkbox</br></br>
               -> To duplicate the playlist, please change its name before press `Save` button</br></br>
-<!--
-            <h4>Set Default Media Location</h4></br>
-              -> Goto Settings > Storage > Default Media Location. Pick your default media location, SD Card or Internal</br></br>
-              -> Open K-Music, goto Menu > Reload Library or restart your device to reload all songs from default media location</br></br>
--->
             <h4>Button shortcut:</h4></br>
               <h5>Call or #</h5>
               -> toggle shuffle</br></br>
@@ -502,7 +512,7 @@
       <div style="width:50%;text-align:right;padding-right:5px;">Yes</div>
     </div>
 
-    <div id="albums_or_artists_software_key" class="kui-software-key software-key sr-only">
+    <div id="search_software_key" class="kui-software-key software-key sr-only">
       <div style="width:30%;text-align:left;padding-left:5px;">Search</div>
       <div style="width:40%;text-align:center;">PLAY</div>
       <div style="width:30%;text-align:right;padding-right:5px;">Clear</div>

@@ -45,16 +45,11 @@ onmessage = function(e) {
       });
     }
 
-    var _blob;
-    if (e.data.type === 'PARSE_METADATA') {
-      const start = FILE.slice(0, 300000, FILE.type);
-      const end = FILE.slice(FILE.size - 128, FILE.size, FILE.type);
-      _blob = new Blob([start, end], {type: FILE.type});
-    } else {
-      _blob = FILE;
-    }
+    const start = FILE.slice(0, Math.min(1000000, FILE.size), FILE.type);
+    const end = FILE.slice(FILE.size - 128, FILE.size, FILE.type);
+    const blob = new Blob([start, end], {type: FILE.type});
   
-    jsmediatags.read(_blob, {
+    jsmediatags.read(blob, {
       onSuccess: (success) => {
         if (e.data.file.type === 'audio/flac') { // each success attrb is undefined
           if (success.tags.album == null && success.tags.artist == null && success.tags.picture == null && success.tags.title == null && success.tags.genre == null) {
