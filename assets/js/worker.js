@@ -45,7 +45,16 @@ onmessage = function(e) {
       });
     }
 
-    jsmediatags.read(e.data.type === 'PARSE_METADATA' ? FILE.slice(FILE.size - 128, FILE.size, FILE.type) : FILE, {
+    var _blob;
+    if (e.data.type === 'PARSE_METADATA') {
+      const start = FILE.slice(0, 300000, FILE.type);
+      const end = FILE.slice(FILE.size - 128, FILE.size, FILE.type);
+      _blob = new Blob([start, end], {type: FILE.type});
+    } else {
+      _blob = FILE;
+    }
+  
+    jsmediatags.read(_blob, {
       onSuccess: (success) => {
         if (e.data.file.type === 'audio/flac') { // each success attrb is undefined
           if (success.tags.album == null && success.tags.artist == null && success.tags.picture == null && success.tags.title == null && success.tags.genre == null) {
