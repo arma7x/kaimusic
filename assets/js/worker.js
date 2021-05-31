@@ -12,6 +12,10 @@ onmessage = function(e) {
   if (e.data.type === 'PARSE_METADATA' || e.data.type === 'PARSE_METADATA_FULL' || e.data.type === 'PARSE_METADATA_UPDATE') {
     const FILE = e.data.file;
 
+    var start = FILE.slice(0, Math.min(1000000, FILE.size), FILE.type);
+    var end = FILE.slice(FILE.size - 128, FILE.size, FILE.type);
+    var blob = new Blob([start, end], {type: FILE.type});
+
     const metadata_scripts = () => {
       const headersize = Math.min(64 * 1024, FILE.size);
       BlobView.get(FILE, 0, headersize, (header, bad) => {
@@ -24,6 +28,7 @@ onmessage = function(e) {
               metadata_audio_parser();
             } else {
               parser.then((result) => {
+                start = null, end = null, blob = null;
                 postMessage({type: e.data.type, result: {tags: result}, file: e.data.file, error: false});
               })
               .catch((_err) => {
@@ -39,25 +44,25 @@ onmessage = function(e) {
 
     const metadata_audio_parser = () => {
       parse_audio_metadata(FILE, (tags) => {
+        start = null, end = null, blob = null;
         postMessage({type: e.data.type, result: {tags: tags}, file: e.data.file, error: false});
       }, (__err) => {
+        start = null, end = null, blob = null;
         postMessage({type: e.data.type, result: {err: __err.toString()}, file: e.data.file, error: true});
       });
     }
 
-    const start = FILE.slice(0, Math.min(500000, FILE.size), FILE.type);
-    const end = FILE.slice(FILE.size - 128, FILE.size, FILE.type);
-    const blob = new Blob([start, end], {type: FILE.type});
-  
     jsmediatags.read(blob, {
       onSuccess: (success) => {
         if (e.data.file.type === 'audio/flac') { // each success attrb is undefined
           if (success.tags.album == null && success.tags.artist == null && success.tags.picture == null && success.tags.title == null && success.tags.genre == null) {
             metadata_scripts();
           } else {
+            start = null, end = null, blob = null;
             postMessage({type: e.data.type, result: success, file: e.data.file, error: false});
           }
         } else {
+          start = null, end = null, blob = null;
           postMessage({type: e.data.type, result: success, file: e.data.file, error: false});
         }
       },
