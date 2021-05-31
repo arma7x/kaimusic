@@ -12,9 +12,14 @@ onmessage = function(e) {
   if (e.data.type === 'PARSE_METADATA' || e.data.type === 'PARSE_METADATA_FULL' || e.data.type === 'PARSE_METADATA_UPDATE') {
     const FILE = e.data.file;
 
-    var start = FILE.slice(0, Math.min(1000000, FILE.size), FILE.type);
-    var end = FILE.slice(FILE.size - 128, FILE.size, FILE.type);
-    var blob = new Blob([start, end], {type: FILE.type});
+    var start, end, blob;
+    if (e.data.type === 'PARSE_METADATA_FULL') {
+      blob = FILE;
+    } else {
+      start = FILE.slice(0, Math.min(1000000, FILE.size), FILE.type);
+      end = FILE.slice(FILE.size - 128, FILE.size, FILE.type);
+      blob = new Blob([start, end], {type: FILE.type});
+    }
 
     const metadata_scripts = () => {
       const headersize = Math.min(64 * 1024, FILE.size);
