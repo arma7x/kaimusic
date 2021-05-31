@@ -45,7 +45,7 @@ onmessage = function(e) {
       });
     }
 
-    const start = FILE.slice(0, Math.min(1000000, FILE.size), FILE.type);
+    const start = FILE.slice(0, Math.min(500000, FILE.size), FILE.type);
     const end = FILE.slice(FILE.size - 128, FILE.size, FILE.type);
     const blob = new Blob([start, end], {type: FILE.type});
   
