@@ -669,26 +669,32 @@ window.addEventListener("load", function() {
   EQL_MODAL = new Modalise('eql_modal')
   .attach()
   .on('onShow', function() {
-    CURRENT_SCREEN = 'EQL_MODAL';
-    while(EQL_UL.firstChild) {
-      EQL_UL.removeChild(EQL_UL.firstChild);
-    }
-    var i = 0;
-    for (var name in EQL_PRESENT) {
-      const li = document.createElement("LI");
-      const pr = document.createElement("pre");
-      pr.innerHTML = name;
-      li.appendChild(pr);
-      li.setAttribute("class", "nav_eql");
-      li.setAttribute("tabIndex", i);
-      EQL_UL.appendChild(li);
-      i++;
-    }
-    setTimeout(function() {
-      nav(1, '.nav_eql');
-    }, 200);
-    MENU_SK.classList.add('sr-only');
-    EQL_SK.classList.remove('sr-only');
+    localforage.getItem('__CURRENT_EQUALIZER__')
+    .then((current) => {
+      var currentIndex = 1;
+      CURRENT_SCREEN = 'EQL_MODAL';
+      while(EQL_UL.firstChild) {
+        EQL_UL.removeChild(EQL_UL.firstChild);
+      }
+      var i = 0;
+      for (var name in EQL_PRESENT) {
+        const li = document.createElement("LI");
+        const pr = document.createElement("pre");
+        if (name === current)
+          currentIndex = i + 1;
+        pr.innerHTML = name;
+        li.appendChild(pr);
+        li.setAttribute("class", "nav_eql");
+        li.setAttribute("tabIndex", i);
+        EQL_UL.appendChild(li);
+        i++;
+      }
+      setTimeout(function() {
+        nav(currentIndex, '.nav_eql');
+      }, 200);
+      MENU_SK.classList.add('sr-only');
+      EQL_SK.classList.remove('sr-only');
+    });
   })
   .on('onConfirm', function() {
     
@@ -2581,6 +2587,12 @@ window.addEventListener("load", function() {
               nav[x].children[0].children[0].checked = false;
             }
           }
+        } else if (CURRENT_SCREEN === 'TRIM_MODAL') {
+          if (CUTTER_PLAYER.paused && CUTTER_END_DURATION > 0 && CUTTER_END_DURATION > CUTTER_START_DURATION) {
+            CUTTER_END_DURATION -= 20;
+            CUTTER_END_TIME.innerHTML = convertTime(CUTTER_END_DURATION);
+            CUTTER_DURATION_SLIDER_END.value = (CUTTER_END_DURATION + .75) / CUTTER_PLAYER.duration * 100;
+          }
         }
         break
       case '*':
@@ -2593,6 +2605,15 @@ window.addEventListener("load", function() {
             for (x in nav) {
               nav[x].children[0].children[0].checked = true;
             }
+          }
+        } else if (CURRENT_SCREEN === 'TRIM_MODAL') {
+          CUTTER_START_DURATION -= 20;
+          if (CUTTER_PLAYER.paused && CUTTER_START_DURATION >= 0 && CURRENT_SCREEN === 'TRIM_MODAL') {
+            CUTTER_START_TIME.innerHTML = convertTime(CUTTER_START_DURATION);
+            CUTTER_DURATION_SLIDER_START.value = (CUTTER_START_DURATION + .75) / CUTTER_PLAYER.duration * 100;
+            CUTTER_PLAYER.currentTime = CUTTER_START_DURATION;
+          } else {
+            CUTTER_START_DURATION = 0;
           }
         }
         break
@@ -2945,6 +2966,7 @@ window.addEventListener("load", function() {
                   channelRange[JSON.parse(x)].value = parseInt(i);
                   _eql[channelRange[JSON.parse(x)].dataset.filter] = parseInt(i);
                 }
+                localforage.setItem('__CURRENT_EQUALIZER__', nav[document.activeElement.tabIndex].innerText);
               } catch (e){}
             }
             localforage.setItem('__EQUALIZER__', _eql);
@@ -3085,8 +3107,9 @@ window.addEventListener("load", function() {
         }
         break
       case '1':
+      case '7':
         if (CUTTER_PLAYER.paused && CUTTER_START_DURATION < CUTTER_PLAYER.duration && CUTTER_START_DURATION < CUTTER_END_DURATION && CURRENT_SCREEN === 'TRIM_MODAL') {
-          CUTTER_START_DURATION += 1;
+          CUTTER_START_DURATION += e.key === '1' ? 1 : 20;
           CUTTER_START_TIME.innerHTML = convertTime(CUTTER_START_DURATION);
           CUTTER_DURATION_SLIDER_START.value = (CUTTER_START_DURATION + .75) / CUTTER_PLAYER.duration * 100;
           CUTTER_PLAYER.currentTime = CUTTER_START_DURATION;
@@ -3103,7 +3126,8 @@ window.addEventListener("load", function() {
         }
         break
       case '3':
-        CUTTER_END_DURATION += 1;
+      case '9':
+        CUTTER_END_DURATION += e.key === '3' ? 1 : 20;
         if (CUTTER_PLAYER.paused && CUTTER_END_DURATION <= CUTTER_PLAYER.duration && CURRENT_SCREEN === 'TRIM_MODAL') {
           CUTTER_END_TIME.innerHTML = convertTime(CUTTER_END_DURATION);
           CUTTER_DURATION_SLIDER_END.value = (CUTTER_END_DURATION + .75) / CUTTER_PLAYER.duration * 100;
