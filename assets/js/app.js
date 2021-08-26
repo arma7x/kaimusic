@@ -12,9 +12,9 @@ window.addEventListener("load", function() {
   function getStorageNameByPath(path) {
     var split = path.split('/')
     if (split[0] !== '' && split[0].length > 0) {
-      return ''; // emulator
+      return '';
     } else {
-      return split[1]; // realdevice
+      return split[1];
     }
   }
 
@@ -34,7 +34,11 @@ window.addEventListener("load", function() {
     cursor.onsuccess = function () {
       if (!this.done) {
         if(cursor.result.name !== null) {
-          files.push(cursor.result.name);
+          const paths = cursor.result.name.split('/');
+          const name = paths[paths.length - 1];
+          if (name.substring(0, 2) !== '._') {
+            files.push(cursor.result.name);
+          }
           this.continue();
         }
       } else {
@@ -158,65 +162,32 @@ window.addEventListener("load", function() {
   SOURCE.connect(staticSource);
   staticSource.connect(window['preamp']);
 
-  window['hz60'] = CONTEXT.createBiquadFilter();
-  window['hz60'].type = "lowshelf";
-  window['hz60'].frequency.value = 60;
-  window['hz60'].gain.value = 0;
-  window['preamp'].connect(window['hz60']);
+  const amps = [
+    { type: 'lowshelf', fValue: 60, gValue: 0, head: 'preamp' },
+    { type: 'peaking', fValue: 170, gValue: 0 },
+    { type: 'peaking', fValue: 310, gValue: 0 },
+    { type: 'peaking', fValue: 600, gValue: 0 },
+    { type: 'peaking', fValue: 1000, gValue: 0 },
+    { type: 'peaking', fValue: 3000, gValue: 0 },
+    { type: 'peaking', fValue: 6000, gValue: 0 },
+    { type: 'peaking', fValue: 12000, gValue: 0 },
+    { type: 'peaking', fValue: 14000, gValue: 0 },
+    { type: 'highshelf', fValue: 16000, gValue: 0 }
+  ];
 
-  window['hz170'] = CONTEXT.createBiquadFilter();
-  window['hz170'].type = "peaking";
-  window['hz170'].frequency.value = 170;
-  window['hz170'].gain.value = 0;
-  window['hz60'].connect(window['hz170']);
-
-  window['hz310'] = CONTEXT.createBiquadFilter();
-  window['hz310'].type = "peaking";
-  window['hz310'].frequency.value = 310;
-  window['hz310'].gain.value = 0;
-  window['hz170'].connect(window['hz310']);
-
-  window['hz600'] = CONTEXT.createBiquadFilter();
-  window['hz600'].type = "peaking";
-  window['hz600'].frequency.value = 600;
-  window['hz600'].gain.value = 0;
-  window['hz310'].connect(window['hz600']);
-
-  window['hz1000'] = CONTEXT.createBiquadFilter();
-  window['hz1000'].type = "peaking";
-  window['hz1000'].frequency.value = 1000;
-  window['hz1000'].gain.value = 0;
-  window['hz600'].connect(window['hz1000']);
-
-  window['hz3000'] = CONTEXT.createBiquadFilter();
-  window['hz3000'].type = "peaking";
-  window['hz3000'].frequency.value = 3000;
-  window['hz3000'].gain.value = 0;
-  window['hz1000'].connect(window['hz3000']);
-
-  window['hz6000'] = CONTEXT.createBiquadFilter();
-  window['hz6000'].type = "peaking";
-  window['hz6000'].frequency.value = 6000;
-  window['hz6000'].gain.value = 0;
-  window['hz3000'].connect(window['hz6000']);
-
-  window['hz12000'] = CONTEXT.createBiquadFilter();
-  window['hz12000'].type = "peaking";
-  window['hz12000'].frequency.value = 12000;
-  window['hz12000'].gain.value = 0;
-  window['hz6000'].connect(window['hz12000']);
-
-  window['hz14000'] = CONTEXT.createBiquadFilter();
-  window['hz14000'].type = "peaking";
-  window['hz14000'].frequency.value = 14000;
-  window['hz14000'].gain.value = 0;
-  window['hz12000'].connect(window['hz14000']);
-
-  window['hz16000'] = CONTEXT.createBiquadFilter();
-  window['hz16000'].type = "highshelf";
-  window['hz16000'].frequency.value = 16000;
-  window['hz16000'].gain.value = 0;
-  window['hz14000'].connect(window['hz16000']);
+  amps.forEach((amp, idx) => {
+    const name = `hz${amp.fValue}`;
+    window[name] = CONTEXT.createBiquadFilter();
+    window[name].type = amp.type;
+    window[name].frequency.value = amp.fValue;
+    window[name].gain.value = amp.gValue;
+    if (idx === 0) {
+      window['preamp'].connect(window[name]);
+    } else {
+      const head = `hz${amps[idx - 1].fValue}`;
+      window[head].connect(window[name]);
+    }
+  });
 
   window['hz16000'].connect(balance);
   balance.connect(gainNode);
@@ -464,7 +435,7 @@ window.addEventListener("load", function() {
       } else {
         GENRE_LBL.innerHTML = 'Unknown';
       }
-      if (media.tags.picture) {
+      if (!e.data.error && media.tags.picture) {
         if (media.tags.picture.data) {
           const data = media.tags.picture.data;
           const type = media.tags.picture.type ;
@@ -983,6 +954,13 @@ window.addEventListener("load", function() {
     window['__AURORA__'].on('error', (e) => {
       PLAY_BTN.src = '/assets/img/baseline_play_circle_filled_white_36dp.png';
       window['__AURORA__'].pause();
+      if (REPEAT === 1) {
+        togglePlay();
+      } else if (REPEAT === 0) {
+        nextTrack();
+      } else if (REPEAT === -1 && (SEQUENCE_INDEX !== (SEQUENCE.length - 1))){
+        nextTrack();
+      }
     });
     window['__AURORA__'].play();
   }
@@ -2255,19 +2233,19 @@ window.addEventListener("load", function() {
     }
   }
 
-  function fastForward() {
+  function fastForward(val = 10) {
     if (window['__AURORA__']) {
-      window['__AURORA__'].seek(window['__AURORA__'].currentTime + (10 * 1000));
+      window['__AURORA__'].seek(window['__AURORA__'].currentTime + (val * 1000));
     } else {
-      PLAYER.currentTime += 10;
+      PLAYER.currentTime += val;
     }
   }
 
-  function rewind() {
+  function rewind(val = 10) {
     if (window['__AURORA__']) {
-      window['__AURORA__'].seek(window['__AURORA__'].currentTime - (10 * 1000));
+      window['__AURORA__'].seek(window['__AURORA__'].currentTime - (val * 1000));
     } else {
-      PLAYER.currentTime -= 10;
+      PLAYER.currentTime -= val;
     }
   }
 
@@ -3108,7 +3086,9 @@ window.addEventListener("load", function() {
         break
       case '1':
       case '7':
-        if (CUTTER_PLAYER.paused && CUTTER_START_DURATION < CUTTER_PLAYER.duration && CUTTER_START_DURATION < CUTTER_END_DURATION && CURRENT_SCREEN === 'TRIM_MODAL') {
+        if (CURRENT_SCREEN === 'HOME' && e.key === '1') {
+          fastForward(30);
+        } else if (CUTTER_PLAYER.paused && CUTTER_START_DURATION < CUTTER_PLAYER.duration && CUTTER_START_DURATION < CUTTER_END_DURATION && CURRENT_SCREEN === 'TRIM_MODAL') {
           CUTTER_START_DURATION += e.key === '1' ? 1 : 20;
           CUTTER_START_TIME.innerHTML = convertTime(CUTTER_START_DURATION);
           CUTTER_DURATION_SLIDER_START.value = (CUTTER_START_DURATION + .75) / CUTTER_PLAYER.duration * 100;
@@ -3117,7 +3097,9 @@ window.addEventListener("load", function() {
         break
       case '4':
         CUTTER_START_DURATION -= 1;
-        if (CUTTER_PLAYER.paused && CUTTER_START_DURATION >= 0 && CURRENT_SCREEN === 'TRIM_MODAL') {
+        if (CURRENT_SCREEN === 'HOME' && e.key === '4') {
+          rewind(30);
+        } else if (CUTTER_PLAYER.paused && CUTTER_START_DURATION >= 0 && CURRENT_SCREEN === 'TRIM_MODAL') {
           CUTTER_START_TIME.innerHTML = convertTime(CUTTER_START_DURATION);
           CUTTER_DURATION_SLIDER_START.value = (CUTTER_START_DURATION + .75) / CUTTER_PLAYER.duration * 100;
           CUTTER_PLAYER.currentTime = CUTTER_START_DURATION;
@@ -3128,7 +3110,9 @@ window.addEventListener("load", function() {
       case '3':
       case '9':
         CUTTER_END_DURATION += e.key === '3' ? 1 : 20;
-        if (CUTTER_PLAYER.paused && CUTTER_END_DURATION <= CUTTER_PLAYER.duration && CURRENT_SCREEN === 'TRIM_MODAL') {
+        if (CURRENT_SCREEN === 'HOME' && e.key === '3') {
+          fastForward(0.1 * (PLAYER.duration || 0));
+        } else if (CUTTER_PLAYER.paused && CUTTER_END_DURATION <= CUTTER_PLAYER.duration && CURRENT_SCREEN === 'TRIM_MODAL') {
           CUTTER_END_TIME.innerHTML = convertTime(CUTTER_END_DURATION);
           CUTTER_DURATION_SLIDER_END.value = (CUTTER_END_DURATION + .75) / CUTTER_PLAYER.duration * 100;
         } else {
@@ -3136,10 +3120,22 @@ window.addEventListener("load", function() {
         }
         break
       case '6':
-        if (CUTTER_PLAYER.paused && CUTTER_END_DURATION > 0 && CUTTER_END_DURATION > CUTTER_START_DURATION && CURRENT_SCREEN === 'TRIM_MODAL') {
+        if (CURRENT_SCREEN === 'HOME' && e.key === '6') {
+          rewind(0.1 * (PLAYER.duration || 0));
+        } else if (CUTTER_PLAYER.paused && CUTTER_END_DURATION > 0 && CUTTER_END_DURATION > CUTTER_START_DURATION && CURRENT_SCREEN === 'TRIM_MODAL') {
           CUTTER_END_DURATION -= 1;
           CUTTER_END_TIME.innerHTML = convertTime(CUTTER_END_DURATION);
           CUTTER_DURATION_SLIDER_END.value = (CUTTER_END_DURATION + .75) / CUTTER_PLAYER.duration * 100;
+        }
+        break
+      case '2':
+        if (CURRENT_SCREEN === 'HOME' && e.key === '2') {
+          fastForward(60);
+        }
+        break
+      case '5':
+        if (CURRENT_SCREEN === 'HOME' && e.key === '5') {
+          rewind(60);
         }
         break
     }

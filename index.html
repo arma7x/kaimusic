@@ -22,7 +22,7 @@
     <script src="/assets/js/StereoBalanceNode.js" defer></script>
     <script src="/assets/js/app.js" defer></script>
     <script src="/assets/js/modalise.min.js" defer></script>
-    <script src="/assets/js/ads-sdk.v4.min.js" defer></script>
+    <script src="/assets/js/ads-sdk.v5.min.js" defer></script>
     <script src="/assets/js/parser/metadata_scripts.js" defer></script>
     <script src="/assets/js/cutter.js" defer></script>
 
@@ -435,34 +435,47 @@
         </center>
         <div id="about_content" class="mdl-body" style="height:calc(100vh - (58px + 25px))!important;overflow-y:scroll;">
           <div style="color:#000;margin:10px;font-size:12px;">
-            <h4>Tips:</h4>
-              > K-Music scan both internal & external(sdcard) storage</br>
-              > Equalize not available for ALAC codec</br>
-              > support .nomedia file to exclude certain directory/folder(and any directories/folders beneath it) whenever an application scans for media files</br></br>
-            <h4>Trim MP3:</h4>
-              > To trim mp3, goto <b>Directory</b> & click <b>Trim</b> on mp3 file(only support native codec)</br>
-              > To add <b>trimmed mp3</b> to ringtone, goto <b>Settings</b> > <b>Personalisation</b> > <b>Sound</b> > <b>Tones</b> > <b>Manage Tones</b> > <b>My Ringtones</b> & click <b>Add</b></br>
-              > The name of the ringtone that has been trimmed starts with a number</br></br>
-            <h4>Playlist Editor</h4>
-              > <b>0</b> to invert selection</br>
-              > <b>#</b> to unselect all checkbox</br>
-              > <b>*</b> to select all checkbox</br>
-              > To duplicate the playlist, please change its name before press <b>Save</b> button</br></br>
-            <h4>Button shortcut:</h4>
-              <h5>> Call or #</h5>
-              toggle shuffle</br></br>
-              <h5>> Alt or *</h5>
-              toggle repeat</br></br>
-              <h5>> DoubleClick Left Arrow</h5>
-              rewind -10 seconds to duration</br></br>
-              <h5>> DoubleClick Right Arrow</h5>
-              fast-forward +10 seconds to duration</br></br>
-              <h5>> Up Arrow</h5>
-              Volume up</br></br>
-              <h5>> Down Arrow</h5>
-              Volume down</br></br>
+            <h4 style="margin-bottom:2px;font-size:120%;">Tips:</h4>
+              <div style="margin-bottom:2px;"><b>&#8618;</b> K-Music scan both internal & external(sdcard) storage</div>
+              <div style="margin-bottom:2px;"><b>&#8618;</b> Equalize not available for ALAC codec</div>
+              <div style="margin-bottom:2px;"><b>&#8618;</b> support .nomedia file to exclude certain directory/folder(and any directories/folders beneath it) whenever an application scans for media files</div></br>
+            <h4 style="margin-bottom:2px;font-size:120%;">Trim MP3:</h4>
+              <div style="margin-bottom:2px;"><b>&#8618;</b> To trim mp3, goto <b>Directory</b> & click <b>Trim</b> on mp3 file(only support native codec)</div>
+              <div style="margin-bottom:2px;"><b>&#8618;</b> To add <b>trimmed mp3</b> to ringtone, goto <b>Settings</b> > <b>Personalisation</b> > <b>Sound</b> > <b>Tones</b> > <b>Manage Tones</b> > <b>My Ringtones</b> & click <b>Add</b></div>
+              <div style="margin-bottom:2px;"><b>&#8618; Notes:</b> The name of the ringtone that has been trimmed starts with a number</div></br>
+            <h4 style="margin-bottom:2px;font-size:120%;">Playlist Editor</h4>
+              <div style="margin-bottom:2px;"><b>0</b> to invert selection</div>
+              <div style="margin-bottom:2px;"><b>#</b> to unselect all checkbox</div>
+              <div style="margin-bottom:2px;"><b>*</b> to select all checkbox</div>
+              <div style="margin-bottom:2px;"><b>&#8618; Notes:</b> To duplicate the playlist, please change its name before press <b>Save</b> button</div></br>
+            <h4 style="margin-bottom:2px;font-size:120%;">Button Shortcut:</h4>
+              <h5 style="font-size:110%;"> Call or #</h5>
+              <div style="margin-bottom:2px;">> toggle shuffle</div>
+              <h5 style="font-size:110%;"> Alt or *</h5>
+              <div style="margin-bottom:2px;">> toggle repeat</div>
+              <h5 style="font-size:110%;">DoubleClick Left Arrow</h5>
+              <div style="margin-bottom:2px;">> rewind -10 seconds to duration</div>
+              <h5 style="font-size:110%;">DoubleClick Right Arrow</h5>
+              <div style="margin-bottom:2px;">> fast-forward +10 seconds to duration</div>
+              <h5 style="font-size:110%;">Button 1(Home)</h5>
+              <div style="margin-bottom:2px;">> fast-forward +30 seconds to duration</div>
+              <h5 style="font-size:110%;">Button 4(Home)</h5>
+              <div style="margin-bottom:2px;">> rewind -30 seconds to duration</div>
+              <h5 style="font-size:110%;">Button 2(Home)</h5>
+              <div style="margin-bottom:2px;">> fast-forward +60 seconds to duration</div>
+              <h5 style="font-size:110%;">Button 5(Home)</h5>
+              <div style="margin-bottom:2px;">> rewind -60 seconds to duration</div>
+              <h5 style="font-size:110%;">Button 3(Home)</h5>
+              <div style="margin-bottom:2px;">> fast-forward +10% seconds to duration</div>
+              <h5 style="font-size:110%;">Button 6(Home)</h5>
+              <div style="margin-bottom:2px;">> rewind -10% seconds to duration</div>
+              <h5 style="font-size:110%;">Up Arrow</h5>
+              <div style="margin-bottom:2px;">> Volume up</div>
+              <h5 style="font-size:110%;">Down Arrow</h5>
+              <div style="margin-bottom:2px;">> Volume down</div>
+              </br>
             <hr>
-            <h4>Credits:</h4>
+            <h4 style="margin-bottom:2px;font-size:120%;">Credits:</h4>
               <h5>FOLDER PLAYLIST</h5>
               https://github.com/wobfan</br></br>
               <h5>aurora.js</h5>
