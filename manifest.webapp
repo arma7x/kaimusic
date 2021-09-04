@@ -1,5 +1,5 @@
 {
-  "version": "1.10.0",
+  "version": "1.11.0",
   "name": "K-Music",
   "description": "An audio player for KaiOS with playlist manager + Equalizer + MP3 Cutter/Trimmer",
   "launch_path": "/index.html",
@@ -20,7 +20,7 @@
   },
   "developer": {
     "name": "arma7x",
-    "url": "https://github.com/arma7x/kaimusic"
+    "url": "https://www.kaiostech.com"
   },
   "origin": "app://kaimusic.arma7x.com",
   "type": "privileged",

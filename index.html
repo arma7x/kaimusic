@@ -71,6 +71,7 @@
         <div class="row" style="margin:9px 0px 0px 0px;align-items:flex-end;">
           <img id="repeat_btn" class="inactive" style="padding-right:5px;" width="16px" height="16px" src="/assets/img/baseline_repeat_white_18dp.png"/>
           <img id="shuffle_btn" class="inactive" style="padding-right:5px;" width="16px" height="16px" src="/assets/img/baseline_shuffle_white_18dp.png"/>
+          <img id="equalizer_btn" class="inactive" style="padding-right:5px;" width="16px" height="16px" src="/assets/img/baseline_equalizer_white_18dp.png"/>
           <div id="volume_status" class="row" style="padding-right:5px;justify-content:flex-start;">
             <img id="volume_btn" width="16px" height="16px" src="/assets/img/baseline_volume_up_white_18dp.png"/>
             <div style="width:38px;text-align:right;"><span id="volume_level"></span>%</div>
@@ -438,10 +439,11 @@
           <div style="color:#000;margin:10px;font-size:12px;">
             <h4 style="margin-bottom:2px;font-size:120%;">Tips:</h4>
               <div style="margin-bottom:2px;"><b>&#8618;</b> K-Music scan both internal & external(sdcard) storage</div>
-              <div style="margin-bottom:2px;"><b>&#8618;</b> Equalize not available for ALAC codec</div>
+              <div style="margin-bottom:2px;"><b>&#8618;</b> Equalizer not available for ALAC codec</div>
+              <div style="margin-bottom:2px;"><b>&#8618;[NEW]</b> equalizer can be disabled or enabled. Available on Equalizer screen or press 0 on Homescreen</div>
               <div style="margin-bottom:2px;"><b>&#8618;</b> support <b>.nomedia</b> file to exclude certain directory/folder(and any directories/folders beneath it) whenever an application scans for media files</div>
-              <div style="margin-bottom:2px;"><b>&#8618;[NEW]</b> Turn on <b>Sleep Mode</b> & K-Music closes automatically if the device is inactive for 1 hour</div>
-              <div style="margin-bottom:2px;"><b>&#8618;[NEW]</b> Scroll down to read about the new <b>Shortcut Key</b></div></br>
+              <div style="margin-bottom:2px;"><b>&#8618;</b> Turn on <b>Sleep Mode</b> & K-Music closes automatically if the device is inactive for 1 hour</div>
+              <div style="margin-bottom:2px;"><b>&#8618;</b> Scroll down to read about the new <b>Shortcut Key</b></div></br>
             <h4 style="margin-bottom:2px;font-size:120%;">Trim MP3:</h4>
               <div style="margin-bottom:2px;"><b>&#8618;</b> To trim mp3, goto <b>Directory</b> & click <b>Trim</b> on mp3 file(only support native codec)</div>
               <div style="margin-bottom:2px;"><b>&#8618;</b> To add <b>trimmed mp3</b> to ringtone, goto <b>Settings</b> > <b>Personalisation</b> > <b>Sound</b> > <b>Tones</b> > <b>Manage Tones</b> > <b>My Ringtones</b> & click <b>Add</b></div>
@@ -452,6 +454,8 @@
               <div style="margin-bottom:2px;"><b>*</b> to select all checkbox</div>
               <div style="margin-bottom:2px;"><b>&#8618; Notes:</b> To duplicate the playlist, please change its name before press <b>Save</b> button</div></br>
             <h4 style="margin-bottom:2px;font-size:120%;">Shortcut Key:</h4>
+              <h5 style="font-size:110%;">Button 0[NEW]</h5>
+              <div style="margin-bottom:2px;">> enable/disable equalizer</div>
               <h5 style="font-size:110%;"> Call or #</h5>
               <div style="margin-bottom:2px;">> toggle shuffle</div>
               <h5 style="font-size:110%;"> Alt or *</h5>
@@ -541,7 +545,7 @@
     </div>
 
     <div id="equalizer_software_key" class="kui-software-key software-key sr-only">
-      <div style="width:30%;text-align:left;padding-left:5px;"></div>
+      <div id="equalizer_status" style="width:30%;text-align:left;padding-left:5px;"></div>
       <div style="width:40%;text-align:center;"></div>
       <div style="width:30%;text-align:right;padding-right:5px;">RESET</div>
     </div>

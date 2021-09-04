@@ -196,6 +196,47 @@ window.addEventListener("load", function() {
   balance.connect(gainNode);
   gainNode.connect(CONTEXT.destination);
 
+  function enableEq() {
+    staticSource.disconnect();
+    staticSource.connect(window['preamp']);
+    localforage.setItem('EQUALIZER_STATUS', true);
+    EQUALIZER_BTN.classList.remove('inactive');
+    EQUALIZER_STATUS.innerText = 'DISABLE';
+    const nav_equal = document.getElementsByClassName('nav_equal');
+    for (var x in nav_equal) {
+      if (nav_equal[x].children) {
+        nav_equal[x].style.setProperty('color', '');
+        nav_equal[x].children[1].children[1].disabled = false;
+      }
+    }
+  }
+
+ function disableEq() {
+    staticSource.disconnect();
+    staticSource.connect(balance);
+    localforage.setItem('EQUALIZER_STATUS', false);
+    EQUALIZER_BTN.classList.add('inactive');
+    EQUALIZER_STATUS.innerText = 'ENABLE';
+    const nav_equal = document.getElementsByClassName('nav_equal');
+    for (var x in nav_equal) {
+      if (nav_equal[x].children) {
+        nav_equal[x].style.setProperty('color', '#CDCDCD');
+        nav_equal[x].children[1].children[1].disabled = true;
+      }
+    }
+  }
+
+  function toggleEqStatus() {
+    localforage.getItem('EQUALIZER_STATUS')
+    .then((status) => {
+      if (status == null || status == true) {
+        enableEq();
+      } else {
+        disableEq();
+      }
+    });
+  }
+
   const toPercent = (min, max, value) => {
     return (value - min) / (max - min);
   }
@@ -310,6 +351,8 @@ window.addEventListener("load", function() {
   const SEARCH_FOLDER = document.getElementById('search_folder');
   const SEARCH_GENRE = document.getElementById('search_genre');
   const SLEEP_TIMER = document.getElementById('sleep_timer');
+  const EQUALIZER_STATUS = document.getElementById('equalizer_status');
+  const EQUALIZER_BTN = document.getElementById('equalizer_btn');
 
   SEARCH_TRACK.addEventListener('input', (evt) => {
     if (window['TIMEOUT_SEARCH']) {
@@ -2557,7 +2600,25 @@ window.addEventListener("load", function() {
   function handleKeydown(e) {
     switch(e.key) {
       case '0':
-        if (CURRENT_SCREEN === 'PLAYLIST_EDITOR_MODAL' && document.activeElement.tagName !== 'INPUT') {
+        if (CURRENT_SCREEN === 'HOME') {
+          localforage.getItem('EQUALIZER_STATUS')
+          .then((status) => {
+            if (status == null || status == true) {
+              status = false;
+            } else {
+              status = true;
+            }
+            localforage.setItem('EQUALIZER_STATUS', status)
+            .then(() => {
+              toggleEqStatus();
+              if (status) {
+                showSnackbar('Equalizer On');
+              } else {
+                showSnackbar('Equalizer Off');
+              }
+            });
+          });
+        } else if (CURRENT_SCREEN === 'PLAYLIST_EDITOR_MODAL' && document.activeElement.tagName !== 'INPUT') {
           const nav = document.querySelectorAll('.nav_track_editor');
           if (nav != null) {
             for (x in nav) {
@@ -2648,6 +2709,26 @@ window.addEventListener("load", function() {
           SEARCH_ALBUM.focus();
         } else if (CURRENT_SCREEN === 'GENRES_MODAL') {
           SEARCH_GENRE.focus();
+        } else if (CURRENT_SCREEN === 'EQUALIZER_MODAL') {
+          localforage.getItem('EQUALIZER_STATUS')
+          .then((status) => {
+            if (status == null || status == true) {
+              status = false;
+            } else {
+              status = true;
+            }
+            localforage.setItem('EQUALIZER_STATUS', status)
+            .then(() => {
+              toggleEqStatus();
+              if (status) {
+                showSnackbar('Equalizer On');
+              } else {
+                showSnackbar('Equalizer Off');
+              }
+              CURRENT_SCREEN = 'HOME';
+              EQUALIZER_MODAL.hide();
+            });
+          });
         }
         break
       case 'SoftRight':
@@ -3214,6 +3295,8 @@ window.addEventListener("load", function() {
   }
 
   document.activeElement.addEventListener('keydown', handleKeydown);
+
+  toggleEqStatus();
 
   localforage.getItem('PLAY_DURATION')
   .then(function(PLAY_DURATION) {
