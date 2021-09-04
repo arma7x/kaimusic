@@ -105,7 +105,8 @@ window.addEventListener("load", function() {
       CUTTER_TOGGLE_PLAY.innerHTML = 'Play';
     }
   }
-  
+
+  var REBOOT = true;
   var RESUME = true;
   var RESUME_DURATION = null;
   var REPEAT = -1;
@@ -1623,8 +1624,12 @@ window.addEventListener("load", function() {
       TRACK_TITLE.innerHTML = name[name.length - 1];
       PLAYER.mozAudioChannelType = 'content';
       PLAYER.src = URL.createObjectURL(file);
-      PLAYER.play();
       window['__FILE__'] = file;
+      if (REBOOT) {
+        REBOOT = false;
+        return;
+      }
+      PLAYER.play();
     }
   }
 
