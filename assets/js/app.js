@@ -354,6 +354,7 @@ window.addEventListener("load", function() {
   const SLEEP_TIMER = document.getElementById('sleep_timer');
   const EQUALIZER_STATUS = document.getElementById('equalizer_status');
   const EQUALIZER_BTN = document.getElementById('equalizer_btn');
+  const AUTOPLAY_STATE = document.getElementById('autoplay_state');
 
   SEARCH_TRACK.addEventListener('input', (evt) => {
     if (window['TIMEOUT_SEARCH']) {
@@ -565,6 +566,17 @@ window.addEventListener("load", function() {
     } else {
       SLEEP_TIMER.innerHTML = 'Turn On Sleep Timer';
     }
+    localforage.getItem('AUTOPLAY')
+    .then((AUTOPLAY) => {
+      if (AUTOPLAY == null) {
+        AUTOPLAY = true;
+      }
+      if (AUTOPLAY) {
+        AUTOPLAY_STATE.innerHTML = 'Turn Off Autoplay';
+      } else {
+        AUTOPLAY_STATE.innerHTML = 'Turn On Autoplay';
+      }
+    });
     document.activeElement.tabIndex = -1;
     setTimeout(function() {
       nav(1, '.nav_menu');
@@ -1625,11 +1637,19 @@ window.addEventListener("load", function() {
       PLAYER.mozAudioChannelType = 'content';
       PLAYER.src = URL.createObjectURL(file);
       window['__FILE__'] = file;
-      if (REBOOT) {
-        REBOOT = false;
-        return;
-      }
-      PLAYER.play();
+      // PLAYER.play();
+      localforage.getItem('AUTOPLAY')
+      .then((AUTOPLAY) => {
+        if (AUTOPLAY == null) {
+          AUTOPLAY = true;
+        }
+        if (AUTOPLAY || !REBOOT) {
+          PLAYER.play();
+        }
+        if (REBOOT) {
+          REBOOT = false;
+        }
+      });
     }
   }
 
@@ -2969,9 +2989,21 @@ window.addEventListener("load", function() {
             CURRENT_SCREEN = 'HOME';
             MENU_MODAL.hide();
           } else if (document.activeElement.tabIndex === 10) {
+            localforage.getItem('AUTOPLAY')
+            .then((AUTOPLAY) => {
+              if (AUTOPLAY == null) {
+                AUTOPLAY = true;
+              }
+              AUTOPLAY = !AUTOPLAY;
+              showSnackbar(`Autoplay is ${AUTOPLAY ? 'ON' : 'OFF'}`);
+              localforage.setItem('AUTOPLAY', AUTOPLAY);
+            });
+            CURRENT_SCREEN = 'HOME';
+            MENU_MODAL.hide();
+          } else if (document.activeElement.tabIndex === 11) {
             MENU_MODAL.hide();
             ABOUT_MODAL.show();
-          } else if (document.activeElement.tabIndex === 11) {
+          } else if (document.activeElement.tabIndex === 12) {
             window.close();
           }
         } else if (CURRENT_SCREEN === 'PLAYLIST_MODAL') {
