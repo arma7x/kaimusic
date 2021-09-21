@@ -1,5 +1,40 @@
 window.addEventListener("load", function() {
 
+  function startVolumeManager() {
+    const session = new lib_session.Session();
+    const sessionstate = {};
+    navigator.volumeManager = null;
+    sessionstate.onsessionconnected = function () {
+      // console.log(`AudioVolumeManager onsessionconnected`);
+      lib_audiovolume.AudioVolumeManager.get(session).
+      then((AudioVolumeManagerService) => {
+        // console.log(`Got AudioVolumeManager : #AudioVolumeManagerService.service_id}`);
+        navigator.volumeManager = AudioVolumeManagerService;
+      }).catch((e) => {
+        // console.log(`Error calling AudioVolumeManager service${JSON.stringify(e)}`);
+        navigator.volumeManager = null;
+      });
+    };
+    sessionstate.onsessiondisconnected = function () {
+      startVolumeManager();
+    };
+    session.open('websocket', 'localhost:8081', 'secrettoken', sessionstate, true);
+  }
+
+  (() => {
+    if (navigator.b2g) {
+      const head = document.getElementsByTagName('head')[0];
+      const scripts = ["http://127.0.0.1:8081/api/v1/shared/core.js", "http://127.0.0.1:8081/api/v1/shared/session.js", "http://127.0.0.1:8081/api/v1/audiovolumemanager/service.js"];
+      scripts.forEach((path) => {
+        var script = document.createElement('script');
+        script.type = 'text/javascript';
+        script.src = path;
+        head.appendChild(script);
+      });
+      setTimeout(startVolumeManager, 1000);
+    }
+  })();
+
   window['sleeptimer'] = null;
 
   localforage.setDriver(localforage.LOCALSTORAGE);
@@ -8,8 +43,8 @@ window.addEventListener("load", function() {
 
   const RANGE={"0":33,"1":35,"2":38,"3":40,"4":43,"5":46,"6":48,"7":51,"8":53,"9":56,"10":58,"11":61,"12":64,"-12":2,"-11":5,"-10":7,"-9":10,"-8":12,"-7":15,"-6":17,"-5":20,"-4":23,"-3":25,"-2":28,"-1":30};
 
-  const SDCARDS = navigator.getDeviceStorages('sdcard');
-  const SDCARD = navigator.getDeviceStorage('sdcard');
+  const SDCARDS = navigator.b2g ? navigator.b2g.getDeviceStorages('sdcard') : navigator.getDeviceStorages('sdcard');
+  const SDCARD = navigator.b2g ? navigator.b2g.getDeviceStorage('sdcard') : navigator.getDeviceStorage('sdcard');
 
   function getStorageNameByPath(path) {
     var split = path.split('/')
@@ -32,31 +67,59 @@ window.addEventListener("load", function() {
   }
 
   function enumerate(cards, index, files, cb) {
-    const cursor = cards[index].enumerate('');
-    cursor.onsuccess = function () {
-      if (!this.done) {
-        if(cursor.result.name !== null) {
-          const paths = cursor.result.name.split('/');
-          const name = paths[paths.length - 1];
-          if (name.substring(0, 2) !== '._') {
-            files.push(cursor.result.name);
+    if (navigator.b2g) {
+      var iterable = cards[index].enumerate();
+      var iterFiles = iterable.values();
+      function next(_files) {
+        _files.next()
+        .then((file) => {
+          if (file.done) {
+            if (cards.length === (index + 1)) {
+              cb(files);
+            } else {
+              enumerate(cards, (index + 1), files, cb);
+            }
+          } else {
+            const paths = file.value.name.split('/');
+            const name = paths[paths.length - 1];
+            if (name.substring(0, 2) !== '._') {
+              files.push(file.value.name);
+            }
+            next(_files);
           }
-          this.continue();
+        })
+        .catch(() => {
+          next(_files);
+        });
+      }
+      next(iterFiles);
+    } else {
+      const cursor = cards[index].enumerate('');
+      cursor.onsuccess = function () {
+        if (!this.done) {
+          if(cursor.result.name !== null) {
+            const paths = cursor.result.name.split('/');
+            const name = paths[paths.length - 1];
+            if (name.substring(0, 2) !== '._') {
+              files.push(cursor.result.name);
+            }
+            this.continue();
+          }
+        } else {
+          if (cards.length === (index + 1)) {
+            cb(files);
+          } else {
+            enumerate(SDCARDS, (index + 1), files, cb);
+          }
         }
-      } else {
+      }
+      cursor.onerror = (err) => {
+        console.warn(`No file found: ${err.toString()}`);
         if (cards.length === (index + 1)) {
           cb(files);
         } else {
           enumerate(SDCARDS, (index + 1), files, cb);
         }
-      }
-    }
-    cursor.onerror = (err) => {
-      console.warn(`No file found: ${err.toString()}`);
-      if (cards.length === (index + 1)) {
-        cb(files);
-      } else {
-        enumerate(SDCARDS, (index + 1), files, cb);
       }
     }
   }
@@ -153,6 +216,7 @@ window.addEventListener("load", function() {
 
   const PLAYER = document.createElement("audio");
   PLAYER.volume = 1;
+  window['PLAYER'] = PLAYER;
 
   const CONTEXT = new AudioContext('content');
 
@@ -1699,6 +1763,7 @@ window.addEventListener("load", function() {
     }
     console.log('REFRESH');
     getAllFiles((files) => {
+      console.log(files);
       DOCUMENT_TREE = {};
       const fil = filterNoMedia(files);
       DOCUMENT_TREE = indexingDocuments(fil);
@@ -2379,12 +2444,16 @@ window.addEventListener("load", function() {
         PLAYER.pause();
       } else {
         PLAYER.play();
+        PLAYER.play();
       }
     }
   }
 
   function toggleVolume(volume) {
-    if (navigator.mozAudioChannelManager) {
+    if (navigator.b2g && navigator.volumeManager) {
+      navigator.volumeManager.requestVolumeShow();
+      VOLUME_LEVEL.innerHTML = '-';
+    } else if (navigator.mozAudioChannelManager) {
       navigator.volumeManager.requestShow();
       VOLUME_LEVEL.innerHTML = '-';
     } else {
@@ -2398,7 +2467,9 @@ window.addEventListener("load", function() {
   }
 
   function volumeDown() {
-    if (navigator.mozAudioChannelManager) {
+    if (navigator.b2g && navigator.volumeManager) {
+      navigator.volumeManager.requestVolumeDown();
+    } else if (navigator.mozAudioChannelManager) {
       navigator.volumeManager.requestDown();
     } else {
       if (PLAYER.volume > 0) {
@@ -2411,7 +2482,9 @@ window.addEventListener("load", function() {
   }
 
   function volumeUp() {
-    if (navigator.mozAudioChannelManager) {
+    if (navigator.b2g && navigator.volumeManager) {
+      navigator.volumeManager.requestVolumeUp();
+    } else if (navigator.mozAudioChannelManager) {
       navigator.volumeManager.requestUp();
     } else {
       if (PLAYER.volume < 1) {

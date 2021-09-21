@@ -1,0 +1,65 @@
+{
+  "lang": "en-US",
+  "id": "K-Music",
+  "name": "K-Music",
+  "description": "An audio player for KaiOS with playlist manager + Equalizer + MP3 Cutter/Trimmer",
+  "theme": "#431F7F",
+  "theme_color": "#431F7F",
+  "background_color": "#431F7F",
+  "orientation": "default",
+  "display": "fullscreen",
+  "start_url": "/index.html",
+  "categories": [
+    "entertainment",
+    "utilities"
+  ],
+  "icons": [
+    {
+      "src": "/icons/icon56x56.png",
+      "type": "image/png",
+      "sizes": "56x56"
+    },
+    {
+      "src": "/icons/icon112x112.png",
+      "type": "image/png",
+      "sizes": "112x112"
+    }
+  ],
+  "b2g_features": {
+    "version": "2.0.0",
+    "type": "privileged",
+    "core": true,
+    "default_locale": "en-US",
+    "developer": {
+      "name": "arma7x",
+      "url": "https://www.kaiostech.com"
+    },
+    "origin": "kaimusic",
+    "chrome": {
+      "statusbar": "overlap"
+    },
+    "permissions": {
+      "device-storage:sdcard":{
+        "access": "readwrite"
+      },
+      "device-storage:music":{
+        "access": "readwrite"
+      },
+      "audio-channel-normal": {
+        "description" : "Needed to play this app's audio content on the normal channel"
+      },
+      "audio-channel-content": {
+        "description": "To play audio in background"
+      },
+      "volumemanager": {},
+      "external-api": {}
+    },
+    "locales": {
+      "en-US": {
+        "name": "K-Music",
+        "subtitle": "An audio player for KaiOS with playlist manager + Equalizer + MP3 Cutter/Trimmer",
+        "description": "An audio player for KaiOS with playlist manager + Equalizer + MP3 Cutter/Trimmer"
+      }
+    }
+  }
+}
