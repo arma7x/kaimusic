@@ -3484,13 +3484,16 @@ window.addEventListener("load", function() {
         }
         break
       case '2':
-        speedUp();
+        if (CURRENT_SCREEN === 'HOME')
+          speedUp();
         break
       case '5':
-        resetSpeed();
+        if (CURRENT_SCREEN === 'HOME')
+          resetSpeed();
         break
       case '8':
-        speedDown();
+        if (CURRENT_SCREEN === 'HOME')
+          speedDown();
         break
     }
   }
