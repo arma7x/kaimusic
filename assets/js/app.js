@@ -214,55 +214,59 @@ window.addEventListener("load", function() {
   var RGT_DBL_CLICK_TIMER = undefined;
   var SLEEP_SWITCH = false;
 
-  const PLAYER = document.createElement("audio");
+  var PLAYER = document.createElement("audio");
   PLAYER.volume = 1;
 
-  const CONTEXT = new AudioContext('content');
+  function initEqualizer() {
+    const CONTEXT = new AudioContext('content');
 
-  var staticSource = CONTEXT.createGain();
-  var balance = new StereoBalanceNode(CONTEXT);
-  window['preamp'] = CONTEXT.createGain();
-  var gainNode = CONTEXT.createGain();
+    window['staticSource'] = CONTEXT.createGain();
+    window['balance'] = new StereoBalanceNode(CONTEXT);
+    window['preamp'] = CONTEXT.createGain();
+    var gainNode = CONTEXT.createGain();
 
-  const SOURCE = CONTEXT.createMediaElementSource(PLAYER);
+    const SOURCE = CONTEXT.createMediaElementSource(PLAYER);
 
-  SOURCE.connect(staticSource);
-  staticSource.connect(window['preamp']);
+    SOURCE.connect(window['staticSource']);
+    window['staticSource'].connect(window['preamp']);
 
-  const amps = [
-    { type: 'lowshelf', fValue: 60, gValue: 0, head: 'preamp' },
-    { type: 'peaking', fValue: 170, gValue: 0 },
-    { type: 'peaking', fValue: 310, gValue: 0 },
-    { type: 'peaking', fValue: 600, gValue: 0 },
-    { type: 'peaking', fValue: 1000, gValue: 0 },
-    { type: 'peaking', fValue: 3000, gValue: 0 },
-    { type: 'peaking', fValue: 6000, gValue: 0 },
-    { type: 'peaking', fValue: 12000, gValue: 0 },
-    { type: 'peaking', fValue: 14000, gValue: 0 },
-    { type: 'highshelf', fValue: 16000, gValue: 0 }
-  ];
+    const amps = [
+      { type: 'lowshelf', fValue: 60, gValue: 0, head: 'preamp' },
+      { type: 'peaking', fValue: 170, gValue: 0 },
+      { type: 'peaking', fValue: 310, gValue: 0 },
+      { type: 'peaking', fValue: 600, gValue: 0 },
+      { type: 'peaking', fValue: 1000, gValue: 0 },
+      { type: 'peaking', fValue: 3000, gValue: 0 },
+      { type: 'peaking', fValue: 6000, gValue: 0 },
+      { type: 'peaking', fValue: 12000, gValue: 0 },
+      { type: 'peaking', fValue: 14000, gValue: 0 },
+      { type: 'highshelf', fValue: 16000, gValue: 0 }
+    ];
 
-  amps.forEach((amp, idx) => {
-    const name = `hz${amp.fValue}`;
-    window[name] = CONTEXT.createBiquadFilter();
-    window[name].type = amp.type;
-    window[name].frequency.value = amp.fValue;
-    window[name].gain.value = amp.gValue;
-    if (idx === 0) {
-      window['preamp'].connect(window[name]);
-    } else {
-      const head = `hz${amps[idx - 1].fValue}`;
-      window[head].connect(window[name]);
-    }
-  });
+    amps.forEach((amp, idx) => {
+      const name = `hz${amp.fValue}`;
+      window[name] = CONTEXT.createBiquadFilter();
+      window[name].type = amp.type;
+      window[name].frequency.value = amp.fValue;
+      window[name].gain.value = amp.gValue;
+      if (idx === 0) {
+        window['preamp'].connect(window[name]);
+      } else {
+        const head = `hz${amps[idx - 1].fValue}`;
+        window[head].connect(window[name]);
+      }
+    });
 
-  window['hz16000'].connect(balance);
-  balance.connect(gainNode);
-  gainNode.connect(CONTEXT.destination);
+    window['hz16000'].connect(balance);
+    window['balance'].connect(gainNode);
+    gainNode.connect(CONTEXT.destination);
+  }
 
   function enableEq() {
-    staticSource.disconnect();
-    staticSource.connect(window['preamp']);
+    PLAYBACK_RATE.innerHTML = 1;
+    initEqualizer();
+    window['staticSource'].disconnect();
+    window['staticSource'].connect(window['preamp']);
     localforage.setItem('EQUALIZER_STATUS', true);
     EQUALIZER_BTN.classList.remove('inactive');
     EQUALIZER_STATUS.innerText = 'DISABLE';
@@ -276,8 +280,8 @@ window.addEventListener("load", function() {
   }
 
  function disableEq() {
-    staticSource.disconnect();
-    staticSource.connect(balance);
+    window['staticSource'].disconnect();
+    window['staticSource'].connect(window['balance']);
     localforage.setItem('EQUALIZER_STATUS', false);
     EQUALIZER_BTN.classList.add('inactive');
     EQUALIZER_STATUS.innerText = 'ENABLE';
@@ -288,6 +292,19 @@ window.addEventListener("load", function() {
         nav_equal[x].children[1].children[1].disabled = true;
       }
     }
+    PLAYER.pause();
+    const TEMP = document.createElement("audio");
+    TEMP.volume = 1;
+    TEMP.onratechange = PLAYER.onratechange;
+    TEMP.ontimeupdate = PLAYER.ontimeupdate;
+    TEMP.onpause = PLAYER.onpause;
+    TEMP.onplay = PLAYER.onplay;
+    TEMP.onloadeddata = PLAYER.onloadeddata;
+    TEMP.onerror = PLAYER.onerror;
+    TEMP.onended = PLAYER.onended;
+    playCurrentPlaylist(SEQUENCE_INDEX);
+    TEMP.currentTime = PLAYER.currentTime;
+    PLAYER = TEMP;
   }
 
   function toggleEqStatus() {
@@ -420,6 +437,8 @@ window.addEventListener("load", function() {
   const SLEEP_BTN = document.getElementById('sleep_btn');
   const AUTOPLAY_BTN = document.getElementById('autoplay_btn');
   const AUTOPLAY_STATE = document.getElementById('autoplay_state');
+  const LITEMODE_STATE = document.getElementById('litemode_state');
+  const PLAYBACK_RATE = document.getElementById('playback_rate');
 
   SEARCH_TRACK.addEventListener('input', (evt) => {
     if (window['TIMEOUT_SEARCH']) {
@@ -626,7 +645,6 @@ window.addEventListener("load", function() {
   .attach()
   .on('onShow', function() {
     CURRENT_SCREEN = 'MENU_MODAL';
-    console.log(SLEEP_SWITCH);
     if (SLEEP_SWITCH) {
       SLEEP_TIMER.innerHTML = 'Turn Off Sleep Timer';
       SLEEP_BTN.classList.remove('inactive');
@@ -1020,6 +1038,10 @@ window.addEventListener("load", function() {
     TRIM_SK.classList.add('sr-only');
     MENU_SK.classList.remove('sr-only');
   });
+  
+  PLAYER.onratechange = function(e) {
+    PLAYBACK_RATE.innerHTML = e.target.playbackRate;
+  }
 
   PLAYER.ontimeupdate = function(e) {
     localforage.setItem('PLAY_DURATION', e.target.currentTime);
@@ -2518,6 +2540,43 @@ window.addEventListener("load", function() {
     }
   }
 
+  function speedUp() {
+    localforage.getItem('EQUALIZER_STATUS')
+    .then((status) => {
+      if (status == null || status == true) {
+        showSnackbar('Please disable Equalizer');
+      } else {
+        if (PLAYER.playbackRate >= 4)
+          return
+        PLAYER.playbackRate += 0.25;
+      }
+    });
+  }
+
+  function resetSpeed() {
+    localforage.getItem('EQUALIZER_STATUS')
+    .then((status) => {
+      if (status == null || status == true) {
+        showSnackbar('Please disable Equalizer');
+      } else {
+        PLAYER.playbackRate = 1;
+      }
+    });
+  }
+
+  function speedDown() {
+    localforage.getItem('EQUALIZER_STATUS')
+    .then((status) => {
+      if (status == null || status == true) {
+        showSnackbar('Please disable Equalizer');
+      } else {
+        if (PLAYER.playbackRate <= 0.5)
+          return
+        PLAYER.playbackRate -= 0.25;
+      }
+    });
+  }
+
   function togglePlaylistModalSKButton() {
     if (CURRENT_SCREEN !== 'HOME' && CURRENT_SCREEN === 'PLAYLIST_MANAGER_MODAL') {
       if (document.activeElement.tagName === 'LI') {
@@ -3423,6 +3482,15 @@ window.addEventListener("load", function() {
           CUTTER_END_TIME.innerHTML = convertTime(CUTTER_END_DURATION);
           CUTTER_DURATION_SLIDER_END.value = (CUTTER_END_DURATION + .75) / CUTTER_PLAYER.duration * 100;
         }
+        break
+      case '2':
+        speedUp();
+        break
+      case '5':
+        resetSpeed();
+        break
+      case '8':
+        speedDown();
         break
     }
   }

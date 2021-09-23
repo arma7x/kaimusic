@@ -74,6 +74,9 @@
           <img id="equalizer_btn" class="inactive" style="padding-right:5px;" width="16px" height="16px" src="/assets/img/baseline_equalizer_white_18dp.png"/>
           <img id="autoplay_btn" class="inactive" style="padding-right:5px;" width="16px" height="16px" src="/assets/img/baseline_autoplay_white_18dp.png"/>
           <img id="sleep_btn" class="inactive" style="padding-right:5px;" width="16px" height="16px" src="/assets/img/baseline_sleep_white_18dp.png"/>
+          <div class="row" style="padding-right:5px;justify-content:flex-start;">
+            <div style="width:42px;text-align:left;"><span id="playback_rate">1</span><span style="font-size:85%;margin-top:3px;">x</span></div>
+          </div>
           <div id="volume_status" class="row" style="display:none;visibility:hidden;padding-right:5px;justify-content:flex-start;height:0px;width;0px;">
             <img id="volume_btn" width="16px" height="16px" src="/assets/img/baseline_volume_up_white_18dp.png"/>
             <div style="width:38px;text-align:right;"><span id="volume_level"></span>%</div>
@@ -441,44 +444,51 @@
         <div id="about_content" class="mdl-body" style="height:calc(100vh - (58px + 25px))!important;overflow-y:scroll;">
           <div style="color:#000;margin:10px;font-size:12px;">
             <h4 style="margin-bottom:2px;font-size:120%;">Tips:</h4>
-              <div style="margin-bottom:2px;"><b>&#8618;</b> K-Music scan both internal & external(sdcard) storage</div>
-              <div style="margin-bottom:2px;"><b>&#8618;</b> Equalizer not available for ALAC codec</div>
-              <div style="margin-bottom:2px;"><b>&#8618;[NEW]</b> Equalizer can be disabled or enabled. Available on Equalizer screen or toggle <b>Button 0</b> on Homescreen</div>
-              <div style="margin-bottom:2px;"><b>&#8618;[NEW]</b> Autoplay(once the app is opened) can be disabled or enabled. Goto Menu > Turn Off/Turn On Autoplay</div>
-              <div style="margin-bottom:2px;"><b>&#8618;</b> Turn on <b>Sleep Mode</b> & K-Music closes automatically if the device is inactive for 1 hour</div>
-              <div style="margin-bottom:2px;"><b>&#8618;</b> Support <b>.nomedia</b> file to exclude certain directory/folder(and any directories/folders beneath it) whenever an application scans for media files</div>
-              <div style="margin-bottom:2px;"><b>&#8618;</b> Scroll down to read about the new <b>Shortcut Key</b></div></br>
-            <h4 style="margin-bottom:2px;font-size:120%;">Trim MP3:</h4>
-              <div style="margin-bottom:2px;"><b>&#8618;</b> To trim mp3, goto <b>Directory</b> & click <b>Trim</b> on mp3 file(only support native codec)</div>
-              <div style="margin-bottom:2px;"><b>&#8618;</b> To add <b>trimmed mp3</b> to ringtone, goto <b>Settings</b> > <b>Personalisation</b> > <b>Sound</b> > <b>Tones</b> > <b>Manage Tones</b> > <b>My Ringtones</b> & click <b>Add</b></div>
-              <div style="margin-bottom:2px;"><b>&#8618; Notes:</b> The name of the ringtone that has been trimmed starts with a number</div></br>
+              <div style="margin-bottom:4px;"><b>&#8618;</b> K-Music scan both internal & external(sdcard) storage</div>
+              <div style="margin-bottom:4px;"><b>&#8618;</b> Equalizer not available for ALAC codec</div>
+              <div style="margin-bottom:4px;"><b>&#8618;</b> Equalizer can be disabled or enabled. Available on Equalizer screen or toggle <b>Button 0</b> on Homescreen</div>
+              <div style="margin-bottom:4px;"><b>&#8618;</b> Autoplay(once the app is opened) can be disabled or enabled. Goto Menu > Turn Off/Turn On Autoplay</div>
+              <div style="margin-bottom:4px;"><b>&#8618;</b> Turn on <b>Sleep Mode</b> & K-Music closes automatically if the device is inactive for 1 hour</div>
+              <div style="margin-bottom:4px;"><b>&#8618;</b> Support <b>.nomedia</b> file to exclude certain directory/folder(and any directories/folders beneath it) whenever an application scans for media files</div>
+              <div style="margin-bottom:4px;"><b>&#8618;[NEW]</b> Please disable Equalizer before adjust playback rate</div>
+              <div style="margin-bottom:4px;"><b>&#8618;</b> Scroll down to read about the new <b>Shortcut Key</b></div></br>
+            <h4 style="margin-bottom:4px;font-size:120%;">Trim MP3:</h4>
+              <div style="margin-bottom:4px;"><b>&#8618;</b> To trim mp3, goto <b>Directory</b> & click <b>Trim</b> on mp3 file(only support native codec)</div>
+              <div style="margin-bottom:4px;"><b>&#8618;</b> To add <b>trimmed mp3</b> to ringtone, goto <b>Settings</b> > <b>Personalisation</b> > <b>Sound</b> > <b>Tones</b> > <b>Manage Tones</b> > <b>My Ringtones</b> & click <b>Add</b></div>
+              <div style="margin-bottom:4px;"><b>&#8618; Notes:</b> The name of the ringtone that has been trimmed starts with a number</div></br>
             <h4 style="margin-bottom:2px;font-size:120%;">Playlist Editor</h4>
               <div style="margin-bottom:2px;"><b>0</b> to invert selection</div>
               <div style="margin-bottom:2px;"><b>#</b> to unselect all checkbox</div>
               <div style="margin-bottom:2px;"><b>*</b> to select all checkbox</div>
               <div style="margin-bottom:2px;"><b>&#8618; Notes:</b> To duplicate the playlist, please change its name before press <b>Save</b> button</div></br>
             <h4 style="margin-bottom:2px;font-size:120%;">Shortcut Key:</h4>
-              <h5 style="font-size:110%;">[NEW]Button 0</h5>
+              <h5 style="font-size:110%;"> Button 0</h5>
               <div style="margin-bottom:2px;">> enable/disable equalizer</div>
               <h5 style="font-size:110%;"> Call or #</h5>
               <div style="margin-bottom:2px;">> toggle shuffle</div>
               <h5 style="font-size:110%;"> Alt or *</h5>
               <div style="margin-bottom:2px;">> toggle repeat</div>
-              <h5 style="font-size:110%;">Double-click Left Arrow</h5>
+              <h5 style="font-size:110%;"> [NEW] Button 2</h5>
+              <div style="margin-bottom:2px;">> increase playback rate by +0.25</div>
+              <h5 style="font-size:110%;"> [NEW] Button 5</h5>
+              <div style="margin-bottom:2px;">> reset playback rate to 1</div>
+              <h5 style="font-size:110%;"> [NEW] Button 8</h5>
+              <div style="margin-bottom:2px;">> decrease playback rate by -0.25</div>
+              <h5 style="font-size:110%;">Double click Left Arrow</h5>
               <div style="margin-bottom:2px;">> rewind -10 seconds to duration</div>
-              <h5 style="font-size:110%;">Double-click Right Arrow</h5>
+              <h5 style="font-size:110%;">Double click Right Arrow</h5>
               <div style="margin-bottom:2px;">> fast-forward +10 seconds to duration</div>
-              <h5 style="font-size:110%;">Double-click Key 1(Homescreen)</h5>
+              <h5 style="font-size:110%;">Double click Button 1(Homescreen)</h5>
               <div style="margin-bottom:2px;">> rewind -30 seconds to duration</div>
-              <h5 style="font-size:110%;">Double-click Key 3(Homescreen)</h5>
+              <h5 style="font-size:110%;">Double click Button 3(Homescreen)</h5>
               <div style="margin-bottom:2px;">> fast-forward +30 seconds to duration</div>
-              <h5 style="font-size:110%;">Double-click Key 4(Homescreen)</h5>
+              <h5 style="font-size:110%;">Double click Button 4(Homescreen)</h5>
               <div style="margin-bottom:2px;">> rewind -60 seconds to duration</div>
-              <h5 style="font-size:110%;">Double-click Key 6(Homescreen)</h5>
+              <h5 style="font-size:110%;">Double click Button 6(Homescreen)</h5>
               <div style="margin-bottom:2px;">> fast-forward +60 seconds to duration</div>
-              <h5 style="font-size:110%;">Double-click Key 7(Homescreen)</h5>
+              <h5 style="font-size:110%;">Double click Button 7(Homescreen)</h5>
               <div style="margin-bottom:2px;">> rewind -10% seconds to duration</div>
-              <h5 style="font-size:110%;">Double-click Key 9(Homescreen)</h5>
+              <h5 style="font-size:110%;">Double click Button 9(Homescreen)</h5>
               <div style="margin-bottom:2px;">> fast-forward +10% seconds to duration</div>
               <h5 style="font-size:110%;">Up Arrow</h5>
               <div style="margin-bottom:2px;">> Volume up</div>
