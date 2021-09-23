@@ -216,7 +216,6 @@ window.addEventListener("load", function() {
 
   const PLAYER = document.createElement("audio");
   PLAYER.volume = 1;
-  window['PLAYER'] = PLAYER;
 
   const CONTEXT = new AudioContext('content');
 
@@ -418,6 +417,8 @@ window.addEventListener("load", function() {
   const SLEEP_TIMER = document.getElementById('sleep_timer');
   const EQUALIZER_STATUS = document.getElementById('equalizer_status');
   const EQUALIZER_BTN = document.getElementById('equalizer_btn');
+  const SLEEP_BTN = document.getElementById('sleep_btn');
+  const AUTOPLAY_BTN = document.getElementById('autoplay_btn');
   const AUTOPLAY_STATE = document.getElementById('autoplay_state');
 
   SEARCH_TRACK.addEventListener('input', (evt) => {
@@ -625,10 +626,13 @@ window.addEventListener("load", function() {
   .attach()
   .on('onShow', function() {
     CURRENT_SCREEN = 'MENU_MODAL';
+    console.log(SLEEP_SWITCH);
     if (SLEEP_SWITCH) {
       SLEEP_TIMER.innerHTML = 'Turn Off Sleep Timer';
+      SLEEP_BTN.classList.remove('inactive');
     } else {
       SLEEP_TIMER.innerHTML = 'Turn On Sleep Timer';
+      SLEEP_BTN.classList.add('inactive');
     }
     localforage.getItem('AUTOPLAY')
     .then((AUTOPLAY) => {
@@ -1141,6 +1145,20 @@ window.addEventListener("load", function() {
         if (FILE_BY_GROUPS[mime[0]] == undefined) {
           FILE_BY_GROUPS[mime[0]] = []
         }
+        if (file.type == "") {
+          mime = [];
+          const segs = file.name.split('/');
+          const last = segs[segs.length - 1];
+          const exts = last.split('.');
+          if (exts.length === 0) {
+            mime.push('__');
+          } else {
+            mime.push(exts[exts.length - 1]);
+          }
+          if (FILE_BY_GROUPS[mime[0]] == undefined) {
+            FILE_BY_GROUPS[mime[0]] = [];
+          }
+        }
         FILE_BY_GROUPS[mime[0]].push(file.name);
         GLOBAL_BLOB[file.name] = file.name; // file; //file.slice(file.size - 128, file.size, file.type);
         _taskDone++;
@@ -1155,7 +1173,7 @@ window.addEventListener("load", function() {
           if (FILE_BY_GROUPS.hasOwnProperty('video')) {
             FILE_BY_GROUPS['video'].forEach((n) => {
               const split = n.split('.');
-              if (split[split.length - 1] === 'ogg') {
+              if (split[split.length - 1] === 'ogg') { // ts ? mp4 ?
                 TRACK.push({name: n, selected: true});
                 GLOBAL_AUDIO_BLOB.push({name: n});
               }
@@ -1707,6 +1725,11 @@ window.addEventListener("load", function() {
         if (AUTOPLAY == null) {
           AUTOPLAY = true;
         }
+        if (AUTOPLAY) {
+          AUTOPLAY_BTN.classList.remove('inactive');
+        } else {
+          AUTOPLAY_BTN.classList.add('inactive');
+        }
         if (AUTOPLAY || !REBOOT) {
           PLAYER.play();
         }
@@ -1763,7 +1786,6 @@ window.addEventListener("load", function() {
     }
     console.log('REFRESH');
     getAllFiles((files) => {
-      console.log(files);
       DOCUMENT_TREE = {};
       const fil = filterNoMedia(files);
       DOCUMENT_TREE = indexingDocuments(fil);
@@ -3058,6 +3080,11 @@ window.addEventListener("load", function() {
             });
           } else if (document.activeElement.tabIndex === 9) {
             SLEEP_SWITCH = !SLEEP_SWITCH;
+            if (SLEEP_SWITCH) {
+              SLEEP_BTN.classList.remove('inactive');
+            } else {
+              SLEEP_BTN.classList.add('inactive');
+            }
             showSnackbar(`Sleep Timer is ${SLEEP_SWITCH ? 'ON' : 'OFF'}`);
             CURRENT_SCREEN = 'HOME';
             MENU_MODAL.hide();
@@ -3069,6 +3096,11 @@ window.addEventListener("load", function() {
               }
               AUTOPLAY = !AUTOPLAY;
               showSnackbar(`Autoplay is ${AUTOPLAY ? 'ON' : 'OFF'}`);
+              if (AUTOPLAY) {
+                AUTOPLAY_BTN.classList.remove('inactive');
+              } else {
+                AUTOPLAY_BTN.classList.add('inactive');
+              }
               localforage.setItem('AUTOPLAY', AUTOPLAY);
             });
             CURRENT_SCREEN = 'HOME';

@@ -44,7 +44,7 @@
         <span id="track_title">K-Music</span>
       </h4>
 
-      <div style="margin:5px 23px 0px 23px;align-items:flex-end;">
+      <div style="margin:5px 23px 0px 23px;align-items:flex-end;font-weight:bold;">
         <div class="row" style="margin:0px 0px 5px 0px;justify-content:flex-start;">
           <div style="width:40%;height:78px;background:#ccc;display:flex;flex-direction:column;justify-content:center;align-items: center;">
             <img id="album_cover" height="100%" width="100%" style="object-fit:cover;" src="/assets/img/baseline_album_white_48.png" />
@@ -72,7 +72,9 @@
           <img id="repeat_btn" class="inactive" style="padding-right:5px;" width="16px" height="16px" src="/assets/img/baseline_repeat_white_18dp.png"/>
           <img id="shuffle_btn" class="inactive" style="padding-right:5px;" width="16px" height="16px" src="/assets/img/baseline_shuffle_white_18dp.png"/>
           <img id="equalizer_btn" class="inactive" style="padding-right:5px;" width="16px" height="16px" src="/assets/img/baseline_equalizer_white_18dp.png"/>
-          <div id="volume_status" class="row" style="padding-right:5px;justify-content:flex-start;">
+          <img id="autoplay_btn" class="inactive" style="padding-right:5px;" width="16px" height="16px" src="/assets/img/baseline_autoplay_white_18dp.png"/>
+          <img id="sleep_btn" class="inactive" style="padding-right:5px;" width="16px" height="16px" src="/assets/img/baseline_sleep_white_18dp.png"/>
+          <div id="volume_status" class="row" style="display:none;visibility:hidden;padding-right:5px;justify-content:flex-start;height:0px;width;0px;">
             <img id="volume_btn" width="16px" height="16px" src="/assets/img/baseline_volume_up_white_18dp.png"/>
             <div style="width:38px;text-align:right;"><span id="volume_level"></span>%</div>
           </div>
@@ -86,7 +88,7 @@
         <input id="duration_slider" value="0" type="range" min="0" max="100" disabled/>
       </div>
 
-      <div class="row" style="margin:-2.5px 23px 0px 23px;">
+      <div class="row" style="margin:-2.5px 23px 0px 23px;font-weight:bold;">
         <div id="current_time">00:00</div>
         <div id="duration">00:00</div>
       </div>
@@ -462,21 +464,21 @@
               <div style="margin-bottom:2px;">> toggle shuffle</div>
               <h5 style="font-size:110%;"> Alt or *</h5>
               <div style="margin-bottom:2px;">> toggle repeat</div>
-              <h5 style="font-size:110%;">DoubleClick Left Arrow</h5>
+              <h5 style="font-size:110%;">Double-click Left Arrow</h5>
               <div style="margin-bottom:2px;">> rewind -10 seconds to duration</div>
-              <h5 style="font-size:110%;">DoubleClick Right Arrow</h5>
+              <h5 style="font-size:110%;">Double-click Right Arrow</h5>
               <div style="margin-bottom:2px;">> fast-forward +10 seconds to duration</div>
-              <h5 style="font-size:110%;">DoubleClick Key 1(Homescreen)</h5>
+              <h5 style="font-size:110%;">Double-click Key 1(Homescreen)</h5>
               <div style="margin-bottom:2px;">> rewind -30 seconds to duration</div>
-              <h5 style="font-size:110%;">DoubleClick Key 3(Homescreen)</h5>
+              <h5 style="font-size:110%;">Double-click Key 3(Homescreen)</h5>
               <div style="margin-bottom:2px;">> fast-forward +30 seconds to duration</div>
-              <h5 style="font-size:110%;">DoubleClick Key 4(Homescreen)</h5>
+              <h5 style="font-size:110%;">Double-click Key 4(Homescreen)</h5>
               <div style="margin-bottom:2px;">> rewind -60 seconds to duration</div>
-              <h5 style="font-size:110%;">DoubleClick Key 6(Homescreen)</h5>
+              <h5 style="font-size:110%;">Double-click Key 6(Homescreen)</h5>
               <div style="margin-bottom:2px;">> fast-forward +60 seconds to duration</div>
-              <h5 style="font-size:110%;">DoubleClick Key 7(Homescreen)</h5>
+              <h5 style="font-size:110%;">Double-click Key 7(Homescreen)</h5>
               <div style="margin-bottom:2px;">> rewind -10% seconds to duration</div>
-              <h5 style="font-size:110%;">DoubleClick Key 9(Homescreen)</h5>
+              <h5 style="font-size:110%;">Double-click Key 9(Homescreen)</h5>
               <div style="margin-bottom:2px;">> fast-forward +10% seconds to duration</div>
               <h5 style="font-size:110%;">Up Arrow</h5>
               <div style="margin-bottom:2px;">> Volume up</div>
