@@ -2,6 +2,7 @@ body {
   font-family: 'Open Sans';
   background: #873eff;
   color: #fff;
+  background-size: cover!important;
   background-repeat: no-repeat!important;
   background-attachment: fixed!important;
   background-position: center!important;
