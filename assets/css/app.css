@@ -1,7 +1,6 @@
 body {
   font-family: 'Open Sans';
   background: #873eff;
-  color: #fff;
   background-size: cover!important;
   background-repeat: no-repeat!important;
   background-attachment: fixed!important;
@@ -36,6 +35,7 @@ h5 {
   background-color: #CCCCCC!important;
 }
 .control-panel {
+  color: #fff;
   padding-top:28px;
   text-align: center;
   height:calc(290px - 28px);
