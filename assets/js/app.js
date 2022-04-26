@@ -46,6 +46,15 @@ window.addEventListener("load", function() {
   const SDCARDS = navigator.b2g ? navigator.b2g.getDeviceStorages('sdcard') : navigator.getDeviceStorages('sdcard');
   const SDCARD = navigator.b2g ? navigator.b2g.getDeviceStorage('sdcard') : navigator.getDeviceStorage('sdcard');
 
+  function toPosixPath(windowsPath) {
+    return windowsPath.replace(/^(\w):|\\+/g,'/$1');
+  }
+
+  function isValidURL(string) {
+    var res = string.match(/(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g);
+    return (res !== null)
+  };
+
   function getStorageNameByPath(path) {
     var split = path.split('/')
     if (split[0] !== '' && split[0].length > 0) {
@@ -192,7 +201,7 @@ window.addEventListener("load", function() {
   var GLOBAL_FILES = {}
   var GLOBAL_AUDIO_FILES = [];
   var GLOBAL_AUDIO_FILES_INDEX = 0;
-  var GLOBAL_M3U = {};
+  var GLOBAL_EXT_PLAYLIST = {};
   var EDITOR_MODE = false;
   var PLAYLIST_MODAL = {};
   var MENU_MODAL = {};
@@ -283,10 +292,10 @@ window.addEventListener("load", function() {
   }
 
  function disableEq() {
-    if (window['staticSource'] == null)
-      return
-    window['staticSource'].disconnect();
-    window['staticSource'].connect(window['balance']);
+    if (window['staticSource'] != null) {
+      window['staticSource'].disconnect();
+      window['staticSource'].connect(window['balance']);
+    }
     localforage.setItem('EQUALIZER_STATUS', false);
     EQUALIZER_BTN.classList.add('inactive');
     EQUALIZER_STATUS.innerText = 'ENABLE';
@@ -307,7 +316,11 @@ window.addEventListener("load", function() {
     TEMP.onloadeddata = PLAYER.onloadeddata;
     TEMP.onerror = PLAYER.onerror;
     TEMP.onended = PLAYER.onended;
-    playCurrentPlaylist(SEQUENCE_INDEX);
+    localforage.getItem('SEQUENCE_INDEX')
+    .then((si) => {
+      SEQUENCE_INDEX = si;
+      playCurrentPlaylist(SEQUENCE_INDEX);
+    });
     TEMP.currentTime = PLAYER.currentTime;
     PLAYER = TEMP;
   }
@@ -721,7 +734,6 @@ window.addEventListener("load", function() {
   EXTERNAL_PLAYLIST_MODAL = new Modalise('external_playlist_modal')
   .attach()
   .on('onShow', function() {
-    console.log(GLOBAL_M3U);
     const childNodes = EXT_PLAYLISTS_UL.childNodes;
     document.activeElement.tabIndex = -1;
     EXTERNAL_PLAYLIST_MODAL_INDEX = -1;
@@ -738,7 +750,6 @@ window.addEventListener("load", function() {
     }, 200);
     MENU_SK.classList.add('sr-only');
     OFFMENU_SK.classList.remove('sr-only');
-    
   })
   .on('onConfirm', function() {
     
@@ -1201,11 +1212,16 @@ window.addEventListener("load", function() {
     }
     _files.forEach((element) => {
       getFile(element, (file) => {
+        var isM3U = false;
         var mime = file.type.split('/');
+        if (file.name.indexOf('.m3u') > -1) {
+          mime = ['audio', 'mpegurl'];
+          isM3U = true;
+        }
         if (FILE_BY_GROUPS[mime[0]] == undefined) {
           FILE_BY_GROUPS[mime[0]] = []
         }
-        if (file.type == "") {
+        if (file.type == "" && !isM3U) {
           mime = [];
           const segs = file.name.split('/');
           const last = segs[segs.length - 1];
@@ -1223,14 +1239,13 @@ window.addEventListener("load", function() {
         GLOBAL_FILES[file.name] = file.name; // file; //file.slice(file.size - 128, file.size, file.type);
         _taskDone++;
         if (_taskDone === _taskLength) {
-          console.log('groupByType', FILE_BY_GROUPS);
           GLOBAL_TRACK = '';
           if (FILE_BY_GROUPS.hasOwnProperty('audio')) {
             FILE_BY_GROUPS['audio'].forEach((n) => {
               const _i = n.indexOf('.m3u');
               if (_i > -1 && n[_i + 4] == null) {
                 const _t = n.split('/');
-                GLOBAL_M3U[_t[_t.length - 1]] = n;
+                GLOBAL_EXT_PLAYLIST[_t[_t.length - 1]] = n;
               } else {
                 TRACK.push({name: n, selected: true});
               }
@@ -1286,7 +1301,6 @@ window.addEventListener("load", function() {
             });
             DONE++;
             if (TRACK.length === DONE) {
-              console.log('groupByType', GLOBAL_M3U);
               generateExternalPlaylistUL();
               setReadyState(true);
               if (cb !== undefined) {
@@ -1484,14 +1498,13 @@ window.addEventListener("load", function() {
       GLOBAL_FILES[element] = element; // file; //file.slice(file.size - 128, file.size, file.type);
       _taskDone++;
       if (_taskDone === _taskLength) {
-        console.log('groupByTypeLocal', FILE_BY_GROUPS);
         GLOBAL_TRACK = '';
         if (FILE_BY_GROUPS.hasOwnProperty('audio')) {
           FILE_BY_GROUPS['audio'].forEach((n) => {
             const _i = n.indexOf('.m3u');
             if (_i > -1 && n[_i + 4] == null) {
               const _t = n.split('/');
-              GLOBAL_M3U[_t[_t.length - 1]] = n;
+              GLOBAL_EXT_PLAYLIST[_t[_t.length - 1]] = n;
             } else {
               TRACK.push({name: n, selected: true});
             }
@@ -1547,7 +1560,6 @@ window.addEventListener("load", function() {
           });
           DONE++;
           if (TRACK.length === DONE) {
-            console.log('groupByTypeLocal', GLOBAL_M3U);
             generateExternalPlaylistUL();
             setReadyState(true);
             if (cb !== undefined) {
@@ -1729,7 +1741,7 @@ window.addEventListener("load", function() {
     })
   }
 
-  function getFile(name, handler) {
+  function getFile(name, handler, errHandler) {
     var request = getSDCard(getStorageNameByPath(name)).get(name);
     request.onsuccess = function () {
       const file = this.result;
@@ -1739,6 +1751,7 @@ window.addEventListener("load", function() {
     }
     request.onerror = function () {
       console.warn("Unable to get the file: " + this.error);
+      errHandler(this.error);
     }
   }
 
@@ -1851,6 +1864,7 @@ window.addEventListener("load", function() {
     GLOBAL_FILES = {};
     GLOBAL_AUDIO_FILES = [];
     GLOBAL_AUDIO_FILES_INDEX = 0;
+    GLOBAL_EXT_PLAYLIST = {};
     if (F) {
       console.log('LOCAL');
       setReadyState(false);
@@ -2203,6 +2217,53 @@ window.addEventListener("load", function() {
                   playable = true;
                   running();
                 }
+              } else if (PLAY_TYPE == 'EXTERNAL_PLAYLIST') {
+                if (GLOBAL_EXT_PLAYLIST[PLAY_NAME]) {
+                  getFile(GLOBAL_EXT_PLAYLIST[PLAY_NAME], (file) => {
+                    let reader = new FileReader();
+                    reader.readAsText(file);
+                    reader.onload = () => {
+                      const list = M3U.parse(reader.result, { encoding: "utf8" });
+                      if (list.length > 0) {
+                        TRACK = [];
+                        const filtered = [];
+                        list.forEach((i) => {
+                          const p = decodeURIComponent(i.file);
+                          if (!isValidURL(p)) {
+                            const segs = toPosixPath(p).split('/');
+                            for (var c in GLOBAL_FILES) {
+                              if (c.indexOf(segs[segs.length - 1]) > -1) {
+                                filtered.push({name: GLOBAL_FILES[c], selected: true});
+                                break;
+                              }
+                            }
+                          }
+                        });
+                        PLAYLIST_LABEL.innerHTML = 'External Playlist';
+                        PLAYLIST_NAME.innerHTML = 'PLAYLIST';
+                        Object.assign(TRACK, filtered);
+                        CURRENT_PLAYLIST = PLAY_NAME;
+                        running(false);
+                        resumeApp();
+                      } else {
+                        playable = true;
+                        running();
+                      }
+                    };
+                    reader.onerror = () => {
+                      console.log(reader.error);
+                      playable = true;
+                      running();
+                    };
+                  }, (err) => {
+                    console.log(err);
+                    playable = true;
+                    running();
+                  });
+                } else {
+                  playable = true;
+                  running();
+                }
               } else if (PLAY_TYPE == 'PLAYLIST') {
                 current = PLAY_NAME;
                 running();
@@ -2220,33 +2281,55 @@ window.addEventListener("load", function() {
   }
 
   function generateExternalPlaylistUL() {
-    console.log('generateExternalPlaylistUL', GLOBAL_M3U);
     while(EXT_PLAYLISTS_UL.firstChild) {
       EXT_PLAYLISTS_UL.removeChild(EXT_PLAYLISTS_UL.firstChild);
     }
-    var _i = 0;
-    for (var name in GLOBAL_M3U) {
+    var _extPlaylistUlIndex = 0;
+    for (var name in GLOBAL_EXT_PLAYLIST) {
       const custom_playlist_li = document.createElement("LI");
       const pr = document.createElement("pre");
       pr.innerHTML = name;
       custom_playlist_li.appendChild(pr);
       custom_playlist_li.setAttribute("class", "nav_ext_pl");
-      custom_playlist_li.setAttribute("tabIndex", _i);
+      custom_playlist_li.setAttribute("tabIndex", _extPlaylistUlIndex);
       custom_playlist_li.setAttribute("value", name);
       EXT_PLAYLISTS_UL.appendChild(custom_playlist_li);
+      _extPlaylistUlIndex++;
     }
   }
 
   function processExternalPlaylist(name) {
-    console.log('processExternalPlaylist', GLOBAL_M3U[name]);
-    if (GLOBAL_M3U[name]) {
-      getFile(GLOBAL_M3U[name], (file) => {
+    if (GLOBAL_EXT_PLAYLIST[name]) {
+      getFile(GLOBAL_EXT_PLAYLIST[name], (file) => {
         let reader = new FileReader();
         reader.readAsText(file);
         reader.onload = () => {
-          //console.log(reader.result);
           const list = M3U.parse(reader.result, { encoding: "utf8" });
-          console.log(list);
+          if (list.length > 0) {
+            localforage.setItem('PLAY_TYPE', 'EXTERNAL_PLAYLIST')
+            .then(() => {
+              localforage.setItem('PLAY_NAME', name)
+            });
+            TRACK = [];
+            const filtered = [];
+            list.forEach((i) => {
+              const p = decodeURIComponent(i.file);
+              if (!isValidURL(p)) {
+                const segs = toPosixPath(p).split('/');
+                for (var c in GLOBAL_FILES) {
+                  if (c.indexOf(segs[segs.length - 1]) > -1) {
+                    filtered.push({name: GLOBAL_FILES[c], selected: true});
+                    break;
+                  }
+                }
+              }
+            });
+            PLAYLIST_LABEL.innerHTML = name;
+            PLAYLIST_NAME.innerHTML = name;
+            CURRENT_PLAYLIST = name;
+            Object.assign(TRACK, filtered);
+            processPlaylist();
+          }
         };
         reader.onerror = () => {
           console.log(reader.error);
@@ -2720,6 +2803,8 @@ window.addEventListener("load", function() {
     var currentIndex = document.activeElement.tabIndex;
     if (CURRENT_SCREEN === 'PLAYLIST_MANAGER_MODAL') {
       currentIndex = PLAYLIST_MANAGER_MODAL_INDEX;
+    } else if (CURRENT_SCREEN === 'EXTERNAL_PLAYLIST_MODAL') {
+      currentIndex = EXTERNAL_PLAYLIST_MODAL_INDEX;
     }
     var move = currentIndex + next;
     const nav = document.querySelectorAll(selector);
@@ -3318,7 +3403,6 @@ window.addEventListener("load", function() {
             PLAYLIST_MANAGER_MODAL.hide();
           }
         } else if (CURRENT_SCREEN === 'EXTERNAL_PLAYLIST_MODAL') {
-          console.log(EXTERNAL_PLAYLIST_MODAL_INDEX);
           const nav = document.querySelectorAll('.nav_ext_pl');
           try {
             processExternalPlaylist(nav[EXTERNAL_PLAYLIST_MODAL_INDEX].attributes.value.value);
