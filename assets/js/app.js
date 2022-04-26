@@ -189,13 +189,15 @@ window.addEventListener("load", function() {
   var GENRES = {};
   var TRACK = [];
   var GLOBAL_TRACK = '';
-  var GLOBAL_BLOB = {}
-  var GLOBAL_AUDIO_BLOB = [];
-  var GLOBAL_AUDIO_BLOB_INDEX = 0;
+  var GLOBAL_FILES = {}
+  var GLOBAL_AUDIO_FILES = [];
+  var GLOBAL_AUDIO_FILES_INDEX = 0;
+  var GLOBAL_M3U = {};
   var EDITOR_MODE = false;
   var PLAYLIST_MODAL = {};
   var MENU_MODAL = {};
   var PLAYLIST_MANAGER_MODAL = {};
+  var EXTERNAL_PLAYLIST_MODAL = {};
   var PLAYLIST_EDITOR_MODAL = {};
   var CONFIRM_MODAL = {};
   var ABOUT_MODAL = {};
@@ -208,6 +210,7 @@ window.addEventListener("load", function() {
   var EQL_MODAL = {};
 
   var PLAYLIST_MANAGER_MODAL_INDEX = -1;
+  var EXTERNAL_PLAYLIST_MODAL_INDEX = -1;
   var LFT_DBL_CLICK_TH = 0;
   var LFT_DBL_CLICK_TIMER = undefined;
   var RGT_DBL_CLICK_TH = 0;
@@ -280,6 +283,8 @@ window.addEventListener("load", function() {
   }
 
  function disableEq() {
+    if (window['staticSource'] == null)
+      return
     window['staticSource'].disconnect();
     window['staticSource'].connect(window['balance']);
     localforage.setItem('EQUALIZER_STATUS', false);
@@ -410,6 +415,7 @@ window.addEventListener("load", function() {
   const CURRENT_TRACK = document.getElementById("current_track");
   const PLAYLIST_LENGTH = document.getElementById("playlist_length");
   const PLAYLISTS_UL = document.getElementById("playlists_ul");
+  const EXT_PLAYLISTS_UL = document.getElementById("external_playlists_ul");
   const TRACK_EDITOR_UL = document.getElementById("track_editor_ul");
   const PLAYLIST_NAME_INPUT = document.getElementById("playlist_name_input");
   const EDITOR_MODE_LABEL = document.getElementById("editor_mode_label");
@@ -523,10 +529,10 @@ window.addEventListener("load", function() {
         }
         GENRES['UNKNOWN'].push({name: e.data.file.name, selected: true})
       }
-      GLOBAL_AUDIO_BLOB_INDEX += 1;
-      if (GLOBAL_AUDIO_BLOB_INDEX < GLOBAL_AUDIO_BLOB.length) {
-        showSnackbar('Only Run Once | ' + (GLOBAL_AUDIO_BLOB_INDEX + 1).toString() + '/' + GLOBAL_AUDIO_BLOB.length.toString());
-        parseMetadata(GLOBAL_AUDIO_BLOB[GLOBAL_AUDIO_BLOB_INDEX]);
+      GLOBAL_AUDIO_FILES_INDEX += 1;
+      if (GLOBAL_AUDIO_FILES_INDEX < GLOBAL_AUDIO_FILES.length) {
+        showSnackbar('Only Run Once | ' + (GLOBAL_AUDIO_FILES_INDEX + 1).toString() + '/' + GLOBAL_AUDIO_FILES.length.toString());
+        parseMetadata(GLOBAL_AUDIO_FILES[GLOBAL_AUDIO_FILES_INDEX]);
       } else {
         localforage.setItem('ARTISTS', ARTISTS)
         .then(() => {
@@ -710,6 +716,38 @@ window.addEventListener("load", function() {
     MENU_SK.classList.remove('sr-only');
     OFFMENU_SK.classList.add('sr-only');
     PM_SK.classList.add('sr-only');
+  });
+
+  EXTERNAL_PLAYLIST_MODAL = new Modalise('external_playlist_modal')
+  .attach()
+  .on('onShow', function() {
+    console.log(GLOBAL_M3U);
+    const childNodes = EXT_PLAYLISTS_UL.childNodes;
+    document.activeElement.tabIndex = -1;
+    EXTERNAL_PLAYLIST_MODAL_INDEX = -1;
+    for (var x=0;x<childNodes.length;x++) {
+      if (childNodes[x].textContent === CURRENT_PLAYLIST) {
+        document.activeElement.tabIndex = x - 1;
+        EXTERNAL_PLAYLIST_MODAL_INDEX = x - 1;
+        break;
+      }
+    }
+    CURRENT_SCREEN = 'EXTERNAL_PLAYLIST_MODAL';
+    setTimeout(function() {
+      nav(1, '.nav_ext_pl');
+    }, 200);
+    MENU_SK.classList.add('sr-only');
+    OFFMENU_SK.classList.remove('sr-only');
+    
+  })
+  .on('onConfirm', function() {
+    
+  })
+  .on('onHide', function() {
+    EXTERNAL_PLAYLIST_MODAL_INDEX = -1;
+    document.activeElement.tabIndex = -1;
+    MENU_SK.classList.remove('sr-only');
+    OFFMENU_SK.classList.add('sr-only');
   });
 
   PLAYLIST_EDITOR_MODAL = new Modalise('playlist_editor_modal')
@@ -1182,14 +1220,21 @@ window.addEventListener("load", function() {
           }
         }
         FILE_BY_GROUPS[mime[0]].push(file.name);
-        GLOBAL_BLOB[file.name] = file.name; // file; //file.slice(file.size - 128, file.size, file.type);
+        GLOBAL_FILES[file.name] = file.name; // file; //file.slice(file.size - 128, file.size, file.type);
         _taskDone++;
         if (_taskDone === _taskLength) {
+          console.log('groupByType', FILE_BY_GROUPS);
           GLOBAL_TRACK = '';
           if (FILE_BY_GROUPS.hasOwnProperty('audio')) {
             FILE_BY_GROUPS['audio'].forEach((n) => {
-              TRACK.push({name: n, selected: true});
-              GLOBAL_AUDIO_BLOB.push({name: n});
+              const _i = n.indexOf('.m3u');
+              if (_i > -1 && n[_i + 4] == null) {
+                const _t = n.split('/');
+                GLOBAL_M3U[_t[_t.length - 1]] = n;
+              } else {
+                TRACK.push({name: n, selected: true});
+              }
+              GLOBAL_AUDIO_FILES.push({name: n});
             });
           }
           if (FILE_BY_GROUPS.hasOwnProperty('video')) {
@@ -1197,7 +1242,7 @@ window.addEventListener("load", function() {
               const split = n.split('.');
               if (split[split.length - 1] === 'ogg') { // ts ? mp4 ?
                 TRACK.push({name: n, selected: true});
-                GLOBAL_AUDIO_BLOB.push({name: n});
+                GLOBAL_AUDIO_FILES.push({name: n});
               }
             });
           }
@@ -1208,7 +1253,7 @@ window.addEventListener("load", function() {
               return -1;
             return 0;
           });
-          GLOBAL_AUDIO_BLOB.sort((a, b) => {
+          GLOBAL_AUDIO_FILES.sort((a, b) => {
             if (a['name'] > b['name'])
               return 1;
             else if (a['name'] < b['name'])
@@ -1241,10 +1286,12 @@ window.addEventListener("load", function() {
             });
             DONE++;
             if (TRACK.length === DONE) {
+              console.log('groupByType', GLOBAL_M3U);
+              generateExternalPlaylistUL();
               setReadyState(true);
               if (cb !== undefined) {
                 var LOCAL_GLOBAL_AUDIO = []
-                GLOBAL_AUDIO_BLOB.forEach((f) => {
+                GLOBAL_AUDIO_FILES.forEach((f) => {
                   LOCAL_GLOBAL_AUDIO.push(f.name);
                 });
                 localforage.getItem('DATABASE_GLOBAL_AUDIO')
@@ -1252,7 +1299,7 @@ window.addEventListener("load", function() {
                   if (DATABASE_GLOBAL_AUDIO == null) {
                     localforage.setItem('DATABASE_GLOBAL_AUDIO', LOCAL_GLOBAL_AUDIO)
                     setReadyState(false);
-                    parseMetadata(GLOBAL_AUDIO_BLOB[0]);
+                    parseMetadata(TRACK[0]);
                     window['__POWER__'] = navigator.requestWakeLock('cpu');
                   } else {
                     setReadyState(true);
@@ -1405,7 +1452,7 @@ window.addEventListener("load", function() {
                           });
                         } else {
                           new_files.forEach((n) => {
-                            getFile(GLOBAL_BLOB[n], (file) => {
+                            getFile(GLOBAL_FILES[n], (file) => {
                               SUB_WORKER.postMessage({file: file, type: 'PARSE_METADATA_UPDATE'});
                             });
                           });
@@ -1434,14 +1481,21 @@ window.addEventListener("load", function() {
         FILE_BY_GROUPS['audio'] = []
       }
       FILE_BY_GROUPS['audio'].push(element);
-      GLOBAL_BLOB[element] = element; // file; //file.slice(file.size - 128, file.size, file.type);
+      GLOBAL_FILES[element] = element; // file; //file.slice(file.size - 128, file.size, file.type);
       _taskDone++;
       if (_taskDone === _taskLength) {
+        console.log('groupByTypeLocal', FILE_BY_GROUPS);
         GLOBAL_TRACK = '';
         if (FILE_BY_GROUPS.hasOwnProperty('audio')) {
           FILE_BY_GROUPS['audio'].forEach((n) => {
-            TRACK.push({name: n, selected: true});
-            GLOBAL_AUDIO_BLOB.push({name: n});
+            const _i = n.indexOf('.m3u');
+            if (_i > -1 && n[_i + 4] == null) {
+              const _t = n.split('/');
+              GLOBAL_M3U[_t[_t.length - 1]] = n;
+            } else {
+              TRACK.push({name: n, selected: true});
+            }
+            GLOBAL_AUDIO_FILES.push({name: n});
           });
         }
         if (FILE_BY_GROUPS.hasOwnProperty('video')) {
@@ -1449,7 +1503,7 @@ window.addEventListener("load", function() {
             const split = n.split('.');
             if (split[split.length - 1] === 'ogg') {
               TRACK.push({name: n, selected: true});
-              GLOBAL_AUDIO_BLOB.push({name: n});
+              GLOBAL_AUDIO_FILES.push({name: n});
             }
           });
         }
@@ -1460,7 +1514,7 @@ window.addEventListener("load", function() {
             return -1;
           return 0;
         });
-        GLOBAL_AUDIO_BLOB.sort((a, b) => {
+        GLOBAL_AUDIO_FILES.sort((a, b) => {
           if (a['name'] > b['name'])
             return 1;
           else if (a['name'] < b['name'])
@@ -1493,10 +1547,12 @@ window.addEventListener("load", function() {
           });
           DONE++;
           if (TRACK.length === DONE) {
+            console.log('groupByTypeLocal', GLOBAL_M3U);
+            generateExternalPlaylistUL();
             setReadyState(true);
             if (cb !== undefined) {
               var LOCAL_GLOBAL_AUDIO = []
-              GLOBAL_AUDIO_BLOB.forEach((f) => {
+              GLOBAL_AUDIO_FILES.forEach((f) => {
                 LOCAL_GLOBAL_AUDIO.push(f.name);
               });
               localforage.getItem('DATABASE_GLOBAL_AUDIO')
@@ -1504,7 +1560,7 @@ window.addEventListener("load", function() {
                 if (DATABASE_GLOBAL_AUDIO == null) {
                   localforage.setItem('DATABASE_GLOBAL_AUDIO', LOCAL_GLOBAL_AUDIO)
                   setReadyState(false);
-                  parseMetadata(GLOBAL_AUDIO_BLOB[0]);
+                  parseMetadata(TRACK[0]);
                   window['__POWER__'] = navigator.requestWakeLock('cpu');
                 } else {
                   setReadyState(true);
@@ -1657,7 +1713,7 @@ window.addEventListener("load", function() {
                         });
                       } else {
                         new_files.forEach((n) => {
-                          getFile(GLOBAL_BLOB[n], (file) => {
+                          getFile(GLOBAL_FILES[n], (file) => {
                             SUB_WORKER.postMessage({file: file, type: 'PARSE_METADATA_UPDATE'});
                           });
                         });
@@ -1792,9 +1848,9 @@ window.addEventListener("load", function() {
     GENRES = {};
     FOLDERS = {};
     ARTISTS = {};
-    GLOBAL_BLOB = {};
-    GLOBAL_AUDIO_BLOB = [];
-    GLOBAL_AUDIO_BLOB_INDEX = 0;
+    GLOBAL_FILES = {};
+    GLOBAL_AUDIO_FILES = [];
+    GLOBAL_AUDIO_FILES_INDEX = 0;
     if (F) {
       console.log('LOCAL');
       setReadyState(false);
@@ -2160,6 +2216,42 @@ window.addEventListener("load", function() {
       });
     } else {
       running();
+    }
+  }
+
+  function generateExternalPlaylistUL() {
+    console.log('generateExternalPlaylistUL', GLOBAL_M3U);
+    while(EXT_PLAYLISTS_UL.firstChild) {
+      EXT_PLAYLISTS_UL.removeChild(EXT_PLAYLISTS_UL.firstChild);
+    }
+    var _i = 0;
+    for (var name in GLOBAL_M3U) {
+      const custom_playlist_li = document.createElement("LI");
+      const pr = document.createElement("pre");
+      pr.innerHTML = name;
+      custom_playlist_li.appendChild(pr);
+      custom_playlist_li.setAttribute("class", "nav_ext_pl");
+      custom_playlist_li.setAttribute("tabIndex", _i);
+      custom_playlist_li.setAttribute("value", name);
+      EXT_PLAYLISTS_UL.appendChild(custom_playlist_li);
+    }
+  }
+
+  function processExternalPlaylist(name) {
+    console.log('processExternalPlaylist', GLOBAL_M3U[name]);
+    if (GLOBAL_M3U[name]) {
+      getFile(GLOBAL_M3U[name], (file) => {
+        let reader = new FileReader();
+        reader.readAsText(file);
+        reader.onload = () => {
+          //console.log(reader.result);
+          const list = M3U.parse(reader.result, { encoding: "utf8" });
+          console.log(list);
+        };
+        reader.onerror = () => {
+          console.log(reader.error);
+        };
+      });
     }
   }
 
@@ -2636,6 +2728,8 @@ window.addEventListener("load", function() {
       targetElement.focus();
       if (CURRENT_SCREEN === 'PLAYLIST_MANAGER_MODAL') {
         PLAYLIST_MANAGER_MODAL_INDEX = move;
+      } else if (CURRENT_SCREEN === 'EXTERNAL_PLAYLIST_MODAL') {
+        EXTERNAL_PLAYLIST_MODAL_INDEX = move;
       } else {
         document.activeElement.tabIndex = move;
       }
@@ -2649,6 +2743,8 @@ window.addEventListener("load", function() {
       targetElement.focus();
       if (CURRENT_SCREEN === 'PLAYLIST_MANAGER_MODAL') {
         PLAYLIST_MANAGER_MODAL_INDEX = move;
+      } else if (CURRENT_SCREEN === 'EXTERNAL_PLAYLIST_MODAL') {
+        EXTERNAL_PLAYLIST_MODAL_INDEX = move;
       } else {
         document.activeElement.tabIndex = move;
       }
@@ -3019,6 +3115,8 @@ window.addEventListener("load", function() {
           nav(-1, '.nav_track');
         } else if (CURRENT_SCREEN === 'PLAYLIST_MANAGER_MODAL') {
           nav(-1, '.nav_man_pl');
+        } else if (CURRENT_SCREEN === 'EXTERNAL_PLAYLIST_MODAL') {
+          nav(-1, '.nav_ext_pl');
         } else if (CURRENT_SCREEN === 'PLAYLIST_EDITOR_MODAL') {
           nav(-1, '.nav_track_editor');
         } else if (CURRENT_SCREEN === 'ABOUT_MODAL') {
@@ -3048,6 +3146,8 @@ window.addEventListener("load", function() {
           nav(1, '.nav_track');
         } else if (CURRENT_SCREEN === 'PLAYLIST_MANAGER_MODAL') {
           nav(1, '.nav_man_pl');
+        } else if (CURRENT_SCREEN === 'EXTERNAL_PLAYLIST_MODAL') {
+          nav(1, '.nav_ext_pl');
         } else if (CURRENT_SCREEN === 'PLAYLIST_EDITOR_MODAL') {
           nav(1, '.nav_track_editor');
         } else if (CURRENT_SCREEN === 'ABOUT_MODAL') {
@@ -3132,26 +3232,29 @@ window.addEventListener("load", function() {
             PLAYLIST_MANAGER_MODAL.show();
           } else if (document.activeElement.tabIndex === 1) {
             MENU_MODAL.hide();
-            ARTISTS_MODAL.show();
+            EXTERNAL_PLAYLIST_MODAL.show();
           } else if (document.activeElement.tabIndex === 2) {
             MENU_MODAL.hide();
-            ALBUMS_MODAL.show();
+            ARTISTS_MODAL.show();
           } else if (document.activeElement.tabIndex === 3) {
             MENU_MODAL.hide();
-            GENRES_MODAL.show();
+            ALBUMS_MODAL.show();
           } else if (document.activeElement.tabIndex === 4) {
             MENU_MODAL.hide();
-            FOLDERS_MODAL.show();
+            GENRES_MODAL.show();
           } else if (document.activeElement.tabIndex === 5) {
             MENU_MODAL.hide();
-            DIRECTORY_MODAL.show();
+            FOLDERS_MODAL.show();
           } else if (document.activeElement.tabIndex === 6) {
             MENU_MODAL.hide();
-            EQUALIZER_MODAL.show();
+            DIRECTORY_MODAL.show();
           } else if (document.activeElement.tabIndex === 7) {
             MENU_MODAL.hide();
-            EQL_MODAL.show();
+            EQUALIZER_MODAL.show();
           } else if (document.activeElement.tabIndex === 8) {
+            MENU_MODAL.hide();
+            EQL_MODAL.show();
+          } else if (document.activeElement.tabIndex === 9) {
             localforage.getItem('PLAY_DURATION')
             .then(function(PLAY_DURATION) {
               RESUME_DURATION = PLAY_DURATION;
@@ -3164,7 +3267,7 @@ window.addEventListener("load", function() {
               CURRENT_SCREEN = 'HOME';
               MENU_MODAL.hide();
             });
-          } else if (document.activeElement.tabIndex === 9) {
+          } else if (document.activeElement.tabIndex === 10) {
             SLEEP_SWITCH = !SLEEP_SWITCH;
             if (SLEEP_SWITCH) {
               SLEEP_BTN.classList.remove('inactive');
@@ -3174,7 +3277,7 @@ window.addEventListener("load", function() {
             showSnackbar(`Sleep Timer is ${SLEEP_SWITCH ? 'ON' : 'OFF'}`);
             CURRENT_SCREEN = 'HOME';
             MENU_MODAL.hide();
-          } else if (document.activeElement.tabIndex === 10) {
+          } else if (document.activeElement.tabIndex === 11) {
             localforage.getItem('AUTOPLAY')
             .then((AUTOPLAY) => {
               if (AUTOPLAY == null) {
@@ -3191,10 +3294,10 @@ window.addEventListener("load", function() {
             });
             CURRENT_SCREEN = 'HOME';
             MENU_MODAL.hide();
-          } else if (document.activeElement.tabIndex === 11) {
+          } else if (document.activeElement.tabIndex === 12) {
             MENU_MODAL.hide();
             ABOUT_MODAL.show();
-          } else if (document.activeElement.tabIndex === 12) {
+          } else if (document.activeElement.tabIndex === 13) {
             window.close();
           }
         } else if (CURRENT_SCREEN === 'PLAYLIST_MODAL') {
@@ -3214,6 +3317,14 @@ window.addEventListener("load", function() {
             CURRENT_SCREEN = 'HOME';
             PLAYLIST_MANAGER_MODAL.hide();
           }
+        } else if (CURRENT_SCREEN === 'EXTERNAL_PLAYLIST_MODAL') {
+          console.log(EXTERNAL_PLAYLIST_MODAL_INDEX);
+          const nav = document.querySelectorAll('.nav_ext_pl');
+          try {
+            processExternalPlaylist(nav[EXTERNAL_PLAYLIST_MODAL_INDEX].attributes.value.value);
+          } catch(e){}
+          CURRENT_SCREEN = 'HOME';
+          EXTERNAL_PLAYLIST_MODAL.hide();
         } else if (CURRENT_SCREEN === 'PLAYLIST_EDITOR_MODAL') {
           if (document.activeElement.tagName === 'LI') {
             const chkbx = document.getElementById("track_" + document.activeElement.tabIndex);
@@ -3302,6 +3413,11 @@ window.addEventListener("load", function() {
         } else if (CURRENT_SCREEN === 'PLAYLIST_MANAGER_MODAL') {
           CURRENT_SCREEN = 'HOME';
           PLAYLIST_MANAGER_MODAL.hide();
+          e.preventDefault();
+          e.stopPropagation();
+        } else if (CURRENT_SCREEN === 'EXTERNAL_PLAYLIST_MODAL') {
+          CURRENT_SCREEN = 'HOME';
+          EXTERNAL_PLAYLIST_MODAL.hide();
           e.preventDefault();
           e.stopPropagation();
         } else if (CURRENT_SCREEN === 'PLAYLIST_EDITOR_MODAL') {
@@ -3610,7 +3726,7 @@ window.addEventListener("load", function() {
   function getDir(path, scan = false) {
     var files = [];
     var tree = {}
-    GLOBAL_AUDIO_BLOB.forEach((f) => {
+    GLOBAL_AUDIO_FILES.forEach((f) => {
       files.push(f.name);
     });
     tree = indexingDocuments(files);

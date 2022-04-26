@@ -12,8 +12,6 @@
     <link rel="stylesheet" href="/assets/css/modalise.min.css">
     <link rel="stylesheet" href="/assets/css/app.css">
 
-    <!-- Inline scripts are forbidden in Firefox OS apps (CSP restrictions),
-         so we use a script file. -->
     <script src="/assets/js/aurora/aurora.js" defer></script>
     <script src="/assets/js/aurora/alac.js" defer></script>
     <script src="/assets/js/aurora/flac.js" defer></script>
@@ -25,11 +23,11 @@
     <script src="/assets/js/kaiads.v5.min.js" defer></script>
     <script src="/assets/js/parser/metadata_scripts.js" defer></script>
     <script src="/assets/js/cutter.js" defer></script>
+    <script src="/assets/js/parser.min.js" defer></script>
 
   </head>
 
   <body>
-    <!-- This code is in the public domain. Enjoy! -->
     <div id="loading" class="slider_wrapper">
       <div class="slider">
         <div class="line"></div>
@@ -135,18 +133,19 @@
         <div class="mdl-body">
           <ul class="kui-options text-dark" style="font-size:14px;height:calc(100vh - (58px + 25px))!important;">
             <li class="nav_menu" tabIndex="0">Playlist</li>
-            <li class="nav_menu" tabIndex="1">Artist</li>
-            <li class="nav_menu" tabIndex="2">Album</li>
-            <li class="nav_menu" tabIndex="3">Genre</li>
-            <li class="nav_menu" tabIndex="4">Folder</li>
-            <li class="nav_menu" tabIndex="5">Directory</li>
-            <li class="nav_menu" tabIndex="6">Equalizer</li>
-            <li class="nav_menu" tabIndex="7">Built-in Equalizer</li>
-            <li class="nav_menu" tabIndex="8">Reload Library</li>
-            <li id="sleep_timer" class="nav_menu" tabIndex="9">SLEEP_TIMER</li>
-            <li id="autoplay_state" class="nav_menu" tabIndex="10">AUTOPLAY_STATE</li>
-            <li class="nav_menu" tabIndex="11">Tips & About</li>
-            <li class="nav_menu" tabIndex="12">Kill App</li>
+            <li class="nav_menu" tabIndex="1">External Playlist</li>
+            <li class="nav_menu" tabIndex="2">Artist</li>
+            <li class="nav_menu" tabIndex="3">Album</li>
+            <li class="nav_menu" tabIndex="4">Genre</li>
+            <li class="nav_menu" tabIndex="5">Folder</li>
+            <li class="nav_menu" tabIndex="6">Directory</li>
+            <li class="nav_menu" tabIndex="7">Equalizer</li>
+            <li class="nav_menu" tabIndex="8">Built-in Equalizer</li>
+            <li class="nav_menu" tabIndex="9">Reload Library</li>
+            <li id="sleep_timer" class="nav_menu" tabIndex="10">SLEEP_TIMER</li>
+            <li id="autoplay_state" class="nav_menu" tabIndex="11">AUTOPLAY_STATE</li>
+            <li class="nav_menu" tabIndex="12">Tips & About</li>
+            <li class="nav_menu" tabIndex="13">Kill App</li>
           </ul>
         </div>
       </div>
@@ -159,6 +158,17 @@
         </center>
         <div class="mdl-body">
           <ul id="playlists_ul" class="kui-options text-dark" style="font-size:14px;height:calc(100vh - (58px + 25px))!important;"></ul>
+        </div>
+      </div>
+    </div>
+
+    <div id="external_playlist_modal" class="mdl mdl-fadein kui-option-menu">
+      <div class="mdl-content mdl-slidein">
+        <center>
+          <div class="kui-option-title">External Playlist</div>
+        </center>
+        <div class="mdl-body">
+          <ul id="external_playlists_ul" class="kui-options text-dark" style="font-size:14px;height:calc(100vh - (58px + 25px))!important;"></ul>
         </div>
       </div>
     </div>
