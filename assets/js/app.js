@@ -202,6 +202,7 @@ window.addEventListener("load", function() {
   var GLOBAL_AUDIO_FILES = [];
   var GLOBAL_AUDIO_FILES_INDEX = 0;
   var GLOBAL_EXT_PLAYLIST = {};
+  var SORT_TASK = [];
   var EDITOR_MODE = false;
   var PLAYLIST_MODAL = {};
   var MENU_MODAL = {};
@@ -217,6 +218,7 @@ window.addEventListener("load", function() {
   var DIRECTORY_MODAL = {};
   var TRIM_MODAL = {};
   var EQL_MODAL = {};
+  var SHORTCUT_KEYS_MODAL = {};
 
   var PLAYLIST_MANAGER_MODAL_INDEX = -1;
   var EXTERNAL_PLAYLIST_MODAL_INDEX = -1;
@@ -388,7 +390,7 @@ window.addEventListener("load", function() {
   }
 
   const DEFAULT_VOLUME = 0.02;
-  
+
   const CUTTER_CURRENT_TIME = document.getElementById('cutter_current_time');
   const CUTTER_DURATION = document.getElementById('cutter_duration');
   const CUTTER_DURATION_SLIDER = document.getElementById('cutter_duration_slider');
@@ -434,6 +436,7 @@ window.addEventListener("load", function() {
   const EDITOR_MODE_LABEL = document.getElementById("editor_mode_label");
   const CONFIRM_LABEL = document.getElementById("confirm_label");
   const ABOUT_CONTENT = document.getElementById("about_content");
+  const SHORTCUT_KEYS_CONTENT = document.getElementById("shortcut_keys_content");
   const FOLDERS_UL = document.getElementById("folders_ul");
   const ALBUMS_UL = document.getElementById("albums_ul");
   const ARTISTS_UL = document.getElementById("artists_ul");
@@ -606,6 +609,36 @@ window.addEventListener("load", function() {
         ALBUM_COVER.src = '/assets/img/baseline_album_white_48.png';
         document.body.style.background = ``
       }
+    } else if (e.data.type ===  "PARSE_METADATA_SORT_ALBUM") {
+      showSnackbar('Sorting album tracks');
+      try {
+        if (PLAYER.duration > 0 && !PLAYER.paused) {
+          PLAYER.pause();
+        }
+        if (window['__AURORA__']) {
+          if (window['__AURORA__'].playing) {
+            window['__AURORA__'].pause();
+          }
+        }
+      } catch (er) {}
+      let track = SORT_TASK.task.length + 1;
+      if (e.data.result && e.data.result.tags && e.data.result.tags.track)
+        track = e.data.result.tags.track;
+      SORT_TASK.completed.push({ name: e.data.file.name, selected: true, track: track });
+      if (SORT_TASK.task.length > 0) {
+        const t = SORT_TASK.task.pop();
+        runSortTask(t);
+      } else {
+        SORT_TASK.completed.sort((a, b) => {
+          return a.track - b.track;
+        });
+        SORT_TASK.completed.forEach(t => {
+          delete t.track;
+        });
+        Object.assign(TRACK, SORT_TASK.completed);
+        SORT_TASK = {};
+        processPlaylist();
+      }
     }
   }
 
@@ -645,10 +678,10 @@ window.addEventListener("load", function() {
     }, 200);
     MENU_SK.classList.add('sr-only');
     SEARCH_SK.classList.remove('sr-only');
-    
+
   })
   .on('onConfirm', function() {
-    
+
   })
   .on('onHide', function() {
     CURRENT_SCREEN = 'HOME';
@@ -690,7 +723,7 @@ window.addEventListener("load", function() {
     OFFMENU_SK.classList.remove('sr-only');
   })
   .on('onConfirm', function() {
-    
+
   })
   .on('onHide', function() {
     document.activeElement.tabIndex = -1;
@@ -718,10 +751,10 @@ window.addEventListener("load", function() {
     MENU_SK.classList.add('sr-only');
     OFFMENU_SK.classList.add('sr-only');
     PM_SK.classList.remove('sr-only');
-    
+
   })
   .on('onConfirm', function() {
-    
+
   })
   .on('onHide', function() {
     PLAYLIST_MANAGER_MODAL_INDEX = -1;
@@ -752,7 +785,7 @@ window.addEventListener("load", function() {
     OFFMENU_SK.classList.remove('sr-only');
   })
   .on('onConfirm', function() {
-    
+
   })
   .on('onHide', function() {
     EXTERNAL_PLAYLIST_MODAL_INDEX = -1;
@@ -773,10 +806,10 @@ window.addEventListener("load", function() {
     OFFMENU_SK.classList.add('sr-only');
     PM_SK.classList.add('sr-only');
     PE_SK.classList.remove('sr-only');
-    
+
   })
   .on('onConfirm', function() {
-    
+
   })
   .on('onHide', function() {
     document.activeElement.tabIndex = -1;
@@ -795,10 +828,10 @@ window.addEventListener("load", function() {
     PM_SK.classList.add('sr-only');
     PE_SK.classList.add('sr-only');
     CM_SK.classList.remove('sr-only');
-    
+
   })
   .on('onConfirm', function() {
-    
+
   })
   .on('onHide', function() {
     MENU_SK.classList.remove('sr-only');
@@ -815,7 +848,20 @@ window.addEventListener("load", function() {
     MENU_SK.classList.add('sr-only');
   })
   .on('onConfirm', function() {
-    
+
+  })
+  .on('onHide', function() {
+    MENU_SK.classList.remove('sr-only');
+  });
+
+  SHORTCUT_KEYS_MODAL = new Modalise('shortcut_keys_modal')
+  .attach()
+  .on('onShow', function() {
+    CURRENT_SCREEN = 'SHORTCUT_KEYS_MODAL';
+    MENU_SK.classList.add('sr-only');
+  })
+  .on('onConfirm', function() {
+
   })
   .on('onHide', function() {
     MENU_SK.classList.remove('sr-only');
@@ -829,7 +875,7 @@ window.addEventListener("load", function() {
     EQUALIZER_SK.classList.remove('sr-only');
   })
   .on('onConfirm', function() {
-    
+
   })
   .on('onHide', function() {
     EQUALIZER_SK.classList.add('sr-only');
@@ -867,7 +913,7 @@ window.addEventListener("load", function() {
     });
   })
   .on('onConfirm', function() {
-    
+
   })
   .on('onHide', function() {
     EQL_SK.classList.add('sr-only');
@@ -902,7 +948,7 @@ window.addEventListener("load", function() {
     SEARCH_SK.classList.remove('sr-only');
   })
   .on('onConfirm', function() {SS
-    
+
   })
   .on('onHide', function() {
     SEARCH_FOLDER.value = '';
@@ -945,10 +991,10 @@ window.addEventListener("load", function() {
       }, 200);
       SEARCH_SK.classList.remove('sr-only');
     })
-    
+
   })
   .on('onConfirm', function() {
-    
+
   })
   .on('onHide', function() {
     SEARCH_ALBUM.value = '';
@@ -993,7 +1039,7 @@ window.addEventListener("load", function() {
     })
   })
   .on('onConfirm', function() {SS
-    
+
   })
   .on('onHide', function() {
     SEARCH_ARTIST.value = '';
@@ -1036,10 +1082,10 @@ window.addEventListener("load", function() {
       }, 200);
       SEARCH_SK.classList.remove('sr-only');
     })
-    
+
   })
   .on('onConfirm', function() {
-    
+
   })
   .on('onHide', function() {
     SEARCH_GENRE.value = '';
@@ -1058,7 +1104,7 @@ window.addEventListener("load", function() {
     enterDir(null);
   })
   .on('onConfirm', function() {
-    
+
   })
   .on('onHide', function() {
     DIRECTORY_SK.classList.add('sr-only');
@@ -1074,7 +1120,7 @@ window.addEventListener("load", function() {
     TRIM_SK.classList.remove('sr-only');
   })
   .on('onConfirm', function() {
-    
+
   })
   .on('onHide', function() {
     CUTTER_DURATION_SLIDER_START.value = 0;
@@ -1087,7 +1133,7 @@ window.addEventListener("load", function() {
     TRIM_SK.classList.add('sr-only');
     MENU_SK.classList.remove('sr-only');
   });
-  
+
   PLAYER.onratechange = function(e) {
     PLAYBACK_RATE.innerHTML = e.target.playbackRate;
   }
@@ -1108,7 +1154,7 @@ window.addEventListener("load", function() {
   PLAYER.onpause = function(e) {
     PLAY_BTN.src = '/assets/img/baseline_play_circle_filled_white_36dp.png';
   }
-  
+
   PLAYER.onplay = function(e) {
     PLAY_BTN.src = '/assets/img/baseline_pause_circle_filled_white_36dp.png';
     if (RESUME_DURATION != null && !Number.isInteger(RESUME_DURATION)) {
@@ -1448,7 +1494,7 @@ window.addEventListener("load", function() {
                                 return localforage.setItem('GENRES', _LATEST_['_GENRES_'])
                               })
                               .finally(() => {
-                                
+
                               });
                             }
                           }
@@ -1462,7 +1508,7 @@ window.addEventListener("load", function() {
                             return localforage.setItem('GENRES', _LATEST_['_GENRES_'])
                           })
                           .finally(() => {
-                            
+
                           });
                         } else {
                           new_files.forEach((n) => {
@@ -1707,7 +1753,7 @@ window.addEventListener("load", function() {
                               return localforage.setItem('GENRES', _LATEST_['_GENRES_'])
                             })
                             .finally(() => {
-                              
+
                             });
                           }
                         }
@@ -1721,7 +1767,7 @@ window.addEventListener("load", function() {
                           return localforage.setItem('GENRES', _LATEST_['_GENRES_'])
                         })
                         .finally(() => {
-                          
+
                         });
                       } else {
                         new_files.forEach((n) => {
@@ -1934,6 +1980,22 @@ window.addEventListener("load", function() {
     });
   }
 
+  function runSortTask(audio) {
+    getFile(audio.name, (file) => {
+      WORKER.postMessage({file: file, type: 'PARSE_METADATA_SORT_ALBUM'});
+    });
+  }
+
+  function sortAlbumTrack() {
+    SORT_TASK = {
+      task: JSON.parse(JSON.stringify(TRACK)),
+      completed: [],
+      length: TRACK.length,
+    }
+    const t = SORT_TASK.task.pop();
+    runSortTask(t);
+  }
+
   function indexingPlaylist(current, playable = true, cb) {
 
     var running = (_skip = true) => {
@@ -1945,7 +2007,7 @@ window.addEventListener("load", function() {
       var _playlistUlIndex = 0;
       var _playlistLength = 0;
       var _playlistDone = 0;
-      
+
       while(PLAYLISTS_UL.firstChild) {
         PLAYLISTS_UL.removeChild(PLAYLISTS_UL.firstChild);
       }
@@ -2107,6 +2169,7 @@ window.addEventListener("load", function() {
               running();
             } else {
               if (PLAY_TYPE == 'ALBUMS') {
+                console.log('PLAY_TYPE', PLAY_TYPE, PLAY_NAME);
                 localforage.getItem('ALBUMS')
                 .then((_ALBUMS_) => {
                   if (_ALBUMS_) {
@@ -2126,6 +2189,7 @@ window.addEventListener("load", function() {
                       });
                       Object.assign(TRACK, filtered);
                       CURRENT_PLAYLIST = PLAY_NAME;
+                      sortAlbumTrack();
                       running(false);
                       resumeApp();
                     } else {
@@ -2373,6 +2437,8 @@ window.addEventListener("load", function() {
             }
           });
           Object.assign(TRACK, filtered);
+          if (TYPE === "ALBUMS")
+            sortAlbumTrack();
           processPlaylist();
         }
       }
@@ -2627,7 +2693,7 @@ window.addEventListener("load", function() {
       showSnackbar('Shuffle Off');
       localforage.setItem('SHUFFLE', 0);
     }
-    
+
   }
 
   function toggleRepeat() {
@@ -3206,6 +3272,8 @@ window.addEventListener("load", function() {
           nav(-1, '.nav_track_editor');
         } else if (CURRENT_SCREEN === 'ABOUT_MODAL') {
           ABOUT_CONTENT.scrollTop -= 20;
+        } else if (CURRENT_SCREEN === 'SHORTCUT_KEYS_MODAL') {
+          SHORTCUT_KEYS_CONTENT.scrollTop -= 20;
         } else if (CURRENT_SCREEN === 'ARTISTS_MODAL') {
           nav(-1, '.nav_artist');
         } else if (CURRENT_SCREEN === 'FOLDERS_MODAL') {
@@ -3237,6 +3305,8 @@ window.addEventListener("load", function() {
           nav(1, '.nav_track_editor');
         } else if (CURRENT_SCREEN === 'ABOUT_MODAL') {
           ABOUT_CONTENT.scrollTop += 20;
+        } else if (CURRENT_SCREEN === 'SHORTCUT_KEYS_MODAL') {
+          SHORTCUT_KEYS_CONTENT.scrollTop += 20;
         } else if (CURRENT_SCREEN === 'ARTISTS_MODAL') {
           nav(1, '.nav_artist');
         } else if (CURRENT_SCREEN === 'FOLDERS_MODAL') {
@@ -3381,8 +3451,11 @@ window.addEventListener("load", function() {
             MENU_MODAL.hide();
           } else if (document.activeElement.tabIndex === 12) {
             MENU_MODAL.hide();
-            ABOUT_MODAL.show();
+            SHORTCUT_KEYS_MODAL.show();
           } else if (document.activeElement.tabIndex === 13) {
+            MENU_MODAL.hide();
+            ABOUT_MODAL.show();
+          } else if (document.activeElement.tabIndex === 14) {
             window.close();
           }
         } else if (CURRENT_SCREEN === 'PLAYLIST_MODAL') {
@@ -3526,6 +3599,11 @@ window.addEventListener("load", function() {
         } else if (CURRENT_SCREEN === 'ABOUT_MODAL') {
           CURRENT_SCREEN = 'HOME';
           ABOUT_MODAL.hide();
+          e.preventDefault();
+          e.stopPropagation();
+        } else if (CURRENT_SCREEN === 'SHORTCUT_KEYS_MODAL') {
+          CURRENT_SCREEN = 'HOME';
+          SHORTCUT_KEYS_MODAL.hide();
           e.preventDefault();
           e.stopPropagation();
         } else if (CURRENT_SCREEN === 'ARTISTS_MODAL') {

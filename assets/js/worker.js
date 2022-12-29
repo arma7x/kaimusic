@@ -9,7 +9,7 @@ self.importScripts('/assets/js/parser/vorbis_picture.js');
 self.importScripts('/assets/js/parser/metadata-audio-parser.js');
 
 onmessage = function(e) {
-  if (e.data.type === 'PARSE_METADATA' || e.data.type === 'PARSE_METADATA_FULL' || e.data.type === 'PARSE_METADATA_UPDATE') {
+  if (e.data.type === 'PARSE_METADATA' || e.data.type === 'PARSE_METADATA_FULL' || e.data.type === 'PARSE_METADATA_UPDATE' || e.data.type === 'PARSE_METADATA_SORT_ALBUM') {
     const FILE = e.data.file;
 
     var start, end, blob;
