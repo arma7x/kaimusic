@@ -203,6 +203,8 @@ window.addEventListener("load", function() {
   var GLOBAL_AUDIO_FILES_INDEX = 0;
   var GLOBAL_EXT_PLAYLIST = {};
   var SORT_TASK = [];
+  var SORT_TASK_REBOOT = false;
+  var SORT_RESUME_DURATION = null;
   var EDITOR_MODE = false;
   var PLAYLIST_MODAL = {};
   var MENU_MODAL = {};
@@ -610,6 +612,8 @@ window.addEventListener("load", function() {
         document.body.style.background = ``
       }
     } else if (e.data.type ===  "PARSE_METADATA_SORT_ALBUM") {
+      REBOOT = SORT_TASK_REBOOT;
+      RESUME_DURATION = SORT_RESUME_DURATION;
       showSnackbar('Sorting album tracks');
       try {
         if (PLAYER.duration > 0 && !PLAYER.paused) {
@@ -637,7 +641,9 @@ window.addEventListener("load", function() {
         });
         Object.assign(TRACK, SORT_TASK.completed);
         SORT_TASK = {};
-        processPlaylist();
+        SORT_TASK_REBOOT = false;
+        showSnackbar('Done sorting album tracks');
+        processPlaylist(true, SEQUENCE_INDEX);
       }
     }
   }
@@ -1867,10 +1873,10 @@ window.addEventListener("load", function() {
         } else {
           AUTOPLAY_BTN.classList.add('inactive');
         }
-        if (AUTOPLAY || !REBOOT) {
+        if ((AUTOPLAY || !REBOOT) && SORT_TASK.length == null) {
           PLAYER.play();
         }
-        if (REBOOT) {
+        if (REBOOT && SORT_TASK.length == null) {
           REBOOT = false;
         }
       });
@@ -1986,7 +1992,8 @@ window.addEventListener("load", function() {
     });
   }
 
-  function sortAlbumTrack() {
+  function sortAlbumTrack(reboot = false) {
+    SORT_TASK_REBOOT = reboot;
     SORT_TASK = {
       task: JSON.parse(JSON.stringify(TRACK)),
       completed: [],
@@ -2189,7 +2196,7 @@ window.addEventListener("load", function() {
                       });
                       Object.assign(TRACK, filtered);
                       CURRENT_PLAYLIST = PLAY_NAME;
-                      sortAlbumTrack();
+                      sortAlbumTrack(true);
                       running(false);
                       resumeApp();
                     } else {
@@ -3825,9 +3832,11 @@ window.addEventListener("load", function() {
   localforage.getItem('PLAY_DURATION')
   .then(function(PLAY_DURATION) {
     RESUME_DURATION = PLAY_DURATION;
+    SORT_RESUME_DURATION = RESUME_DURATION;
   })
   .catch(function(err) {
     RESUME_DURATION = null;
+    SORT_RESUME_DURATION = RESUME_DURATION;
   })
   .finally(() => {
     localforage.getItem('GENRES')
