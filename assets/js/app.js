@@ -202,7 +202,7 @@ window.addEventListener("load", function() {
   var GLOBAL_AUDIO_FILES = [];
   var GLOBAL_AUDIO_FILES_INDEX = 0;
   var GLOBAL_EXT_PLAYLIST = {};
-  var SORT_TASK = [];
+  var SORT_TASK = null;
   var SORT_TASK_REBOOT = false;
   var SORT_RESUME_DURATION = null;
   var EDITOR_MODE = false;
@@ -640,7 +640,7 @@ window.addEventListener("load", function() {
           delete t.track;
         });
         Object.assign(TRACK, SORT_TASK.completed);
-        SORT_TASK = {};
+        SORT_TASK = null;
         SORT_TASK_REBOOT = false;
         showSnackbar('Done sorting album tracks');
         processPlaylist(true, SEQUENCE_INDEX);
@@ -1873,10 +1873,10 @@ window.addEventListener("load", function() {
         } else {
           AUTOPLAY_BTN.classList.add('inactive');
         }
-        if ((AUTOPLAY || !REBOOT) && SORT_TASK.length == null) {
+        if ((AUTOPLAY || !REBOOT) && SORT_TASK == null) {
           PLAYER.play();
         }
-        if (REBOOT && SORT_TASK.length == null) {
+        if (REBOOT && SORT_TASK == null) {
           REBOOT = false;
         }
       });
