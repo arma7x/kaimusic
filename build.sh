@@ -6,6 +6,7 @@ cd ./.v2
 rm "./manifest.webmanifest"
 rm "./build.sh"
 rm "./README.md"
+rm -R "./screenshot"
 zip -r "./application.zip" *
 cd ../
 
@@ -15,6 +16,7 @@ cd ./.v3
 rm "./manifest.webapp"
 rm "./build.sh"
 rm "./README.md"
+rm -R "./screenshot"
 zip -r "./applicationV3.zip" *
 cp ./applicationV3.zip ../
 cd ../
