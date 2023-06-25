@@ -1,5 +1,43 @@
 window.addEventListener("load", function() {
 
+  if (navigator.b2g == null && navigator.mozSetMessageHandler != null) {
+    const mediaKeyEvent = [
+      "media-play-button-press",
+      "media-play-button-release",
+      "media-pause-button-press",
+      "media-pause-button-release",
+      "media-play-pause-button-press",
+      "media-play-pause-button-release",
+      "media-stop-button-press",
+      "media-stop-button-release",
+      "media-next-track-button-press",
+      "media-next-track-button-release",
+      "media-previous-track-button-press",
+      "media-previous-track-button-release",
+      "media-fast-forward-button-press",
+      "media-fast-forward-button-release",
+      "media-rewind-button-press",
+      "media-rewind-button-release",
+      // https://github.com/kaiostech/gecko-b2g/blob/b2g48_v2_6/b2g/chrome/content/shell.js#L469-L508
+      'media-next-track-button',
+      'media-previous-track-button',
+      'media-pause-button',
+      'media-play-button',
+      'media-play-pause-button',
+      'media-stop-button',
+      'media-rewind-button',
+      'media-fast-forward-button',
+    ];
+
+    const events = ['media-button', 'headset-button'];
+    events.forEach((evtName) => {
+      console.log('navigator.mozSetMessageHandler:', evtName);
+      navigator.mozSetMessageHandler(evtName, (evt) => {
+        console.log(evtName, evt);
+      });
+    });
+  }
+
   function startVolumeManager() {
     const session = new lib_session.Session();
     const sessionstate = {};

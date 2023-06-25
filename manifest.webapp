@@ -1,5 +1,5 @@
 {
-  "version": "1.14.0",
+  "version": "1.15.0",
   "name": "K-Music",
   "description": "An audio player for KaiOS with playlist manager + Equalizer + MP3 Cutter/Trimmer",
   "launch_path": "/index.html",
@@ -39,6 +39,10 @@
     },
     "volumemanager": {}
   },
+  "messages": [
+    { "media-button": "/index.html" },
+    { "headset-button": "/index.html" }
+  ],
   "locales": {
     "en-US": {
       "name": "K-Music",
