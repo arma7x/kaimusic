@@ -34,6 +34,7 @@ window.addEventListener("load", function() {
       console.log('navigator.mozSetMessageHandler:', evtName);
       navigator.mozSetMessageHandler(evtName, (evt) => {
         console.log(evtName, evt);
+        alert(`${evtName}: ${JSON.parse(evt)}`);
       });
     });
   }
