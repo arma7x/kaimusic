@@ -37,12 +37,10 @@
     "audio-channel-content": {
       "description": "To play audio in background"
     },
-    "volumemanager": {}
+    "volumemanager": {
+      "description": "To control system volume"
+    }
   },
-  "messages": [
-    { "media-button": "/index.html" },
-    { "headset-button": "/index.html" }
-  ],
   "locales": {
     "en-US": {
       "name": "K-Music",

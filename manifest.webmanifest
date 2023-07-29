@@ -51,7 +51,9 @@
       "audio-channel-content": {
         "description": "To play audio in background"
       },
-      "volumemanager": {},
+      "volumemanager": {
+        "description": "To control system volume"
+      },
       "external-api": {}
     },
     "dependencies": {

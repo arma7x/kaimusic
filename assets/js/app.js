@@ -1,42 +1,16 @@
 window.addEventListener("load", function() {
 
-  if (navigator.b2g == null && navigator.mozSetMessageHandler != null) {
-    const mediaKeyEvent = [
-      "media-play-button-press",
-      "media-play-button-release",
-      "media-pause-button-press",
-      "media-pause-button-release",
-      "media-play-pause-button-press",
-      "media-play-pause-button-release",
-      "media-stop-button-press",
-      "media-stop-button-release",
-      "media-next-track-button-press",
-      "media-next-track-button-release",
-      "media-previous-track-button-press",
-      "media-previous-track-button-release",
-      "media-fast-forward-button-press",
-      "media-fast-forward-button-release",
-      "media-rewind-button-press",
-      "media-rewind-button-release",
-      // https://github.com/kaiostech/gecko-b2g/blob/b2g48_v2_6/b2g/chrome/content/shell.js#L469-L508
-      'media-next-track-button',
-      'media-previous-track-button',
-      'media-pause-button',
-      'media-play-button',
-      'media-play-pause-button',
-      'media-stop-button',
-      'media-rewind-button',
-      'media-fast-forward-button',
-    ];
-
-    const events = ['media-button', 'headset-button'];
-    events.forEach((evtName) => {
-      console.log('navigator.mozSetMessageHandler:', evtName);
-      navigator.mozSetMessageHandler(evtName, (evt) => {
-        console.log(evtName, evt);
-        alert(`${evtName}: ${JSON.parse(evt)}`);
-      });
-    });
+  if (navigator.mozAudioChannelManager) {
+    navigator.mozAudioChannelManager.onheadphoneschange = () => {
+      if(navigator.mozAudioChannelManager.headphones == false) {
+        if (PLAYER && PLAYER.duration > 0 && !PLAYER.paused) {
+          PLAYER.pause();
+        }
+        if (window['__AURORA__'] && window['__AURORA__'].playing) {
+          window['__AURORA__'].pause();
+        }
+      }
+    }
   }
 
   function startVolumeManager() {
@@ -268,6 +242,12 @@ window.addEventListener("load", function() {
   var RGT_DBL_CLICK_TH = 0;
   var RGT_DBL_CLICK_TIMER = undefined;
   var SLEEP_SWITCH = false;
+
+  var SILENT = document.createElement("AUDIO");
+  SILENT.mozAudioChannelType = 'content';
+  SILENT.setAttribute("src","/assets/Short_Silent_Empty_Audio.mp3");
+  SILENT.setAttribute("controls", "controls");
+  SILENT.loop = true;
 
   var PLAYER = document.createElement("audio");
   PLAYER.volume = 1;
@@ -3845,6 +3825,48 @@ window.addEventListener("load", function() {
       case '8':
         if (CURRENT_SCREEN === 'HOME')
           speedDown();
+        break
+      case 'MediaPause':
+        SILENT.play();
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+        togglePlay();
+        break
+      case 'MediaPlay':
+        SILENT.play();
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+        togglePlay();
+        break
+      case 'MediaTrackNext':
+        SILENT.play();
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+        nextTrack();
+        break
+      case 'MediaTrackPrevious':
+        SILENT.play();
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+        previousTrack();
+        break
+      case 'VolumeUp':
+        SILENT.play();
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+        volumeUp();
+        break
+      case 'VolumeDown':
+        SILENT.play();
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+        volumeDown();
         break
     }
   }
