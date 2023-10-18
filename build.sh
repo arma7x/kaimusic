@@ -5,7 +5,6 @@ mkdir ./.v2 && cp -R * ./.v2
 cd ./.v2
 rm "./manifest.webmanifest"
 rm "./build.sh"
-rm "./README.md"
 rm -R "./screenshot"
 zip -r "./application.zip" *
 cd ../
@@ -15,7 +14,6 @@ mkdir ./.v3 && cp -R * ./.v3
 cd ./.v3
 rm "./manifest.webapp"
 rm "./build.sh"
-rm "./README.md"
 rm -R "./screenshot"
 zip -r "./applicationV3.zip" *
 cp ./applicationV3.zip ../

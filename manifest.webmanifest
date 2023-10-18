@@ -26,7 +26,7 @@
     }
   ],
   "b2g_features": {
-    "version": "3.3.0",
+    "version": "3.1.1",
     "type": "privileged",
     "core": true,
     "default_locale": "en-US",
@@ -34,7 +34,6 @@
       "name": "arma7x",
       "url": "https://www.kaiostech.com"
     },
-    "origin": "kaimusic",
     "chrome": {
       "statusbar": "overlap"
     },
